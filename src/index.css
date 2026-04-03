@@ -1,0 +1,64 @@
+:root {
+  /* bet365-inspired palette (not affiliated; demo UI only) */
+  --b365-green: #14805e;
+  --b365-green-hover: #179a72;
+  --b365-green-dark: #0f6047;
+  --b365-green-darkest: #0a4a38;
+  --b365-bg: #282828;
+  --b365-bg-deep: #1e1e1e;
+  --b365-surface: #333333;
+  --b365-surface-2: #3d3d3d;
+  --b365-border: #4a4a4a;
+  --b365-border-light: #5a5a5a;
+  --b365-text: #ffffff;
+  --b365-text-muted: #a8a8a8;
+  --b365-text-dim: #8c8c8c;
+  --b365-yellow: #ffcd00;
+  --b365-odds-gold: #f2d01e;
+  --b365-market-badge: #63cfbb;
+  --b365-odds-hover: #404040;
+  --b365-selected: #2d5a45;
+  --b365-error: #ff6b6b;
+  --b365-link: #7ecbff;
+  --b365-header-h: 52px;
+  --b365-topbar-h: 28px;
+  --b365-sidebar-w: 232px;
+  --b365-betslip-w: 300px;
+  --font-ui: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+  font-family: var(--font-ui);
+  line-height: 1.45;
+  font-weight: 400;
+  color: var(--b365-text);
+  background: var(--b365-bg-deep);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--b365-link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+}
