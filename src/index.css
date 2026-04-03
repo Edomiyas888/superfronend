@@ -4,27 +4,31 @@
   --b365-green-hover: #179a72;
   --b365-green-dark: #0f6047;
   --b365-green-darkest: #0a4a38;
-  --b365-bg: #282828;
-  --b365-bg-deep: #1e1e1e;
-  --b365-surface: #333333;
-  --b365-surface-2: #3d3d3d;
-  --b365-border: #4a4a4a;
-  --b365-border-light: #5a5a5a;
-  --b365-text: #ffffff;
-  --b365-text-muted: #a8a8a8;
-  --b365-text-dim: #8c8c8c;
-  --b365-yellow: #ffcd00;
-  --b365-odds-gold: #f2d01e;
+  --b365-bg: #2c2c2e;
+  --b365-bg-deep: #1c1c1e;
+  --b365-surface: #3a3a3c;
+  --b365-surface-2: #48484a;
+  --b365-border: #545458;
+  --b365-border-light: #636366;
+  --b365-text: #f5f5f7;
+  --b365-text-muted: #aeaeb2;
+  --b365-text-dim: #8e8e93;
+  --b365-yellow: #ffd60a;
+  --b365-odds-gold: #ffcc00;
   --b365-market-badge: #63cfbb;
-  --b365-odds-hover: #404040;
-  --b365-selected: #2d5a45;
-  --b365-error: #ff6b6b;
-  --b365-link: #7ecbff;
+  --b365-odds-hover: #48484a;
+  --b365-selected: #1e4d3a;
+  --b365-error: #ff453a;
+  --b365-link: #64d2ff;
   --b365-header-h: 52px;
   --b365-topbar-h: 28px;
   --b365-sidebar-w: 232px;
   --b365-betslip-w: 300px;
-  --font-ui: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --b365-radius-sm: 6px;
+  --b365-radius: 10px;
+  --b365-radius-lg: 14px;
+  --b365-nav-h: 60px;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 
   font-family: var(--font-ui);
   line-height: 1.45;
@@ -36,6 +40,10 @@
   -webkit-font-smoothing: antialiased;
 }
 
+html {
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -43,6 +51,18 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: rgba(20, 128, 94, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 a {

@@ -40,23 +40,76 @@
   white-space: nowrap;
 }
 
+@media (max-width: 520px) {
+  .b365-topbar-inner {
+    justify-content: center;
+    padding: 4px 12px;
+  }
+
+  .b365-topbar-links {
+    display: none;
+  }
+
+  .b365-topbar-meta {
+    font-size: 10px;
+  }
+}
+
 /* ——— Green header ——— */
 .b365-header {
-  background: var(--b365-green);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, var(--b365-green-hover) 0%, var(--b365-green) 55%, var(--b365-green-dark) 100%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
   min-height: var(--b365-header-h);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .b365-header-inner {
   max-width: 1400px;
   margin: 0 auto;
   padding: 8px 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: nowrap;
   min-height: var(--b365-header-h);
+}
+
+@media (max-width: 520px) {
+  .b365-header-inner {
+    padding: 6px 12px;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    gap: 8px;
+  }
+
+  .b365-header-back {
+    width: 44px;
+    height: 44px;
+  }
+
+  .b365-brand-logo {
+    height: 40px;
+    max-width: min(220px, 58vw);
+  }
+
+  .b365-header-pill {
+    max-width: 100px;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  .b365-btn-outline,
+  .b365-btn-header-login {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .b365-header-start {
@@ -220,9 +273,15 @@ a.b365-btn-header-login {
 }
 
 .b365-main {
-  padding: 12px 14px calc(72px + env(safe-area-inset-bottom, 0px));
+  padding: 12px 14px calc(var(--b365-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
   background: var(--b365-bg-deep);
   min-width: 0;
+}
+
+@media (max-width: 520px) {
+  .b365-main {
+    padding: 10px 12px calc(var(--b365-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .b365-sidebar-right {
@@ -499,11 +558,16 @@ a.b365-btn-header-login {
   display: flex;
   justify-content: space-around;
   align-items: stretch;
-  min-height: 56px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--b365-bg);
-  border-top: 1px solid var(--b365-border);
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+  min-height: var(--b365-nav-h);
+  padding: 6px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(4px, env(safe-area-inset-left, 0px));
+  padding-right: max(4px, env(safe-area-inset-right, 0px));
+  background: rgba(36, 36, 38, 0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--b365-radius-lg) var(--b365-radius-lg) 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
 }
 
 .b365-bottom-nav-item {
@@ -512,16 +576,20 @@ a.b365-btn-header-login {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 4px 8px;
+  gap: 3px;
+  padding: 8px 2px;
   color: var(--b365-text-muted);
   text-decoration: none;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
   max-width: none;
   min-width: 0;
+  border-radius: var(--b365-radius-sm);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .b365-bottom-nav-item .b365-bottom-nav-icon {
@@ -531,13 +599,30 @@ a.b365-btn-header-login {
   color: inherit;
 }
 
+.b365-bottom-nav-item .b365-bottom-nav-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
 .b365-bottom-nav-item.active {
   color: #fff;
-  background: rgba(20, 128, 94, 0.35);
+  background: rgba(20, 128, 94, 0.28);
+}
+
+.b365-bottom-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--b365-yellow);
 }
 
 .b365-bottom-nav-item.active .b365-bottom-nav-icon {
-  color: var(--b365-green);
+  color: var(--b365-yellow);
 }
 
 /* ——— Profile / auth ——— */
@@ -674,9 +759,10 @@ a.b365-btn-header-login {
 .b365-card {
   background: var(--b365-surface);
   border: 1px solid var(--b365-border);
-  border-radius: 4px;
+  border-radius: var(--b365-radius);
   padding: 12px 14px;
   margin-bottom: 10px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
 
 .b365-page-title {
@@ -701,9 +787,10 @@ a.b365-btn-header-login {
   flex-wrap: nowrap;
   gap: 8px;
   overflow-x: auto;
-  padding: 0 0 10px;
+  padding: 0 max(0px, env(safe-area-inset-right, 0px)) 10px 0;
   scrollbar-color: var(--b365-border) transparent;
   -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: 8px;
 }
 
 .b365-pop-league-chip {
@@ -734,13 +821,14 @@ a.b365-btn-header-login {
 /* ——— Match of the Day (bet365 / Superbet theme, Soccer only) ——— */
 .b365-motd {
   position: relative;
-  padding: 12px 12px 14px;
-  margin: 0 0 12px;
-  border-radius: 4px;
+  padding: 14px 14px 16px;
+  margin: 0 0 14px;
+  border-radius: var(--b365-radius-lg);
   border: 1px solid var(--b365-border);
   border-top: 3px solid var(--b365-green);
-  background: var(--b365-bg);
+  background: linear-gradient(165deg, var(--b365-surface) 0%, var(--b365-bg) 100%);
   overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
 .b365-motd-header {
@@ -1593,19 +1681,21 @@ a.b365-btn-header-login {
 .betslip-fab {
   display: none;
   position: fixed;
-  right: 12px;
+  right: max(12px, env(safe-area-inset-right, 0px));
   bottom: 12px;
   z-index: 50;
   border: none;
-  border-radius: 4px;
-  padding: 12px 18px;
-  background: var(--b365-yellow);
+  border-radius: 999px;
+  padding: 14px 20px;
+  min-height: 48px;
+  background: linear-gradient(180deg, #ffe566 0%, var(--b365-yellow) 100%);
   color: #1a1a1a;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.03em;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+  touch-action: manipulation;
 }
 
 .drawer-backdrop {
@@ -1627,7 +1717,10 @@ a.b365-btn-header-login {
   display: flex;
   flex-direction: column;
   padding: 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .b365-drawer-head {
@@ -1642,6 +1735,79 @@ a.b365-btn-header-login {
   align-items: center;
 }
 
+/* ——— Mobile / narrow: match list stacks for readability ——— */
+@media (max-width: 640px) {
+  .b365-mm-day-head {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .b365-mm-day-cols {
+    border-left: none;
+    border-top: 1px solid var(--b365-border);
+    padding-top: 10px;
+    width: 100%;
+  }
+
+  .b365-mm-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .b365-mm-left {
+    padding: 12px;
+  }
+
+  .b365-mm-odds {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-left: none;
+    border-top: 1px solid var(--b365-border);
+    width: 100%;
+  }
+
+  .b365-mm-odd {
+    min-height: 48px;
+    padding: 12px 6px;
+    font-size: 16px;
+  }
+
+  .b365-mm-team-name {
+    white-space: normal;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .b365-league-header {
+    border-radius: var(--b365-radius) var(--b365-radius) 0 0;
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+
+  .b365-mm-table {
+    border-radius: 0 0 var(--b365-radius) var(--b365-radius);
+  }
+
+  .b365-pop-league-chip {
+    min-height: 42px;
+    padding: 10px 14px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .b365-motd-odd {
+    min-height: 48px;
+    padding: 10px 6px;
+  }
+
+  .b365-motd-nav-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 /* ——— Responsive ——— */
 @media (max-width: 1199px) {
   .b365-body {
@@ -1651,8 +1817,24 @@ a.b365-btn-header-login {
   .b365-sidebar-left {
     border-right: none;
     border-bottom: 1px solid var(--b365-border);
-    max-height: 220px;
+    max-height: 240px;
     min-height: 0;
+  }
+
+  .b365-sport-tile {
+    min-width: 64px;
+    min-height: 72px;
+    padding: 10px 8px 8px;
+    border-radius: var(--b365-radius-sm);
+  }
+
+  .b365-sport-tile-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .b365-sport-tile-label {
+    font-size: 10px;
   }
 
   .b365-betslip-rail {
@@ -1663,7 +1845,7 @@ a.b365-btn-header-login {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 10px);
+    bottom: calc(var(--b365-nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
   }
 }
 

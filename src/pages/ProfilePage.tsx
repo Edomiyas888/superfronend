@@ -4,6 +4,16 @@ import { useSessionStore } from '../features/auth/sessionStore';
 
 type Tab = 'login' | 'signup';
 
+function friendlyAuthError(err: unknown, fallback: string): string {
+  if (err instanceof TypeError && /fetch|network/i.test(String(err.message))) {
+    return `${fallback} Check that the API is running and CORS allows this site’s URL (no trailing slash).`;
+  }
+  if (err instanceof Error && err.message) {
+    return err.message;
+  }
+  return fallback;
+}
+
 export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = (searchParams.get('tab') === 'signup' ? 'signup' : 'login') as Tab;
@@ -46,7 +56,7 @@ export default function ProfilePage() {
       setSuPass('');
       setSuPass2('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not sign up.');
+      setError(friendlyAuthError(err, 'Could not sign up.'));
     }
   };
 
@@ -59,7 +69,7 @@ export default function ProfilePage() {
       setMessage('Signed in successfully.');
       setLiPass('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not sign in.');
+      setError(friendlyAuthError(err, 'Could not sign in.'));
     }
   };
 
