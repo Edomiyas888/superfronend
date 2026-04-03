@@ -4,18 +4,21 @@ import { Link } from 'react-router-dom';
 import { useSports } from '../contexts/SportsContext';
 import { useUpcomingMatches } from '../hooks/useUpcomingMatches';
 import { usePopularMatches } from '../hooks/usePopularMatches';
+import DateFilterChips from '../components/DateFilterChips';
 import MatchListByDate from '../components/MatchListByDate';
 import MatchOfTheDay from '../components/MatchOfTheDay';
 import PopularLeagueChips from '../components/PopularLeagueChips';
 import { POPULAR_LEAGUE_KEYS } from '../constants/popularLeagues';
+import type { DateFilterKey } from '../constants/dateFilters';
 import { competitionMatchesLeague } from '../utils/competitionFilter';
 
 export default function SportsHomePage() {
   const { loading, error } = useSports();
   const [popularLeague, setPopularLeague] = useState<string>(POPULAR_LEAGUE_KEYS[0]);
+  const [featuredDate, setFeaturedDate] = useState<DateFilterKey>('week');
 
   const popularQ = usePopularMatches();
-  const upcomingQ = useUpcomingMatches('Soccer', '12');
+  const upcomingQ = useUpcomingMatches('Soccer', featuredDate);
 
   const popularGames = useMemo(() => {
     const raw = popularQ.data ?? [];
@@ -54,13 +57,14 @@ export default function SportsHomePage() {
         {loading && <p className="b365-muted">Loading sports…</p>}
         {error && <p className="b365-error">{error.message}</p>}
 
-        <div className="b365-league-header">Upcoming — Soccer (12h)</div>
+        <DateFilterChips value={featuredDate} onChange={setFeaturedDate} ariaLabel="Kickoff date range" />
+        <div className="b365-league-header">Upcoming — Soccer</div>
         <MatchListByDate
           games={upcomingQ.data}
           isPending={upcomingQ.isPending}
           isError={upcomingQ.isError}
           error={upcomingQ.error}
-          emptyMessage="No upcoming fixtures in this window."
+          emptyMessage="No upcoming Soccer fixtures in this date range."
           maxGames={16}
         />
       </section>

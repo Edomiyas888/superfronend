@@ -311,6 +311,7 @@ a.b365-btn-header-login {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--b365-text-dim);
+  flex-shrink: 0;
 }
 
 .b365-sports-list {
@@ -325,6 +326,8 @@ a.b365-btn-header-login {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: var(--b365-border) transparent;
+  min-height: 0;
+  align-items: flex-start;
 }
 
 .b365-sports-list::-webkit-scrollbar {
@@ -350,6 +353,9 @@ a.b365-btn-header-login {
   text-decoration: none !important;
   border: 1px solid transparent;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .b365-sport-tile:hover {
@@ -357,8 +363,9 @@ a.b365-btn-header-login {
 }
 
 .b365-sport-tile.active {
-  background: var(--b365-surface);
-  border-color: var(--b365-green);
+  background: linear-gradient(180deg, rgba(20, 128, 94, 0.22) 0%, var(--b365-surface) 100%);
+  border-color: rgba(20, 128, 94, 0.65);
+  box-shadow: 0 0 0 1px rgba(255, 214, 10, 0.2) inset;
 }
 
 .b365-sport-tile-icon {
@@ -1276,6 +1283,32 @@ a.b365-btn-header-login {
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
+.b365-mm-team-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 4px;
+  padding: 2px;
+  background: var(--b365-bg);
+  border: 1px solid var(--b365-border);
+}
+
+.b365-mm-team-logo-fallback {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--b365-yellow);
+  background: var(--b365-green-darkest);
+  border: 1px solid var(--b365-border);
+  border-radius: 4px;
+}
+
 .b365-mm-team-name {
   font-weight: 700;
   font-size: 13px;
@@ -1522,6 +1555,65 @@ a.b365-btn-header-login {
   border-radius: 4px;
   padding: 14px 16px;
   margin-bottom: 12px;
+}
+
+.b365-event-hero-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.b365-event-hero-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  max-width: 42%;
+}
+
+.b365-event-hero-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 6px;
+  padding: 4px;
+  background: var(--b365-bg);
+  border: 1px solid var(--b365-border);
+}
+
+.b365-event-hero-logo-fallback {
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--b365-yellow);
+  background: var(--b365-bg-deep);
+  border: 1px solid var(--b365-border);
+  border-radius: 6px;
+}
+
+.b365-event-hero-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.b365-event-hero-vs {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--b365-text-muted);
+  flex-shrink: 0;
+  padding: 0 4px;
 }
 
 .b365-event-hero h1 {
@@ -1814,27 +1906,75 @@ a.b365-btn-header-login {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /**
+   * Sports rail: fixed vertical size so tapping / loading / %min-height cannot
+   * briefly expand the strip to viewport height (Safari + flex + min-height:100% issue).
+   */
   .b365-sidebar-left {
     border-right: none;
-    border-bottom: 1px solid var(--b365-border);
-    max-height: 240px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    min-height: unset;
+    height: var(--b365-sports-rail-total);
+    max-height: var(--b365-sports-rail-total);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #323234 0%, var(--b365-bg) 55%, #242426 100%);
+    border-radius: 0 0 var(--b365-radius) var(--b365-radius);
+    contain: layout style;
+  }
+
+  .b365-sidebar-inner {
     min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .b365-sidebar-heading {
+    padding: 8px 12px 4px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .b365-sports-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 100%;
+    padding: 4px 10px 8px;
+    gap: 6px;
+    /* stretch made every tile as tall as the rail — huge grey blocks behind icons */
+    align-items: flex-start;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+    scrollbar-gutter: stable;
   }
 
   .b365-sport-tile {
     min-width: 64px;
-    min-height: 72px;
-    padding: 10px 8px 8px;
+    max-width: 80px;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    align-self: flex-start;
+    padding: 8px 6px 6px;
     border-radius: var(--b365-radius-sm);
+    justify-content: flex-start;
   }
 
   .b365-sport-tile-icon {
     width: 36px;
     height: 36px;
+    margin-bottom: 4px;
   }
 
   .b365-sport-tile-label {
     font-size: 10px;
+  }
+
+  .b365-sport-tile-count {
+    margin-top: 2px;
   }
 
   .b365-betslip-rail {

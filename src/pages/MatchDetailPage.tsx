@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { restGetMatchOdds } from '../api/restSports';
 import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
+import TeamLogo from '../components/TeamLogo';
 import type { BetslipEventLike } from '../api/placeBet';
 
 export default function MatchDetailPage() {
@@ -60,9 +61,27 @@ export default function MatchDetailPage() {
       {detail && (
         <>
           <div className="b365-event-hero">
-            <h1>
-              {detail.team1} <span className="b365-muted">v</span> {detail.team2}
-            </h1>
+            <div className="b365-event-hero-teams">
+              <div className="b365-event-hero-side">
+                <TeamLogo
+                  teamId={detail.team1Id}
+                  name={detail.team1}
+                  className="b365-event-hero-logo"
+                  fallbackClassName="b365-event-hero-logo-fallback"
+                />
+                <span className="b365-event-hero-name">{detail.team1}</span>
+              </div>
+              <span className="b365-event-hero-vs">v</span>
+              <div className="b365-event-hero-side">
+                <TeamLogo
+                  teamId={detail.team2Id}
+                  name={detail.team2}
+                  className="b365-event-hero-logo"
+                  fallbackClassName="b365-event-hero-logo-fallback"
+                />
+                <span className="b365-event-hero-name">{detail.team2}</span>
+              </div>
+            </div>
             <p className="b365-event-meta">
               {detail.competitionName} · {detail.sportName} · {detail.isLive ? 'In-Play' : 'Pre-Match'} ·{' '}
               {new Date(detail.startTs * 1000).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}

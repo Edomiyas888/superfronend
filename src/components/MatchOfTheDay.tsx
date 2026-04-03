@@ -4,7 +4,7 @@ import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
 import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
 import { useMatchOfTheDay } from '../hooks/useMatchOfTheDay';
 import { selectMatchOfTheDayGames } from '../utils/matchOfDaySelect';
-import { teamLogoUrlCandidates } from '../utils/teamLogos';
+import TeamLogo from './TeamLogo';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { GameView } from '../api/types';
 
@@ -28,46 +28,6 @@ function isKickoffToday(ts: number): boolean {
   const d = new Date(ts * 1000);
   const t = new Date();
   return d.toDateString() === t.toDateString();
-}
-
-function TeamLogo({
-  teamId,
-  name,
-  className,
-}: {
-  teamId: number | undefined;
-  name: string;
-  className?: string;
-}) {
-  const candidates = useMemo(() => {
-    if (teamId == null || !Number.isFinite(teamId) || teamId <= 0) return [];
-    return teamLogoUrlCandidates(teamId);
-  }, [teamId]);
-  const [srcIdx, setSrcIdx] = useState(0);
-  const initial = name.trim().charAt(0).toUpperCase() || '?';
-
-  useEffect(() => {
-    setSrcIdx(0);
-  }, [teamId]);
-
-  if (candidates.length === 0 || srcIdx >= candidates.length) {
-    return (
-      <div className={`b365-motd-logo-fallback ${className ?? ''}`.trim()} aria-hidden>
-        {initial}
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={candidates[srcIdx]}
-      alt=""
-      className={className}
-      referrerPolicy="no-referrer"
-      decoding="async"
-      onError={() => setSrcIdx((i) => i + 1)}
-    />
-  );
 }
 
 function MotdSkeleton() {
@@ -172,7 +132,12 @@ export default function MatchOfTheDay() {
         <Link to={`/match/${g.id}`} className="b365-motd-card-main">
           <div className="b365-motd-teams">
             <div className="b365-motd-team">
-              <TeamLogo teamId={g.team1Id} name={g.team1} className="b365-motd-logo" />
+              <TeamLogo
+                teamId={g.team1Id}
+                name={g.team1}
+                className="b365-motd-logo"
+                fallbackClassName="b365-motd-logo-fallback"
+              />
               <span className="b365-motd-name">{g.team1}</span>
             </div>
             <div className="b365-motd-vs">
@@ -183,7 +148,12 @@ export default function MatchOfTheDay() {
               )}
             </div>
             <div className="b365-motd-team">
-              <TeamLogo teamId={g.team2Id} name={g.team2} className="b365-motd-logo" />
+              <TeamLogo
+                teamId={g.team2Id}
+                name={g.team2}
+                className="b365-motd-logo"
+                fallbackClassName="b365-motd-logo-fallback"
+              />
               <span className="b365-motd-name">{g.team2}</span>
             </div>
           </div>

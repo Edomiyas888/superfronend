@@ -3,22 +3,7 @@ import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
 import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
 import type { GameView } from '../api/types';
 import { groupGamesByDay, formatKickoffTime } from '../utils/matchDayGrouping';
-
-const JERSEY_PALETTE = ['#1a5f7a', '#c41e3a', '#e8b923', '#2d5a27', '#7b2cbf', '#0d7377', '#b3541e', '#1565c0'];
-
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
-function jerseyColors(teamName: string): [string, string] {
-  const h = hashString(teamName);
-  const n = JERSEY_PALETTE.length;
-  const a = JERSEY_PALETTE[h % n] ?? '#333333';
-  const b = JERSEY_PALETTE[(h >> 4) % n] ?? '#666666';
-  return [a, b];
-}
+import TeamLogo from './TeamLogo';
 
 type Props = {
   games: GameView[] | undefined;
@@ -73,25 +58,25 @@ export default function MatchListByDate({
             </header>
             {day.games.map((g) => {
               const mr = g.matchResult1x2;
-              const [c1a, c1b] = jerseyColors(g.team1);
-              const [c2a, c2b] = jerseyColors(g.team2);
               return (
                 <div key={g.id} className="b365-mm-row">
                   <Link to={`/match/${g.id}`} className="b365-mm-left">
                     <div className="b365-mm-teams">
                       <div className="b365-mm-team-line">
-                        <span
-                          className="b365-mm-jersey"
-                          style={{ background: `linear-gradient(90deg, ${c1a} 50%, ${c1b} 50%)` }}
-                          aria-hidden
+                        <TeamLogo
+                          teamId={g.team1Id}
+                          name={g.team1}
+                          className="b365-mm-team-logo"
+                          fallbackClassName="b365-mm-team-logo-fallback"
                         />
                         <span className="b365-mm-team-name">{g.team1}</span>
                       </div>
                       <div className="b365-mm-team-line">
-                        <span
-                          className="b365-mm-jersey"
-                          style={{ background: `linear-gradient(90deg, ${c2a} 50%, ${c2b} 50%)` }}
-                          aria-hidden
+                        <TeamLogo
+                          teamId={g.team2Id}
+                          name={g.team2}
+                          className="b365-mm-team-logo"
+                          fallbackClassName="b365-mm-team-logo-fallback"
                         />
                         <span className="b365-mm-team-name">{g.team2}</span>
                       </div>

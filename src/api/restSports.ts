@@ -112,6 +112,8 @@ function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
     gameId: g.id,
     team1: g.home_team,
     team2: g.away_team,
+    team1Id: g.home_team_id,
+    team2Id: g.away_team_id,
     startTs: new Date(g.start_time).getTime() / 1000,
     isLive: !!g.is_live,
     sportId: g.sport_id,
@@ -141,11 +143,17 @@ export async function restGetAllSports() {
  */
 export async function restGetMatchesForSport(
   sportId: number,
-  options?: { sportAlias?: string | null }
+  options?: { sportAlias?: string | null; timeHours?: string | number }
 ): Promise<GameView[]> {
   const sportWhere = options?.sportAlias
     ? { alias: String(options.sportAlias) }
     : { id: sportId };
+
+  const lt = ltSecondsFromTimeHours(options?.timeHours);
+  const gameAnd: Array<Record<string, unknown>> = [{ type: { '@in': [0, 2] } }];
+  if (lt != null && lt > 0) {
+    gameAnd.push({ start_ts: { '@now': { '@gte': 0, '@lt': lt } } });
+  }
 
   const res = await swarmPost({
     command: 'get',
@@ -172,7 +180,7 @@ export async function restGetMatchesForSport(
       },
       where: {
         sport: sportWhere,
-        game: { '@and': [{ type: { '@in': [0, 2] } }] },
+        game: { '@and': gameAnd },
         market: { type: { '@in': MATCH_RESULT_TYPES } },
       },
       ...SUB,
@@ -277,10 +285,11 @@ function ltSecondsFromTimeHours(timeHours?: string | number): number | null {
     end.setHours(23, 59, 59, 999);
     return Math.max(0, Math.floor(end.getTime() / 1000) - now);
   }
-  if (String(timeHours).toLowerCase() === 'weeks') {
+  const th = String(timeHours).toLowerCase();
+  if (th === 'week' || th === 'weeks') {
     return 7 * 24 * 3600;
   }
-  if (String(timeHours).toLowerCase() === 'all') {
+  if (th === 'all') {
     return null;
   }
   if (!Number.isNaN(Number(timeHours))) {
@@ -298,7 +307,7 @@ export async function restGetMatchOdds(gameId: number): Promise<MatchDetailView 
         sport: ['id', 'name'],
         region: ['id', 'name'],
         competition: ['id', 'name'],
-        game: ['id', 'team1_name', 'team2_name', 'start_ts', 'is_live'],
+        game: ['id', 'team1_name', 'team2_name', 'team1_id', 'team2_id', 'start_ts', 'is_live'],
         market: ['id', 'name', 'type', 'display_key', 'home_score', 'away_score'],
         event: ['id', 'name', 'price', 'type', 'base'],
       },
@@ -322,7 +331,17 @@ export async function restGetLiveGames(): Promise<GameView[]> {
         sport: ['id', 'name', 'alias'],
         region: ['id', 'name'],
         competition: ['id', 'name'],
-        game: ['id', 'team1_name', 'team2_name', 'start_ts', 'markets_count', 'is_blocked', 'is_live'],
+        game: [
+          'id',
+          'team1_name',
+          'team2_name',
+          'team1_id',
+          'team2_id',
+          'start_ts',
+          'markets_count',
+          'is_blocked',
+          'is_live',
+        ],
       },
       where: {
         game: { type: 1, '@limit': 400 },
@@ -501,6 +520,8 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
           competition_name: '',
           home_team: String(g.team1_name ?? ''),
           away_team: String(g.team2_name ?? ''),
+          home_team_id: pickTeamIdFromGame(g, 1),
+          away_team_id: pickTeamIdFromGame(g, 2),
           start_time: new Date(Number(g.start_ts) * 1000).toISOString(),
           is_live: !!g.is_live,
           is_blocked: !!g.is_blocked,
@@ -550,6 +571,8 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
             competition_name: competitionName,
             home_team: String(g.team1_name ?? ''),
             away_team: String(g.team2_name ?? ''),
+            home_team_id: pickTeamIdFromGame(g, 1),
+            away_team_id: pickTeamIdFromGame(g, 2),
             start_time: new Date(Number(g.start_ts) * 1000).toISOString(),
             is_live: !!g.is_live,
             is_blocked: !!g.is_blocked,

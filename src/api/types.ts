@@ -41,6 +41,8 @@ export type FlatGameRow = {
   competition_name: string;
   home_team: string;
   away_team: string;
+  home_team_id?: number;
+  away_team_id?: number;
   start_time: string;
   is_live: boolean;
   is_blocked: boolean;
@@ -100,6 +102,8 @@ export type MatchDetailView = {
   gameId: number;
   team1: string;
   team2: string;
+  team1Id?: number;
+  team2Id?: number;
   startTs: number;
   isLive: boolean;
   sportId: number;
