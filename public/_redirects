@@ -1,0 +1,2 @@
+# SPA: every path serves index.html so React Router handles /live, /profile, /match/:id, etc.
+/* /index.html 200
