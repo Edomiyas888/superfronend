@@ -4,7 +4,34 @@ import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
 import type { GameView } from '../api/types';
 import { groupGamesByDay } from '../utils/matchDayGrouping';
 import { formatMatchListClock } from '../utils/matchListClock';
+import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
+import OddsFlashArrow from './OddsFlashArrow';
+import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
+
+function MmOddButton({
+  price,
+  selected,
+  onClick,
+}: {
+  price: number;
+  selected: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  const flash = useOddPriceFlash(price);
+  return (
+    <button
+      type="button"
+      className={`b365-mm-odd ${selected ? 'selected' : ''}`}
+      onClick={onClick}
+    >
+      <span className="b365-odd-price-with-flash">
+        <OddsFlashArrow flash={flash} />
+        <span>{price.toFixed(2)}</span>
+      </span>
+    </button>
+  );
+}
 
 function StatsGlyph({ className }: { className?: string }) {
   return (
@@ -126,20 +153,32 @@ export default function MatchListByDate({
                         ).map(([leg, cell]) => {
                           const sel = !!slipEvents[keyFor(g.id, mr.marketId, cell.eventId)];
                           return (
-                            <button
+                            <MmOddButton
                               key={leg}
-                              type="button"
-                              className={`b365-mm-odd ${sel ? 'selected' : ''}`}
+                              price={cell.price}
+                              selected={sel}
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 toggleMatchOdd(g, mr, leg, addSelection, removeSelection, slipEvents);
                               }}
-                            >
-                              {cell.price.toFixed(2)}
-                            </button>
+                            />
                           );
                         })}
+                      </>
+                    ) : isLiveRow ? (
+                      <>
+                        {([0, 1, 2] as const).map((i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            className="b365-mm-odd b365-mm-odd--locked"
+                            disabled
+                            aria-label="Match result odds locked"
+                          >
+                            <LockGlyph className="b365-mm-lock-ico" />
+                          </button>
+                        ))}
                       </>
                     ) : (
                       <>

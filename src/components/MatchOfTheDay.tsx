@@ -5,30 +5,31 @@ import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
 import { useMatchOfTheDay } from '../hooks/useMatchOfTheDay';
 import { selectMatchOfTheDayGames } from '../utils/matchOfDaySelect';
 import { formatMatchListClock } from '../utils/matchListClock';
+import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
+import OddsFlashArrow from './OddsFlashArrow';
+import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { GameView } from '../api/types';
 
-function formatMotdTime(ts: number): string {
-  return new Date(ts * 1000).toLocaleTimeString('en-GB', {
+function formatMotdKickoff(ts: number): string {
+  const d = new Date(ts * 1000);
+  const t = d.toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
   });
-}
-
-function formatMotdDate(ts: number): string {
-  return new Date(ts * 1000).toLocaleDateString('en-GB', {
+  const today = new Date();
+  const kick = new Date(ts * 1000);
+  if (kick.toDateString() === today.toDateString()) {
+    return t;
+  }
+  const dateStr = d.toLocaleDateString('en-GB', {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
   });
-}
-
-function isKickoffToday(ts: number): boolean {
-  const d = new Date(ts * 1000);
-  const t = new Date();
-  return d.toDateString() === t.toDateString();
+  return `${dateStr} · ${t}`;
 }
 
 function MotdSkeleton() {
@@ -185,73 +186,95 @@ export default function MatchOfTheDay() {
               if (Date.now() - lastSwipeAtRef.current < 450) ev.preventDefault();
             }}
           >
-          <div className="b365-motd-teams">
-            <div className="b365-motd-team">
-              <TeamLogo
-                teamId={g.team1Id}
-                name={g.team1}
-                className="b365-motd-logo"
-                fallbackClassName="b365-motd-logo-fallback"
-              />
-              <div className="b365-motd-team-line">
-                <span className="b365-motd-name">{g.team1}</span>
-                {showLiveScores ? <span className="b365-motd-score-pill">{g.homeScore}</span> : null}
+            <div className="b365-motd-teams">
+              <div className="b365-motd-team">
+                <TeamLogo
+                  teamId={g.team1Id}
+                  name={g.team1}
+                  className="b365-motd-logo"
+                  fallbackClassName="b365-motd-logo-fallback"
+                />
+                <div className="b365-motd-team-line">
+                  <span className="b365-motd-name">{g.team1}</span>
+                  {showLiveScores ? <span className="b365-motd-score-pill">{g.homeScore}</span> : null}
+                </div>
+              </div>
+              <div className={`b365-motd-vs ${live ? 'b365-motd-vs--live' : ''}`}>
+                {live ? (
+                  <>
+                    <span className="b365-motd-live-badge">Live</span>
+                    <span className="b365-motd-time b365-motd-time--live">
+                      {liveClock === 'Live' ? 'In play' : liveClock}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="b365-motd-vs-text">VS</span>
+                    <span className="b365-motd-kickoff">{formatMotdKickoff(g.startTs)}</span>
+                  </>
+                )}
+              </div>
+              <div className="b365-motd-team">
+                <TeamLogo
+                  teamId={g.team2Id}
+                  name={g.team2}
+                  className="b365-motd-logo"
+                  fallbackClassName="b365-motd-logo-fallback"
+                />
+                <div className="b365-motd-team-line">
+                  <span className="b365-motd-name">{g.team2}</span>
+                  {showLiveScores ? <span className="b365-motd-score-pill">{g.awayScore}</span> : null}
+                </div>
               </div>
             </div>
-            <div className="b365-motd-vs">
-              {live ? (
-                <>
-                  <span className="b365-motd-live-badge">Live</span>
-                  <span className="b365-motd-time b365-motd-time--live">
-                    {liveClock === 'Live' ? 'In play' : liveClock}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="b365-motd-vs-text">VS</span>
-                  <span className="b365-motd-time">{formatMotdTime(g.startTs)}</span>
-                  {!isKickoffToday(g.startTs) && (
-                    <span className="b365-motd-date">{formatMotdDate(g.startTs)}</span>
-                  )}
-                </>
-              )}
-            </div>
-            <div className="b365-motd-team">
-              <TeamLogo
-                teamId={g.team2Id}
-                name={g.team2}
-                className="b365-motd-logo"
-                fallbackClassName="b365-motd-logo-fallback"
-              />
-              <div className="b365-motd-team-line">
-                <span className="b365-motd-name">{g.team2}</span>
-                {showLiveScores ? <span className="b365-motd-score-pill">{g.awayScore}</span> : null}
-              </div>
-            </div>
-          </div>
           </Link>
           <MotdOddsRow g={g} slipEvents={slipEvents} addSelection={addSelection} removeSelection={removeSelection} />
         </div>
 
         {matches.length > 1 && (
           <div className="b365-motd-dots" role="tablist" aria-label="Match carousel">
-          {matches.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              role="tab"
-              aria-selected={index === activeIndex}
-              className={`b365-motd-dot ${index === activeIndex ? 'active' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setActiveIndex(index);
-              }}
-            />
-          ))}
+            {matches.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                role="tab"
+                aria-selected={index === activeIndex}
+                className={`b365-motd-dot ${index === activeIndex ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveIndex(index);
+                }}
+              />
+            ))}
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function MotdOddButton({
+  label,
+  price,
+  selected,
+  onClick,
+}: {
+  label: string;
+  price: number;
+  selected: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  const flash = useOddPriceFlash(price);
+  return (
+    <button type="button" className={`b365-motd-odd ${selected ? 'selected' : ''}`} onClick={onClick}>
+      <span className="b365-motd-odd-label">{label}</span>
+      <span className="b365-motd-odd-val">
+        <span className="b365-odd-price-with-flash b365-motd-odd-val-inner">
+          <OddsFlashArrow flash={flash} />
+          <span>{price.toFixed(2)}</span>
+        </span>
+      </span>
+    </button>
   );
 }
 
@@ -269,6 +292,17 @@ function MotdOddsRow({
   const mr = g.matchResult1x2;
 
   if (!mr) {
+    if (g.isLive) {
+      return (
+        <div className="b365-motd-odds">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="b365-motd-odd b365-motd-odd--locked" aria-label="Odds locked">
+              <LockGlyph className="b365-motd-lock-ico" />
+            </div>
+          ))}
+        </div>
+      );
+    }
     return (
       <div className="b365-motd-odds">
         <span className="b365-muted" style={{ fontSize: 12 }}>
@@ -289,19 +323,17 @@ function MotdOddsRow({
       {cells.map(([leg, label, cell]) => {
         const sel = !!slipEvents[keyFor(g.id, mr.marketId, cell.eventId)];
         return (
-          <button
+          <MotdOddButton
             key={leg}
-            type="button"
-            className={`b365-motd-odd ${sel ? 'selected' : ''}`}
+            label={label}
+            price={cell.price}
+            selected={sel}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               toggleMatchOdd(g, mr, leg, addSelection, removeSelection, slipEvents);
             }}
-          >
-            <span className="b365-motd-odd-label">{label}</span>
-            <span className="b365-motd-odd-val">{cell.price.toFixed(2)}</span>
-          </button>
+          />
         );
       })}
     </div>

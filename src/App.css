@@ -8,42 +8,84 @@
 
 /* ——— Top strip ——— */
 .b365-topbar {
-  background: var(--b365-bg-deep);
-  border-bottom: 1px solid var(--b365-border);
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(180deg, #2c2c30 0%, #1e1e22 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   min-height: var(--b365-topbar-h);
   font-size: 11px;
   color: var(--b365-text-dim);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.b365-topbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 5%, rgba(72, 209, 176, 0.4) 50%, transparent 95%);
+  pointer-events: none;
+  opacity: 0.85;
 }
 
 .b365-topbar-inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 4px 16px;
+  padding: 5px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+}
+
+.b365-topbar-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
 }
 
 .b365-topbar-links a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
   color: var(--b365-text-muted);
-  margin-right: 14px;
   text-decoration: none;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .b365-topbar-links a:hover {
   color: var(--b365-text);
-  text-decoration: underline;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  text-decoration: none;
 }
 
 .b365-topbar-meta {
   white-space: nowrap;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(180, 180, 186, 0.95);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 520px) {
   .b365-topbar-inner {
     justify-content: center;
-    padding: 4px 12px;
+    padding: 5px 12px;
   }
 
   .b365-topbar-links {
@@ -51,16 +93,37 @@
   }
 
   .b365-topbar-meta {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
 
-/* ——— Green header ——— */
+/* ——— App bar (main header) ——— */
 .b365-header {
-  background: linear-gradient(180deg, var(--b365-green-hover) 0%, var(--b365-green) 55%, var(--b365-green-dark) 100%);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 3;
+  background: linear-gradient(
+    180deg,
+    #18a882 0%,
+    var(--b365-green) 42%,
+    var(--b365-green-dark) 100%
+  );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.14) inset,
+    0 10px 36px rgba(0, 0, 0, 0.42);
   min-height: var(--b365-header-h);
   padding-top: env(safe-area-inset-top, 0px);
+}
+
+.b365-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 245, 160, 0.5) 45%, rgba(255, 214, 10, 0.65) 50%, rgba(255, 245, 160, 0.5) 55%, transparent 100%);
+  pointer-events: none;
+  opacity: 0.9;
 }
 
 .b365-header-inner {
@@ -131,15 +194,25 @@
   font-size: 1.35rem;
   line-height: 1;
   color: #fff;
-  background: rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.18) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .b365-header-back:hover {
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.38);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.b365-header-back:active {
+  transform: scale(0.96);
 }
 
 .b365-header-back:focus-visible {
@@ -155,11 +228,12 @@
   flex-shrink: 0;
   min-width: 0;
   line-height: 0;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
 }
 
 .b365-brand:hover {
   text-decoration: none;
-  opacity: 0.95;
+  opacity: 0.96;
 }
 
 .b365-brand-logo {
@@ -173,16 +247,15 @@
 .b365-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
-/* Logged-in: bet365-style — name (yellow border) + wallet (outline) */
 .b365-header-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px;
+  padding: 7px 15px;
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 700;
@@ -190,23 +263,29 @@
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .b365-header-pill--name {
-  border: 1px solid var(--b365-yellow);
-  color: var(--b365-yellow) !important;
+  border: 1px solid rgba(255, 214, 10, 0.85);
+  color: #fff6b8 !important;
   text-decoration: none !important;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .b365-header-pill--name:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 0 0 1px rgba(255, 214, 10, 0.35);
 }
 
 .b365-header-pill--wallet {
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   color: #fff;
   cursor: default;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .b365-user {
@@ -218,39 +297,64 @@
 }
 
 .b365-btn-outline {
-  display: inline-block;
-  padding: 6px 14px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.88);
   color: #fff !important;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-decoration: none !important;
-}
-
-.b365-btn-outline:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.b365-btn-header-login {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 4px;
-  background: var(--b365-yellow);
-  color: #1a1a1a !important;
   font-size: 0.85rem;
   font-weight: 700;
   text-decoration: none !important;
+  background: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  transition:
+    background 0.18s ease,
+    transform 0.15s ease,
+    box-shadow 0.18s ease;
+}
+
+.b365-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+}
+
+.b365-btn-outline:active {
+  transform: scale(0.98);
+}
+
+.b365-btn-header-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: linear-gradient(180deg, #ffe566 0%, var(--b365-yellow) 45%, #e6b800 100%);
+  color: #1a1a1a !important;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-decoration: none !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 4px 16px rgba(0, 0, 0, 0.35);
+  transition:
+    filter 0.15s ease,
+    transform 0.15s ease;
 }
 
 .b365-btn-header-login:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
+}
+
+.b365-btn-header-login:active {
+  transform: scale(0.98);
 }
 
 a.b365-btn-outline,
 a.b365-btn-header-login {
   text-decoration: none;
-  display: inline-block;
   text-align: center;
 }
 
@@ -263,6 +367,9 @@ a.b365-btn-header-login {
   width: 100%;
   margin: 0 auto;
   min-height: 0;
+  /* Tall sidebar min-height was stretching <main> to full row height; keep content top-aligned */
+  align-items: start;
+  align-content: start;
 }
 
 .b365-sidebar-left {
@@ -276,6 +383,11 @@ a.b365-btn-header-login {
   padding: 12px 14px calc(var(--b365-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
   background: var(--b365-bg-deep);
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
 }
 
 @media (max-width: 520px) {
@@ -635,6 +747,104 @@ a.b365-btn-header-login {
 
 .b365-bottom-nav-item.active .b365-bottom-nav-icon {
   color: var(--b365-yellow);
+}
+
+/* ——— Global footer (all pages using Layout) ——— */
+.b365-app-footer {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding: 18px 16px calc(18px + var(--b365-nav-h) + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: linear-gradient(180deg, #1a1a1c 0%, #121214 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.b365-app-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(72, 209, 176, 0.35) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.b365-app-footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.b365-app-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.b365-app-footer-nav a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--b365-text-muted);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.b365-app-footer-nav a:hover {
+  color: var(--b365-text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.b365-app-footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px 14px;
+  font-size: 11px;
+  color: var(--b365-text-dim);
+  line-height: 1.45;
+}
+
+.b365-app-footer-age {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: linear-gradient(180deg, #c41e3a 0%, #8b1024 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(196, 30, 58, 0.35);
+}
+
+.b365-app-footer-copy {
+  max-width: 42rem;
 }
 
 /* ——— Profile / auth ——— */
@@ -1099,6 +1309,10 @@ a.b365-btn-header-login {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
+.b365-motd-lock-ico {
+  display: block;
+}
+
 .b365-motd-live-badge {
   font-size: 9px;
   font-weight: 800;
@@ -1118,16 +1332,24 @@ a.b365-btn-header-login {
   text-shadow: 0 0 12px rgba(100, 220, 160, 0.35);
 }
 
+/* VS + kickoff / live clock on one horizontal row */
 .b365-motd-vs {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
+  gap: 8px 10px;
   flex-shrink: 0;
-  margin: 0 6px;
-  padding: 8px 10px;
+  margin: 0 4px;
+  padding: 8px 12px;
   border-radius: 14px;
   background: radial-gradient(ellipse 80% 120% at 50% 0%, rgba(255, 214, 10, 0.12) 0%, transparent 65%);
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.b365-motd-vs--live {
+  gap: 10px;
 }
 
 .b365-motd-vs-text {
@@ -1136,21 +1358,35 @@ a.b365-btn-header-login {
   color: var(--b365-yellow);
   letter-spacing: 0.14em;
   text-shadow: 0 0 20px rgba(255, 214, 10, 0.25);
+  line-height: 1;
+}
+
+.b365-motd-kickoff {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--b365-text-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 .b365-motd-time {
   font-size: 11px;
   font-weight: 600;
   color: var(--b365-text-muted);
-  margin-top: 5px;
+  margin-top: 0;
   font-variant-numeric: tabular-nums;
+}
+
+.b365-motd-vs .b365-motd-time {
+  margin-top: 0;
 }
 
 .b365-motd-date {
   font-size: 9px;
   font-weight: 600;
   color: var(--b365-text-dim);
-  margin-top: 3px;
+  margin-top: 0;
   letter-spacing: 0.03em;
 }
 
@@ -1202,6 +1438,21 @@ a.b365-btn-header-login {
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     inset 0 -1px 0 rgba(0, 0, 0, 0.35);
   transform: translateY(-1px);
+}
+
+.b365-motd-odd--locked {
+  flex-direction: row;
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.75;
+  color: var(--b365-text-muted);
+}
+
+.b365-motd-odd--locked:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(40, 40, 44, 0.65) 0%, rgba(22, 22, 24, 0.95) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .b365-motd-odd-label {
@@ -1296,9 +1547,15 @@ a.b365-btn-header-login {
 }
 
 .b365-motd-skel--time {
-  width: 48px;
+  width: 88px;
   height: 12px;
-  margin-top: 6px;
+  margin-top: 0;
+}
+
+.b365-motd-card--skeleton .b365-motd-vs {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 }
 
 .b365-motd-skel--odd {
@@ -1319,8 +1576,7 @@ a.b365-btn-header-login {
 
 @media (prefers-reduced-motion: reduce) {
   .b365-motd-nav-btn,
-  .b365-motd-odd,
-  .b365-motd-dot {
+  .b365-motd-odd {
     transition: none;
   }
 
@@ -1372,8 +1628,11 @@ a.b365-btn-header-login {
 .b365-mm-table {
   border: 1px solid var(--b365-border);
   border-radius: 0 0 4px 4px;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   background: var(--b365-bg);
   -webkit-overflow-scrolling: touch;
 }
@@ -1395,11 +1654,14 @@ a.b365-btn-header-login {
   border-top: 1px solid var(--b365-border);
 }
 
+/* Day header: date + 1/X/2 block — second column width matches three odds tracks below */
 .b365-mm-day-head {
   display: grid;
-  grid-template-columns: 1fr 180px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, calc(min(62px, 12vw) * 3));
   align-items: center;
+  gap: 8px;
   padding: 10px 12px;
+  min-width: 0;
   background: #252525;
   border-bottom: 1px solid var(--b365-border);
 }
@@ -1413,7 +1675,8 @@ a.b365-btn-header-login {
 
 .b365-mm-day-cols {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
   text-align: center;
   font-size: 12px;
   font-weight: 700;
@@ -1424,12 +1687,14 @@ a.b365-btn-header-login {
   align-items: center;
 }
 
-/* Row: [ team1 | empty ] / [ team2 | 1 X 2 odds ] / [ footer | empty ] — odds align with 2nd team line */
+/* Row: team column takes remaining space; odds capped (~36vw max) so names are not squeezed */
 .b365-mm-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 60px 60px 60px;
+  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, min(62px, 12vw)));
   grid-template-rows: auto auto auto;
   align-items: stretch;
+  min-width: 0;
+  width: 100%;
   border-bottom: 1px solid var(--b365-border);
   background: #1e1e1e;
 }
@@ -1520,6 +1785,10 @@ a.b365-btn-header-login {
   border: 1px solid #404040;
   border-radius: 3px;
   line-height: 1;
+}
+
+.b365-mm-lock-ico {
+  display: block;
 }
 
 .b365-mm-jersey {
@@ -1635,7 +1904,8 @@ a.b365-btn-header-login {
   grid-column: 2 / 5;
   grid-row: 2;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
   border-left: 1px solid var(--b365-border);
   align-items: stretch;
   justify-items: stretch;
@@ -1648,13 +1918,14 @@ a.b365-btn-header-login {
   align-items: center;
   justify-content: center;
   width: 100%;
+  min-width: 0;
   min-height: 48px;
   background: transparent;
   border: none;
   color: var(--b365-odds-gold);
   font-weight: 800;
-  font-size: 17px;
-  padding: 10px 8px;
+  font-size: clamp(0.8rem, 2.8vw, 1.05rem);
+  padding: 10px max(2px, 0.8vw);
   cursor: pointer;
   line-height: 1;
   font-family: inherit;
@@ -1687,6 +1958,20 @@ a.b365-btn-header-login {
 .b365-mm-odd.muted {
   opacity: 0.35;
   cursor: default;
+}
+
+.b365-mm-odd--locked {
+  cursor: default;
+  opacity: 0.72;
+  color: var(--b365-text-muted);
+}
+
+.b365-mm-odd--locked:hover:not(:disabled) {
+  background: transparent;
+}
+
+.b365-mm-odd--locked .b365-mm-lock-ico {
+  flex-shrink: 0;
 }
 
 .b365-match-table {
@@ -1913,6 +2198,229 @@ a.b365-btn-header-login {
   margin: 6px 0 0;
   font-size: 12px;
   color: var(--b365-text-muted);
+}
+
+/* ——— Match detail — filters, accordion markets, split label / price ——— */
+.b365-md-page {
+  min-width: 0;
+}
+
+.b365-md-toolbar {
+  margin-bottom: 8px;
+}
+
+.b365-md-toolbar__title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--b365-text);
+}
+
+.b365-md-toolbar__hint {
+  margin: 0;
+  font-size: 11px;
+  color: var(--b365-text-muted);
+}
+
+.b365-md-filters {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 14px;
+  margin-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
+}
+
+.b365-md-filters::-webkit-scrollbar {
+  height: 3px;
+}
+
+.b365-md-filter-chip {
+  flex-shrink: 0;
+  border: 1px solid var(--b365-border);
+  background: var(--b365-bg);
+  color: var(--b365-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.b365-md-filter-chip:hover {
+  border-color: var(--b365-border-light);
+  color: var(--b365-text);
+}
+
+.b365-md-filter-chip--active {
+  background: linear-gradient(180deg, rgba(26, 92, 82, 0.45) 0%, rgba(10, 74, 56, 0.92) 100%);
+  border-color: rgba(72, 209, 176, 0.42);
+  color: #e8fff8;
+}
+
+.b365-md-empty {
+  padding: 20px 0;
+  text-align: center;
+}
+
+.b365-md-acc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.b365-md-acc {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(38, 38, 40, 0.98) 0%, rgba(22, 22, 24, 0.99) 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.32);
+}
+
+.b365-md-acc__summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: none;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--b365-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.15s ease;
+}
+
+.b365-md-acc__summary:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.b365-md-acc__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #f0f0f0;
+}
+
+.b365-md-acc__meta {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--b365-text-muted);
+}
+
+.b365-md-acc__chev {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid rgba(255, 255, 255, 0.42);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.b365-md-acc__chev--open {
+  transform: rotate(180deg);
+}
+
+.b365-md-acc__body[hidden] {
+  display: none !important;
+}
+
+.b365-md-odds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 6px;
+  padding: 10px 12px 12px;
+}
+
+.b365-detail-odd {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--b365-border);
+  border-radius: 6px;
+  background: var(--b365-bg);
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.b365-detail-odd:hover {
+  border-color: var(--b365-border-light);
+  background: var(--b365-odds-hover);
+}
+
+.b365-detail-odd__label {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--b365-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.b365-detail-odd__value {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.b365-detail-odd__price {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--b365-yellow);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.b365-detail-odd--selected {
+  border-color: var(--b365-odds-sel-ring);
+  background: var(--b365-odds-sel-shine), var(--b365-odds-sel-body);
+  box-shadow:
+    0 0 0 1px var(--b365-odds-sel-accent),
+    0 4px 16px var(--b365-odds-sel-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.b365-detail-odd--selected .b365-detail-odd__label {
+  color: rgba(200, 245, 230, 0.92);
+}
+
+.b365-detail-odd--selected .b365-detail-odd__price {
+  color: #f6fffc;
+  text-shadow:
+    0 0 12px rgba(255, 214, 10, 0.38),
+    0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 /* Live match detail — pitch animation (Swarm last_event + info) */
@@ -2267,6 +2775,75 @@ a.b365-btn-header-login {
   }
 }
 
+/* ——— Odd price flash (↑ green / ↓ red, blinks ~3s on change) ——— */
+.b365-odd-price-with-flash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-mm-odd .b365-odd-price-with-flash {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.b365-motd-odd-val-inner {
+  width: 100%;
+}
+
+.b365-odd-flash-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0.9em;
+  flex-shrink: 0;
+}
+
+.b365-odd-flash-arrow {
+  display: inline-block;
+  font-weight: 900;
+  font-size: 0.95em;
+  line-height: 1;
+  animation: b365-odd-flash-blink 0.65s ease-in-out infinite;
+}
+
+.b365-odd-flash-arrow--up {
+  color: #4ade80;
+  text-shadow: 0 0 12px rgba(74, 222, 128, 0.65);
+}
+
+.b365-odd-flash-arrow--down {
+  color: #f87171;
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.6);
+}
+
+.odds-price-row {
+  width: 100%;
+}
+
+@keyframes b365-odd-flash-blink {
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+
+  50% {
+    opacity: 0.2;
+    filter: brightness(0.75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-odd-flash-arrow {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 .b365-market-block {
   background: var(--b365-surface);
   border: 1px solid var(--b365-border);
@@ -2491,9 +3068,9 @@ a.b365-btn-header-login {
 /* ——— Mobile / narrow: keep date + 1X2 header in one row; match rows stay horizontal grid ——— */
 @media (max-width: 640px) {
   .b365-mm-day-head {
-    grid-template-columns: minmax(0, 1fr) 144px;
-    gap: 8px;
-    padding: 8px 10px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, calc(min(56px, 11.5vw) * 3));
+    gap: 6px;
+    padding: 8px 8px;
   }
 
   .b365-mm-day-cols {
@@ -2503,13 +3080,13 @@ a.b365-btn-header-login {
   }
 
   .b365-mm-row {
-    grid-template-columns: minmax(0, 1fr) 48px 48px 48px;
+    grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, min(56px, 11.5vw)));
   }
 
   .b365-mm-odd {
     min-height: 44px;
-    padding: 8px 4px;
-    font-size: 15px;
+    padding: 8px 2px;
+    font-size: clamp(0.75rem, 3.2vw, 0.95rem);
   }
 
   .b365-mm-t1 {
@@ -2572,15 +3149,22 @@ a.b365-btn-header-login {
     flex-shrink: 0;
   }
 
+  .b365-motd-nav-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.15rem;
+  }
+
   .b365-motd-odd {
     min-height: 48px;
     padding: 10px 6px;
   }
 
-  .b365-motd-nav-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.15rem;
+  .b365-motd-kickoff {
+    font-size: 10px;
+    white-space: normal;
+    text-align: center;
+    max-width: 9rem;
   }
 }
 

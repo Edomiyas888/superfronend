@@ -6,6 +6,7 @@ import { fetchBalance } from '../features/wallet/walletStub';
 import SportsSidebar from './SportsSidebar';
 import BetslipContent from './BetslipContent';
 import BottomNav from './BottomNav';
+import AppFooter from './AppFooter';
 
 function isHomeRoute(pathname: string): boolean {
   return pathname === '/' || pathname === '/sport-new';
@@ -105,6 +106,8 @@ export default function Layout() {
           </div>
         </aside>
       </div>
+
+      <AppFooter />
 
       <BottomNav />
     </div>
