@@ -49,6 +49,12 @@ export type FlatGameRow = {
   markets?: unknown[];
   home_score?: number;
   away_score?: number;
+  sport_alias?: string;
+  last_event?: unknown;
+  game_info?: unknown;
+  field?: unknown;
+  stats?: unknown;
+  text_info?: unknown;
 };
 
 /** Home / Draw / Away prices for the main Match Result (1X2) market when Swarm returns nested `market` + `event`. */
@@ -78,6 +84,11 @@ export type GameView = {
   promoted?: boolean;
   /** Parsed from nested `game.market` when present (upcoming / sport list queries). */
   matchResult1x2?: MatchResult1x2Odds;
+  /** Live feed: current score from match market (`home_score` / `away_score`). */
+  homeScore?: number;
+  awayScore?: number;
+  /** Live feed: clock / period (from `text_info` or `game.info`). */
+  liveMatchTime?: string;
 };
 
 export type MarketEventView = {
@@ -98,6 +109,15 @@ export type MarketView = {
   events: MarketEventView[];
 };
 
+/** Swarm `game.last_event` — drives live pitch animation */
+export type LiveLastEvent = {
+  type_id?: number;
+  side?: string;
+  time_utc?: string;
+  team_name?: string;
+  set_score?: string;
+};
+
 export type MatchDetailView = {
   gameId: number;
   team1: string;
@@ -111,4 +131,13 @@ export type MatchDetailView = {
   regionName: string;
   competitionName: string;
   markets: MarketView[];
+  sportAlias?: string;
+  /** Present for in-play fixtures when API returns animation fields */
+  live?: {
+    lastEvent: LiveLastEvent | null;
+    info: Record<string, unknown> | null;
+    field?: string | number;
+    stats?: unknown;
+    textInfo?: string;
+  };
 };

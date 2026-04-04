@@ -4,6 +4,7 @@ import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
 import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
 import { useMatchOfTheDay } from '../hooks/useMatchOfTheDay';
 import { selectMatchOfTheDayGames } from '../utils/matchOfDaySelect';
+import { formatMatchListClock } from '../utils/matchListClock';
 import TeamLogo from './TeamLogo';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { GameView } from '../api/types';
@@ -97,6 +98,10 @@ export default function MatchOfTheDay() {
   const g = matches[activeIndex];
   if (!g) return null;
 
+  const live = g.isLive;
+  const showLiveScores = live && g.homeScore != null && g.awayScore != null;
+  const liveClock = formatMatchListClock(g, true);
+
   return (
     <div className="b365-motd">
       <div className="b365-motd-header">
@@ -138,13 +143,27 @@ export default function MatchOfTheDay() {
                 className="b365-motd-logo"
                 fallbackClassName="b365-motd-logo-fallback"
               />
-              <span className="b365-motd-name">{g.team1}</span>
+              <div className="b365-motd-team-line">
+                <span className="b365-motd-name">{g.team1}</span>
+                {showLiveScores ? <span className="b365-motd-score-pill">{g.homeScore}</span> : null}
+              </div>
             </div>
             <div className="b365-motd-vs">
-              <span className="b365-motd-vs-text">VS</span>
-              <span className="b365-motd-time">{formatMotdTime(g.startTs)}</span>
-              {!isKickoffToday(g.startTs) && (
-                <span className="b365-motd-date">{formatMotdDate(g.startTs)}</span>
+              {live ? (
+                <>
+                  <span className="b365-motd-live-badge">Live</span>
+                  <span className="b365-motd-time b365-motd-time--live">
+                    {liveClock === 'Live' ? 'In play' : liveClock}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="b365-motd-vs-text">VS</span>
+                  <span className="b365-motd-time">{formatMotdTime(g.startTs)}</span>
+                  {!isKickoffToday(g.startTs) && (
+                    <span className="b365-motd-date">{formatMotdDate(g.startTs)}</span>
+                  )}
+                </>
               )}
             </div>
             <div className="b365-motd-team">
@@ -154,7 +173,10 @@ export default function MatchOfTheDay() {
                 className="b365-motd-logo"
                 fallbackClassName="b365-motd-logo-fallback"
               />
-              <span className="b365-motd-name">{g.team2}</span>
+              <div className="b365-motd-team-line">
+                <span className="b365-motd-name">{g.team2}</span>
+                {showLiveScores ? <span className="b365-motd-score-pill">{g.awayScore}</span> : null}
+              </div>
             </div>
           </div>
         </Link>

@@ -1,8 +1,10 @@
 import { swarmPost, unwrapData } from './http';
 import { MATCH_RESULT_TYPES, P1XP2_MARKET_TYPES } from './marketConstants';
+import { liveDisplayFieldsFromRawGame } from '../utils/liveGameDisplay';
 import { pickTeamIdFromGame } from '../utils/teamLogos';
 import type { SwarmResponse } from './swarmTypes';
-import type { FlatGameRow, GameView, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
+import type { FlatGameRow, GameView, LiveLastEvent, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
+import { normalizeGameInfo } from '../utils/liveGameDisplay';
 
 const SUB = { subscribe: true as const };
 
@@ -86,6 +88,29 @@ function logSwarmResponse(step: string, res: SwarmResponse): void {
   });
 }
 
+function firstMarketScores(marketObj: Record<string, unknown>): { home?: number; away?: number } {
+  for (const mk of Object.values(marketObj)) {
+    const m = mk as Record<string, unknown>;
+    if (m.home_score == null || m.away_score == null || m.home_score === '' || m.away_score === '') continue;
+    const h = Number(m.home_score);
+    const a = Number(m.away_score);
+    if (Number.isFinite(h) && Number.isFinite(a)) return { home: h, away: a };
+  }
+  return {};
+}
+
+function parseLiveLastEvent(raw: unknown): LiveLastEvent | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const e = raw as Record<string, unknown>;
+  return {
+    type_id: e.type_id !== undefined ? Number(e.type_id) : undefined,
+    side: e.side !== undefined ? String(e.side) : undefined,
+    time_utc: e.time_utc !== undefined ? String(e.time_utc) : undefined,
+    team_name: e.team_name !== undefined ? String(e.team_name) : undefined,
+    set_score: e.set_score !== undefined ? String(e.set_score) : undefined,
+  };
+}
+
 function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
   const g = data[0];
   if (!g) return null;
@@ -108,6 +133,17 @@ function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
     };
   }) ?? [];
 
+  const liveBlock: MatchDetailView['live'] | undefined =
+    g.is_live
+      ? {
+          lastEvent: parseLiveLastEvent(g.last_event),
+          info: normalizeGameInfo(g.game_info) ?? null,
+          field: g.field as string | number | undefined,
+          stats: g.stats,
+          textInfo: g.text_info !== undefined && g.text_info !== null ? String(g.text_info) : undefined,
+        }
+      : undefined;
+
   return {
     gameId: g.id,
     team1: g.home_team,
@@ -121,6 +157,8 @@ function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
     regionName: g.region_name,
     competitionName: g.competition_name,
     markets,
+    sportAlias: g.sport_alias,
+    live: liveBlock,
   };
 }
 
@@ -304,10 +342,27 @@ export async function restGetMatchOdds(gameId: number): Promise<MatchDetailView 
     params: {
       source: 'betting',
       what: {
-        sport: ['id', 'name'],
+        sport: ['id', 'name', 'alias'],
         region: ['id', 'name'],
         competition: ['id', 'name'],
-        game: ['id', 'team1_name', 'team2_name', 'team1_id', 'team2_id', 'start_ts', 'is_live'],
+        game: [
+          'id',
+          'team1_name',
+          'team2_name',
+          'team1_id',
+          'team2_id',
+          'start_ts',
+          'is_live',
+          'is_blocked',
+          'type',
+          'is_started',
+          'field',
+          'match_length',
+          'last_event',
+          'stats',
+          'info',
+          'text_info',
+        ],
         market: ['id', 'name', 'type', 'display_key', 'home_score', 'away_score'],
         event: ['id', 'name', 'price', 'type', 'base'],
       },
@@ -341,10 +396,16 @@ export async function restGetLiveGames(): Promise<GameView[]> {
           'markets_count',
           'is_blocked',
           'is_live',
+          'info',
+          'text_info',
         ],
+        market: ['name', 'type', 'id', 'base', 'home_score', 'away_score'],
+        event: ['name', 'type', 'id', 'price', 'base'],
       },
       where: {
         game: { type: 1, '@limit': 400 },
+        market: { type: { '@in': P1XP2_MARKET_TYPES } },
+        event: { type: { '@in': ['P1', 'X', 'P2'] } },
       },
       ...SUB,
     },
@@ -372,9 +433,21 @@ export async function restGetPromotedMatches(opts?: { sportAlias?: string }): Pr
         sport: ['id', 'name', 'alias'],
         region: ['id', 'name', 'alias'],
         competition: ['id', 'name', 'order'],
-        game: ['id', 'team1_name', 'team2_name', 'team1_id', 'team2_id', 'start_ts', 'is_blocked', 'markets_count'],
-        market: ['name', 'type', 'id'],
-        event: ['name', 'type', 'id', 'price'],
+        game: [
+          'id',
+          'team1_name',
+          'team2_name',
+          'team1_id',
+          'team2_id',
+          'start_ts',
+          'is_blocked',
+          'markets_count',
+          'is_live',
+          'info',
+          'text_info',
+        ],
+        market: ['name', 'type', 'id', 'base', 'home_score', 'away_score'],
+        event: ['name', 'type', 'id', 'price', 'base'],
       },
       where,
       ...SUB,
@@ -481,6 +554,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
   for (const sp of Object.values(root.sport)) {
     const sportId = Number((sp as { id?: unknown }).id);
     const sportName = String((sp as { name?: unknown }).name ?? '');
+    const sportAlias = String((sp as { alias?: unknown }).alias ?? '');
     const spRec = sp as { region?: object; game?: object };
     const hasRegion =
       spRec.region != null &&
@@ -490,6 +564,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
       for (const gm of Object.values(spRec.game)) {
         const g = gm as Record<string, unknown>;
         const marketObj = (g.market as Record<string, unknown>) ?? {};
+        const scores = firstMarketScores(marketObj);
         const markets = Object.values(marketObj).map((m) => {
           const mk = m as Record<string, unknown>;
           const evObj = (mk.event as Record<string, unknown>) ?? {};
@@ -526,8 +601,14 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
           is_live: !!g.is_live,
           is_blocked: !!g.is_blocked,
           markets: markets as unknown[],
-          home_score: undefined,
-          away_score: undefined,
+          home_score: scores.home,
+          away_score: scores.away,
+          sport_alias: sportAlias,
+          last_event: g.last_event,
+          game_info: g.info,
+          field: g.field,
+          stats: g.stats,
+          text_info: g.text_info,
         });
       }
       continue;
@@ -541,6 +622,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
         for (const gm of Object.values((comp as { game?: object }).game ?? {})) {
           const g = gm as Record<string, unknown>;
           const marketObj = (g.market as Record<string, unknown>) ?? {};
+          const scores = firstMarketScores(marketObj);
           const markets = Object.values(marketObj).map((m) => {
             const mk = m as Record<string, unknown>;
             const evObj = (mk.event as Record<string, unknown>) ?? {};
@@ -577,8 +659,14 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
             is_live: !!g.is_live,
             is_blocked: !!g.is_blocked,
             markets: markets as unknown[],
-            home_score: undefined,
-            away_score: undefined,
+            home_score: scores.home,
+            away_score: scores.away,
+            sport_alias: sportAlias,
+            last_event: g.last_event,
+            game_info: g.info,
+            field: g.field,
+            stats: g.stats,
+            text_info: g.text_info,
           });
         }
       }
@@ -627,6 +715,7 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
           marketsCount: Number(g.markets_count ?? 0),
           promoted: !!g.promoted,
           matchResult1x2: extractMatchResult1x2FromGame(g),
+          ...liveDisplayFieldsFromRawGame(g),
         });
       }
       continue;
@@ -654,6 +743,7 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
             marketsCount: Number(g.markets_count ?? 0),
             promoted: !!g.promoted,
             matchResult1x2: extractMatchResult1x2FromGame(g),
+            ...liveDisplayFieldsFromRawGame(g),
           });
         }
       }

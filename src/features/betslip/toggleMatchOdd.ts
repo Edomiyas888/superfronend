@@ -1,6 +1,6 @@
 import type { BetslipEventLike } from '../../api/placeBet';
 import type { GameView, MatchResult1x2Odds } from '../../api/types';
-import { keyFor } from './betslipStore';
+import { keyFor, useBetslipStore } from './betslipStore';
 
 export function toggleMatchOdd(
   g: GameView,
@@ -16,6 +16,7 @@ export function toggleMatchOdd(
     removeSelection(k);
     return;
   }
+  useBetslipStore.getState().removeSelectionsForGameMarket(g.id, mr.marketId);
   const ev: BetslipEventLike = {
     eventId: pick.eventId,
     gameId: g.id,

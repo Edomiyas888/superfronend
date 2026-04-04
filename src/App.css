@@ -982,6 +982,15 @@ a.b365-btn-header-login {
   border: 1px solid var(--b365-border);
 }
 
+.b365-motd-team-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
 .b365-motd-name {
   font-size: 12px;
   font-weight: 700;
@@ -989,6 +998,40 @@ a.b365-btn-header-login {
   line-height: 1.25;
   color: var(--b365-text);
   word-break: break-word;
+}
+
+.b365-motd-score-pill {
+  flex-shrink: 0;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #f0f0f0;
+  background: #2f2f2f;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.b365-motd-live-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: #c41e3a;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.b365-motd-time--live {
+  color: #5fd89a;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .b365-motd-vs {
@@ -1034,9 +1077,9 @@ a.b365-btn-header-login {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 8px 4px;
-  border-radius: 4px;
+  gap: 3px;
+  padding: 10px 6px;
+  border-radius: 6px;
   border: 1px solid var(--b365-border);
   background: var(--b365-bg-deep);
   color: var(--b365-text);
@@ -1051,8 +1094,11 @@ a.b365-btn-header-login {
 }
 
 .b365-motd-odd.selected {
-  border-color: var(--b365-green);
-  background: var(--b365-selected);
+  border-color: var(--b365-yellow);
+  background: linear-gradient(180deg, rgba(23, 154, 114, 0.55) 0%, rgba(20, 128, 94, 0.78) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 10, 0.45),
+    0 4px 12px rgba(20, 128, 94, 0.3);
 }
 
 .b365-motd-odd-label {
@@ -1064,9 +1110,14 @@ a.b365-btn-header-login {
 }
 
 .b365-motd-odd-val {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--b365-odds-gold);
+}
+
+.b365-motd-odd.selected .b365-motd-odd-val {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .b365-motd-dots {
@@ -1186,8 +1237,10 @@ a.b365-btn-header-login {
 .b365-mm-table {
   border: 1px solid var(--b365-border);
   border-radius: 0 0 4px 4px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   background: var(--b365-bg);
+  -webkit-overflow-scrolling: touch;
 }
 
 .b365-mm-status {
@@ -1209,17 +1262,18 @@ a.b365-btn-header-login {
 
 .b365-mm-day-head {
   display: grid;
-  grid-template-columns: 1fr 162px;
+  grid-template-columns: 1fr 180px;
   align-items: center;
-  padding: 8px 12px;
-  background: var(--b365-surface);
+  padding: 10px 12px;
+  background: #252525;
   border-bottom: 1px solid var(--b365-border);
 }
 
 .b365-mm-day-title {
   font-weight: 700;
   font-size: 13px;
-  color: var(--b365-text);
+  color: #e8e8e8;
+  letter-spacing: 0.02em;
 }
 
 .b365-mm-day-cols {
@@ -1228,44 +1282,80 @@ a.b365-btn-header-login {
   text-align: center;
   font-size: 12px;
   font-weight: 700;
-  color: var(--b365-text-muted);
+  color: #9a9a9a;
   border-left: 1px solid var(--b365-border);
   padding: 4px 0;
   align-self: stretch;
   align-items: center;
 }
 
+/* Row: [ team1 | empty ] / [ team2 | 1 X 2 odds ] / [ footer | empty ] — odds align with 2nd team line */
 .b365-mm-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 162px;
+  grid-template-columns: minmax(0, 1fr) 60px 60px 60px;
+  grid-template-rows: auto auto auto;
   align-items: stretch;
   border-bottom: 1px solid var(--b365-border);
-  background: var(--b365-bg);
+  background: #1e1e1e;
 }
 
-.b365-mm-day .b365-mm-row:last-child {
-  border-bottom: none;
-}
-
-.b365-mm-left {
+.b365-mm-cell {
   min-width: 0;
-  padding: 12px 10px 12px 12px;
+}
+
+.b365-mm-t1 {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 8px 10px 4px 12px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
+  align-items: center;
   color: inherit !important;
   text-decoration: none !important;
 }
 
-.b365-mm-left:hover .b365-mm-team-name {
+.b365-mm-rpad {
+  grid-column: 2 / 5;
+  grid-row: 1;
+  border-left: 1px solid var(--b365-border);
+  background: #1e1e1e;
+}
+
+.b365-mm-t2 {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 4px 10px 6px 12px;
+  display: flex;
+  align-items: center;
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.b365-mm-t1:hover .b365-mm-team-name,
+.b365-mm-t2:hover .b365-mm-team-name {
   text-decoration: underline;
 }
 
-.b365-mm-teams {
+.b365-mm-foot {
+  grid-column: 1;
+  grid-row: 3;
+  padding: 4px 10px 10px 12px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+
+.b365-mm-rpad-foot {
+  grid-column: 2 / 5;
+  grid-row: 3;
+  border-left: 1px solid var(--b365-border);
+  background: #1e1e1e;
+  min-height: 8px;
+}
+
+.b365-mm-day .b365-mm-row:last-child {
+  border-bottom: none;
 }
 
 .b365-mm-team-line {
@@ -1273,6 +1363,26 @@ a.b365-btn-header-login {
   align-items: center;
   gap: 8px;
   min-width: 0;
+  width: 100%;
+}
+
+.b365-mm-score-pill {
+  flex-shrink: 0;
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #f0f0f0;
+  background: #2f2f2f;
+  border: 1px solid #404040;
+  border-radius: 3px;
+  line-height: 1;
 }
 
 .b365-mm-jersey {
@@ -1310,36 +1420,42 @@ a.b365-btn-header-login {
 }
 
 .b365-mm-team-name {
+  flex: 1;
+  min-width: 0;
   font-weight: 700;
   font-size: 13px;
-  color: var(--b365-text);
+  color: #f2f2f2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.b365-mm-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.b365-mm-meta {
-  font-size: 11px;
-  color: var(--b365-text-muted);
-  min-width: 0;
-}
-
-.b365-mm-time {
+.b365-mm-clock {
   font-weight: 600;
-  color: var(--b365-text-muted);
+  font-variant-numeric: tabular-nums;
+  color: #b0b0b0;
 }
 
 .b365-mm-comp {
   font-size: 11px;
-  color: var(--b365-text-dim);
+  color: #7a7a7a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 42%;
+}
+
+.b365-mm-footer-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.b365-mm-stats-ico {
+  color: #8a8a8a;
+  opacity: 0.95;
 }
 
 .b365-mm-live {
@@ -1352,22 +1468,15 @@ a.b365-btn-header-login {
   border-radius: 3px;
 }
 
-.b365-mm-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
 .b365-mm-stream {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  font-size: 9px;
-  color: var(--b365-text-dim);
-  opacity: 0.85;
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+  color: #9a9a9a;
+  opacity: 0.95;
 }
 
 .b365-mm-markets {
@@ -1375,38 +1484,59 @@ a.b365-btn-header-login {
   align-items: center;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--b365-market-badge);
-  color: #0d2a26;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: #1a5c52;
+  color: #b8f5e8;
 }
 
 .b365-mm-odds {
+  grid-column: 2 / 5;
+  grid-row: 2;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border-left: 1px solid var(--b365-border);
-  align-items: center;
+  align-items: stretch;
+  justify-items: stretch;
+  align-self: stretch;
   min-height: 100%;
 }
 
 .b365-mm-odd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
   background: transparent;
   border: none;
   color: var(--b365-odds-gold);
-  font-weight: 700;
-  font-size: 15px;
-  padding: 14px 8px;
+  font-weight: 800;
+  font-size: 17px;
+  padding: 10px 8px;
   cursor: pointer;
   line-height: 1;
   font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: background 0.15s, box-shadow 0.15s, color 0.15s;
 }
 
-.b365-mm-odd:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
+.b365-mm-odd:hover:not(:disabled):not(.selected) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.b365-mm-odd.selected:hover:not(:disabled) {
+  filter: brightness(1.05);
 }
 
 .b365-mm-odd.selected {
-  box-shadow: inset 0 0 0 2px var(--b365-green);
+  background: linear-gradient(180deg, rgba(23, 154, 114, 0.55) 0%, rgba(20, 128, 94, 0.72) 45%, rgba(14, 96, 71, 0.88) 100%);
+  box-shadow:
+    inset 0 0 0 2px var(--b365-yellow),
+    0 0 0 1px rgba(255, 214, 10, 0.35),
+    0 4px 14px rgba(20, 128, 94, 0.35);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
 .b365-mm-odd.muted {
@@ -1628,6 +1758,358 @@ a.b365-btn-header-login {
   color: var(--b365-text-muted);
 }
 
+/* Live match detail — pitch animation (Swarm last_event + info) */
+.b365-live-anim {
+  margin-bottom: 12px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--b365-border);
+  background: var(--b365-bg-deep);
+}
+
+.b365-live-anim--soccer .b365-live-pitch {
+  background: linear-gradient(180deg, #3d6b28 0%, #2d4f1c 100%);
+}
+
+.b365-live-anim__scorebar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--b365-surface);
+  border-bottom: 1px solid var(--b365-border);
+  font-size: 12px;
+}
+
+.b365-live-anim__team {
+  font-weight: 700;
+  color: var(--b365-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.b365-live-anim__team--home {
+  text-align: right;
+}
+
+.b365-live-anim__team--away {
+  text-align: left;
+}
+
+.b365-live-anim__score {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--b365-yellow);
+  min-width: 4.5rem;
+  justify-content: center;
+}
+
+.b365-live-anim__score-sep {
+  opacity: 0.7;
+  font-weight: 700;
+}
+
+.b365-live-pitch {
+  position: relative;
+  padding: 10px 12px 12px;
+}
+
+.b365-live-pitch__field {
+  position: relative;
+  height: 140px;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.b365-live-pitch__field--arena {
+  background: linear-gradient(135deg, #1a2a32 0%, #0f1820 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.b365-live-pitch__line--mid {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  margin-left: -1px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.b365-live-pitch__circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+}
+
+.b365-live-pitch__goal {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 44px;
+  margin-top: -22px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.b365-live-pitch__goal--l {
+  left: 8px;
+  border-radius: 2px 0 0 2px;
+  border-right: none;
+}
+
+.b365-live-pitch__goal--r {
+  right: 8px;
+  border-radius: 0 2px 2px 0;
+  border-left: none;
+}
+
+.b365-live-pitch__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.b365-live-pitch__overlay--idle .b365-live-pitch__event-label,
+.b365-live-pitch__overlay--generic .b365-live-pitch__event-label {
+  margin-top: 52px;
+}
+
+.b365-live-pitch__event-label {
+  margin: 0;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+}
+
+.b365-live-pitch__ball {
+  position: absolute;
+  top: 42%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #e8e8e8 40%, #bbb 100%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  animation: b365-live-ball-idle 2.2s ease-in-out infinite;
+}
+
+.b365-live-pitch__ball--sm {
+  width: 12px;
+  height: 12px;
+  top: 38%;
+}
+
+.b365-live-pitch__ball--float {
+  animation: b365-live-ball-float 2.8s ease-in-out infinite;
+}
+
+.b365-live-pitch__overlay--home .b365-live-pitch__ball,
+.b365-live-pitch__overlay--home .b365-live-pitch__ball--float {
+  left: 28%;
+  margin-left: -9px;
+}
+
+.b365-live-pitch__overlay--away .b365-live-pitch__ball,
+.b365-live-pitch__overlay--away .b365-live-pitch__ball--float {
+  left: 72%;
+  margin-left: -9px;
+}
+
+.b365-live-pitch__overlay--idle .b365-live-pitch__ball--float {
+  left: 50%;
+  margin-left: -9px;
+}
+
+.b365-live-pitch__goal-burst {
+  position: absolute;
+  top: 36%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: b365-live-goal-pop 1s ease-out infinite;
+}
+
+.b365-live-pitch__goal-burst .b365-live-pitch__ball {
+  position: relative;
+  top: auto;
+  left: auto;
+  animation: none;
+}
+
+.b365-live-pitch__attack {
+  position: absolute;
+  top: 30%;
+  width: 100%;
+  height: 40%;
+  overflow: hidden;
+}
+
+.b365-live-pitch__attack-arrow {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 40%,
+    rgba(255, 200, 80, 0.25) 50%,
+    rgba(255, 255, 255, 0.08) 60%,
+    transparent 100%
+  );
+  animation: b365-live-attack-sweep 1.8s linear infinite;
+}
+
+.b365-live-pitch__overlay--away .b365-live-pitch__attack-arrow {
+  transform: scaleX(-1);
+}
+
+.b365-live-pitch__ripple {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  animation: b365-live-ripple 1.4s ease-out infinite;
+}
+
+.b365-live-pitch__offside-line {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  left: 35%;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 80, 80, 0.9) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.b365-live-pitch__overlay--away .b365-live-pitch__offside-line {
+  left: 65%;
+}
+
+.b365-live-pitch__card {
+  position: absolute;
+  top: 34%;
+  width: 12px;
+  height: 16px;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.b365-live-pitch__card--yellow {
+  left: 50%;
+  margin-left: -6px;
+  background: linear-gradient(180deg, #ffe066 0%, #d4a800 100%);
+}
+
+.b365-live-pitch__card--red {
+  left: 50%;
+  margin-left: -6px;
+  background: linear-gradient(180deg, #ff6b6b 0%, #b00020 100%);
+}
+
+.b365-live-pitch__pulse-ring {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border: 3px solid rgba(94, 216, 154, 0.55);
+  border-radius: 50%;
+  animation: b365-live-pulse-ring 2s ease-out infinite;
+}
+
+.b365-live-pitch__overlay--generic .b365-live-pitch__event-label {
+  margin-top: 72px;
+}
+
+@keyframes b365-live-ball-idle {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(6px, -4px);
+  }
+}
+
+@keyframes b365-live-ball-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes b365-live-goal-pop {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    filter: brightness(1);
+  }
+  40% {
+    transform: translateX(-50%) scale(1.25);
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes b365-live-attack-sweep {
+  0% {
+    transform: translateX(-60%);
+  }
+  100% {
+    transform: translateX(60%);
+  }
+}
+
+@keyframes b365-live-ripple {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes b365-live-pulse-ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
 .b365-market-block {
   background: var(--b365-surface);
   border: 1px solid var(--b365-border);
@@ -1655,10 +2137,10 @@ a.b365-btn-header-login {
   border: 1px solid var(--b365-border);
   background: var(--b365-bg);
   color: var(--b365-text);
-  border-radius: 4px;
-  padding: 8px 10px;
+  border-radius: 6px;
+  padding: 10px 12px;
   text-align: left;
-  transition: background 0.12s, border-color 0.12s;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
 }
 
 .odds-btn:hover {
@@ -1667,8 +2149,11 @@ a.b365-btn-header-login {
 }
 
 .odds-btn.selected {
-  border-color: var(--b365-green);
-  background: var(--b365-selected);
+  border-color: var(--b365-yellow);
+  background: linear-gradient(180deg, rgba(23, 154, 114, 0.5) 0%, rgba(20, 128, 94, 0.72) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 10, 0.4),
+    0 4px 14px rgba(20, 128, 94, 0.28);
 }
 
 .odds-name {
@@ -1678,9 +2163,14 @@ a.b365-btn-header-login {
 }
 
 .odds-price {
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.1rem;
   color: var(--b365-yellow);
+}
+
+.odds-btn.selected .odds-price {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .grid-odds {
@@ -1827,49 +2317,40 @@ a.b365-btn-header-login {
   align-items: center;
 }
 
-/* ——— Mobile / narrow: match list stacks for readability ——— */
+/* ——— Mobile / narrow: keep date + 1X2 header in one row; match rows stay horizontal grid ——— */
 @media (max-width: 640px) {
   .b365-mm-day-head {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) 144px;
     gap: 8px;
-    padding: 10px 12px;
+    padding: 8px 10px;
   }
 
   .b365-mm-day-cols {
-    border-left: none;
-    border-top: 1px solid var(--b365-border);
-    padding-top: 10px;
-    width: 100%;
+    border-left: 1px solid var(--b365-border);
+    padding: 4px 0;
+    width: auto;
   }
 
   .b365-mm-row {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .b365-mm-left {
-    padding: 12px;
-  }
-
-  .b365-mm-odds {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border-left: none;
-    border-top: 1px solid var(--b365-border);
-    width: 100%;
+    grid-template-columns: minmax(0, 1fr) 48px 48px 48px;
   }
 
   .b365-mm-odd {
-    min-height: 48px;
-    padding: 12px 6px;
-    font-size: 16px;
+    min-height: 44px;
+    padding: 8px 4px;
+    font-size: 15px;
   }
 
-  .b365-mm-team-name {
-    white-space: normal;
-    font-size: 12px;
-    line-height: 1.35;
+  .b365-mm-t1 {
+    padding: 6px 6px 2px 10px;
+  }
+
+  .b365-mm-t2 {
+    padding: 2px 6px 4px 10px;
+  }
+
+  .b365-mm-foot {
+    padding: 2px 6px 8px 10px;
   }
 
   .b365-league-header {

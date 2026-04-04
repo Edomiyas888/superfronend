@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { restGetMatchOdds } from '../api/restSports';
 import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
 import TeamLogo from '../components/TeamLogo';
+import LiveMatchAnimation from '../components/LiveMatchAnimation';
 import type { BetslipEventLike } from '../api/placeBet';
 
 export default function MatchDetailPage() {
@@ -10,6 +11,7 @@ export default function MatchDetailPage() {
   const id = gameId ? parseInt(gameId, 10) : NaN;
   const addSelection = useBetslipStore((s) => s.addSelection);
   const removeSelection = useBetslipStore((s) => s.removeSelection);
+  const removeSelectionsForGameMarket = useBetslipStore((s) => s.removeSelectionsForGameMarket);
   const events = useBetslipStore((s) => s.events);
 
   const q = useQuery({
@@ -29,6 +31,7 @@ export default function MatchDetailPage() {
       removeSelection(k);
       return;
     }
+    removeSelectionsForGameMarket(detail.gameId, marketId);
     const ev: BetslipEventLike = {
       eventId,
       gameId: detail.gameId,
@@ -87,6 +90,17 @@ export default function MatchDetailPage() {
               {new Date(detail.startTs * 1000).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
             </p>
           </div>
+
+          {detail.isLive ? (
+            <LiveMatchAnimation
+              sportAlias={detail.sportAlias}
+              team1={detail.team1}
+              team2={detail.team2}
+              live={detail.live}
+              homeScore={detail.markets.find((m) => m.homeScore != null && m.awayScore != null)?.homeScore}
+              awayScore={detail.markets.find((m) => m.homeScore != null && m.awayScore != null)?.awayScore}
+            />
+          ) : null}
 
           {detail.markets.map((m) => (
             <div key={m.id} className="b365-market-block">

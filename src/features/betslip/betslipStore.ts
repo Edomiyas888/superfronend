@@ -16,6 +16,8 @@ type BetslipState = {
   placeMessage: string | null;
   addSelection: (key: SelectionKey, ev: BetslipEventLike) => void;
   removeSelection: (key: SelectionKey) => void;
+  /** Remove every slip line for this game+market (1/X/2 radio behaviour). Keys are `gameId-marketId-eventId`. */
+  removeSelectionsForGameMarket: (gameId: number, marketId: number) => void;
   clear: () => void;
   setStake: (n: number) => void;
   toSlipPayload: () => BetslipLike;
@@ -41,6 +43,17 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       const next = { ...s.events };
       delete next[key];
       return { events: next };
+    });
+  },
+
+  removeSelectionsForGameMarket: (gameId, marketId) => {
+    const prefix = `${gameId}-${marketId}-`;
+    set((s) => {
+      const next = { ...s.events };
+      for (const key of Object.keys(next)) {
+        if (key.startsWith(prefix)) delete next[key];
+      }
+      return { events: next, placeMessage: null };
     });
   },
 
