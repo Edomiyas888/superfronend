@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
 import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
@@ -76,6 +76,8 @@ export default function MatchOfTheDay() {
     [q.data]
   );
   const [activeIndex, setActiveIndex] = useState(0);
+  const swipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
+  const lastSwipeAtRef = useRef(0);
 
   useEffect(() => {
     setActiveIndex((i) => {
@@ -97,6 +99,40 @@ export default function MatchOfTheDay() {
 
   const g = matches[activeIndex];
   if (!g) return null;
+
+  const swipeMinPx = 48;
+  const swipeAxisRatio = 1.25;
+
+  const onSwipePointerDown = (e: React.PointerEvent) => {
+    if (matches.length <= 1 || e.button !== 0) return;
+    swipeStartRef.current = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const onSwipePointerUp = (e: React.PointerEvent) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start || start.pointerId !== e.pointerId || matches.length <= 1) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    if (absX < swipeMinPx || absX < absY * swipeAxisRatio) return;
+    lastSwipeAtRef.current = Date.now();
+    if (dx < 0) {
+      setActiveIndex((prev) => (prev + 1) % matches.length);
+    } else {
+      setActiveIndex((prev) => (prev - 1 + matches.length) % matches.length);
+    }
+  };
+
+  const onSwipePointerCancel = (e: React.PointerEvent) => {
+    if (swipeStartRef.current?.pointerId === e.pointerId) swipeStartRef.current = null;
+  };
 
   const live = g.isLive;
   const showLiveScores = live && g.homeScore != null && g.awayScore != null;
@@ -133,8 +169,22 @@ export default function MatchOfTheDay() {
         </div>
       </div>
 
-      <div className="b365-motd-card">
-        <Link to={`/match/${g.id}`} className="b365-motd-card-main">
+      <div
+        className="b365-motd-swiper"
+        role="region"
+        aria-label="Swipe or use arrows to change featured match"
+        onPointerDown={onSwipePointerDown}
+        onPointerUp={onSwipePointerUp}
+        onPointerCancel={onSwipePointerCancel}
+      >
+        <div className="b365-motd-card">
+          <Link
+            to={`/match/${g.id}`}
+            className="b365-motd-card-main"
+            onClick={(ev) => {
+              if (Date.now() - lastSwipeAtRef.current < 450) ev.preventDefault();
+            }}
+          >
           <div className="b365-motd-teams">
             <div className="b365-motd-team">
               <TeamLogo
@@ -179,12 +229,12 @@ export default function MatchOfTheDay() {
               </div>
             </div>
           </div>
-        </Link>
-        <MotdOddsRow g={g} slipEvents={slipEvents} addSelection={addSelection} removeSelection={removeSelection} />
-      </div>
+          </Link>
+          <MotdOddsRow g={g} slipEvents={slipEvents} addSelection={addSelection} removeSelection={removeSelection} />
+        </div>
 
-      {matches.length > 1 && (
-        <div className="b365-motd-dots" role="tablist" aria-label="Match carousel">
+        {matches.length > 1 && (
+          <div className="b365-motd-dots" role="tablist" aria-label="Match carousel">
           {matches.map((_, index) => (
             <button
               key={index}
@@ -198,8 +248,9 @@ export default function MatchOfTheDay() {
               }}
             />
           ))}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

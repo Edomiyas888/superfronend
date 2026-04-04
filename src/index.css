@@ -17,7 +17,22 @@
   --b365-odds-gold: #ffcc00;
   --b365-market-badge: #63cfbb;
   --b365-odds-hover: #48484a;
-  --b365-selected: #1e4d3a;
+  /** Selected odds: layered gradient + ring (used in App.css) */
+  --b365-odds-sel-shine: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.11) 0%,
+    rgba(255, 255, 255, 0.02) 38%,
+    transparent 62%
+  );
+  --b365-odds-sel-body: linear-gradient(
+    155deg,
+    rgba(72, 209, 176, 0.2) 0%,
+    rgba(20, 128, 94, 0.52) 45%,
+    rgba(6, 42, 34, 0.98) 100%
+  );
+  --b365-odds-sel-ring: rgba(72, 209, 176, 0.65);
+  --b365-odds-sel-accent: rgba(255, 214, 10, 0.42);
+  --b365-odds-sel-glow: rgba(0, 220, 180, 0.22);
   --b365-error: #ff453a;
   --b365-link: #64d2ff;
   --b365-header-h: 52px;
@@ -29,7 +44,7 @@
   --b365-radius-lg: 14px;
   --b365-nav-h: 60px;
   /** Mobile sports strip total height (heading + horizontal scroller); fixed to avoid layout jump */
-  --b365-sports-rail-total: 160px;
+  --b365-sports-rail-total: 76px;
   --font-ui: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 
   font-family: var(--font-ui);
