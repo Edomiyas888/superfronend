@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSessionStore } from '../features/auth/sessionStore';
+import { depositWallet, fetchBalance, withdrawWallet } from '../features/wallet/walletApi';
 
 type Tab = 'login' | 'signup';
 
@@ -18,7 +20,8 @@ export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = (searchParams.get('tab') === 'signup' ? 'signup' : 'login') as Tab;
 
-  const { username, phone, hydrate, clearSession, register, login } = useSessionStore();
+  const { username, phone, hydrate, clearSession, register, login, getAuthHeader } = useSessionStore();
+  const queryClient = useQueryClient();
   const [suUser, setSuUser] = useState('');
   const [suPhone, setSuPhone] = useState('');
   const [suPass, setSuPass] = useState('');
@@ -27,6 +30,17 @@ export default function ProfilePage() {
   const [liPass, setLiPass] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [walletAmount, setWalletAmount] = useState('');
+  const [walletBusy, setWalletBusy] = useState<'deposit' | 'withdraw' | null>(null);
+  const [walletErr, setWalletErr] = useState<string | null>(null);
+
+  const loggedIn = !!(username && username.length > 0);
+  const walletQ = useQuery({
+    queryKey: ['wallet', 'header'],
+    queryFn: () => fetchBalance(getAuthHeader()),
+    enabled: loggedIn,
+    staleTime: 30_000,
+  });
 
   useEffect(() => {
     void hydrate();
@@ -73,7 +87,49 @@ export default function ProfilePage() {
     }
   };
 
-  const loggedIn = !!(username && username.length > 0);
+  const parseWalletAmount = (): number | null => {
+    const n = Number.parseFloat(walletAmount.replace(',', '.'));
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return Math.round(n * 100) / 100;
+  };
+
+  const onDeposit = async () => {
+    setWalletErr(null);
+    const amt = parseWalletAmount();
+    if (amt == null) {
+      setWalletErr('Enter a positive amount.');
+      return;
+    }
+    setWalletBusy('deposit');
+    try {
+      await depositWallet(getAuthHeader(), amt);
+      setWalletAmount('');
+      await queryClient.invalidateQueries({ queryKey: ['wallet', 'header'] });
+    } catch (err) {
+      setWalletErr(err instanceof Error ? err.message : 'Deposit failed.');
+    } finally {
+      setWalletBusy(null);
+    }
+  };
+
+  const onWithdraw = async () => {
+    setWalletErr(null);
+    const amt = parseWalletAmount();
+    if (amt == null) {
+      setWalletErr('Enter a positive amount.');
+      return;
+    }
+    setWalletBusy('withdraw');
+    try {
+      await withdrawWallet(getAuthHeader(), amt);
+      setWalletAmount('');
+      await queryClient.invalidateQueries({ queryKey: ['wallet', 'header'] });
+    } catch (err) {
+      setWalletErr(err instanceof Error ? err.message : 'Withdraw failed.');
+    } finally {
+      setWalletBusy(null);
+    }
+  };
 
   return (
     <div>
@@ -86,7 +142,8 @@ export default function ProfilePage() {
       <h1 className="b365-page-title">Profile</h1>
 
       {loggedIn ? (
-        <div className="card b365-card b365-profile-card">
+        <>
+          <div className="card b365-card b365-profile-card">
           <h2 className="b365-profile-heading">Account</h2>
           <dl className="b365-profile-dl">
             <div>
@@ -113,6 +170,50 @@ export default function ProfilePage() {
           </button>
           {message && <p className="b365-success">{message}</p>}
         </div>
+
+        <div className="card b365-card b365-profile-card">
+          <h2 className="b365-profile-heading">Wallet</h2>
+          <p className="b365-profile-balance">
+            {walletQ.isPending
+              ? '…'
+              : walletQ.isError || walletQ.data?.status === 'error'
+                ? '—'
+                : Number(walletQ.data?.balance ?? 0).toFixed(2)}{' '}
+            <span className="b365-muted">{walletQ.data?.currency ?? 'ETB'}</span>
+          </p>
+          <label className="b365-field-label">
+            Amount
+            <input
+              type="number"
+              className="b365-input"
+              min={0}
+              step={0.01}
+              value={walletAmount}
+              onChange={(e) => setWalletAmount(e.target.value)}
+              disabled={walletBusy !== null}
+            />
+          </label>
+          <div className="b365-wallet-actions">
+            <button
+              type="button"
+              className="b365-btn-primary"
+              disabled={walletBusy !== null}
+              onClick={() => void onDeposit()}
+            >
+              {walletBusy === 'deposit' ? 'Depositing…' : 'Deposit'}
+            </button>
+            <button
+              type="button"
+              className="b365-btn-secondary"
+              disabled={walletBusy !== null}
+              onClick={() => void onWithdraw()}
+            >
+              {walletBusy === 'withdraw' ? 'Withdrawing…' : 'Withdraw'}
+            </button>
+          </div>
+          {walletErr && <p className="b365-error">{walletErr}</p>}
+        </div>
+        </>
       ) : (
         <>
           <div className="b365-profile-tabs">

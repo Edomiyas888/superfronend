@@ -911,6 +911,19 @@ a.b365-btn-header-login {
   margin: 0 0 14px;
 }
 
+.b365-profile-balance {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+.b365-wallet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 /* ——— All sports page ——— */
 .b365-all-sports-grid {
   display: grid;

@@ -2,7 +2,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSessionStore } from '../features/auth/sessionStore';
-import { fetchBalance } from '../features/wallet/walletStub';
+import { fetchBalance } from '../features/wallet/walletApi';
 import SportsSidebar from './SportsSidebar';
 import BetslipContent from './BetslipContent';
 import BottomNav from './BottomNav';
@@ -21,7 +21,7 @@ export default function Layout() {
 
   const walletQ = useQuery({
     queryKey: ['wallet', 'header'],
-    queryFn: () => fetchBalance(),
+    queryFn: () => fetchBalance(useSessionStore.getState().getAuthHeader()),
     enabled: loggedIn,
     staleTime: 30_000,
     refetchInterval: 60_000,
@@ -31,10 +31,15 @@ export default function Layout() {
     void hydrate();
   }, [hydrate]);
 
+  const balanceCurrency = walletQ.data?.currency ?? 'ETB';
   const balanceLabel =
-    walletQ.data?.balance != null && Number.isFinite(walletQ.data.balance)
-      ? `${Number(walletQ.data.balance).toFixed(2)} ${walletQ.data.currency}`
-      : `0.00 ${walletQ.data?.currency ?? 'ETB'}`;
+    walletQ.isPending && loggedIn
+      ? `… ${balanceCurrency}`
+      : walletQ.isError || walletQ.data?.status === 'error'
+        ? `— ${balanceCurrency}`
+        : walletQ.data?.balance != null && Number.isFinite(walletQ.data.balance)
+          ? `${Number(walletQ.data.balance).toFixed(2)} ${balanceCurrency}`
+          : `— ${balanceCurrency}`;
 
   return (
     <div className="app-shell b365">
