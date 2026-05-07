@@ -5,7 +5,7 @@
  * Optional: **WebSocket** — set `VITE_SWARM_TRANSPORT=websocket` and `VITE_SWARM_WS_URL` (finixbet-style, direct to BC).
  * Optional dev bypass: `VITE_SWARM_API_FALLBACKS=/bc-swarm/` (Vite proxy) if the API is not running.
  */
-const DEFAULT_URL = 'http://localhost:3001/api/';
+const DEFAULT_URL = 'http://localhost:3002/api/';
 
 /**
  * superbet-api origin (no `/api` suffix) — used for `/v1/auth/*`, wallet, etc.

@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   background: var(--b365-bg-deep);
+  padding-top: calc(var(--b365-header-h) + var(--b365-subnav-h));
 }
 
 /* ——— Top strip ——— */
@@ -99,8 +100,11 @@
 
 /* ——— App bar (main header) ——— */
 .b365-header {
-  position: relative;
-  z-index: 3;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
   background: linear-gradient(
     180deg,
     #18a882 0%,
@@ -110,6 +114,8 @@
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.14) inset,
     0 10px 36px rgba(0, 0, 0, 0.42);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  height: var(--b365-header-h);
   min-height: var(--b365-header-h);
   padding-top: env(safe-area-inset-top, 0px);
 }
@@ -126,10 +132,206 @@
   opacity: 0.9;
 }
 
+/* Search: icon in header bar; field opens in panel below header + subnav */
+.b365-header-search-trigger-wrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.b365-header-search-icon-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0.12) 100%);
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+
+.b365-header-search-icon-btn:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.b365-header-search-icon-btn:active {
+  transform: scale(0.96);
+}
+
+.b365-header-search-icon-btn.active {
+  border-color: rgba(255, 214, 10, 0.75);
+  color: var(--b365-yellow);
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.b365-header-search-icon-btn:focus-visible {
+  outline: 2px solid var(--b365-yellow);
+  outline-offset: 2px;
+}
+
+.b365-header-search-icon-btn-svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.b365-header-search-backdrop {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: calc(env(safe-area-inset-top, 0px) + var(--b365-header-h) + var(--b365-subnav-h));
+  z-index: 51;
+  background: rgba(0, 0, 0, 0.48);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.b365-header-search-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: calc(env(safe-area-inset-top, 0px) + var(--b365-header-h) + var(--b365-subnav-h));
+  z-index: 52;
+  padding: 10px 16px 14px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: linear-gradient(180deg, #2a2a2e 0%, #1e1e22 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.b365-header-search-panel-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.b365-header-search-panel-inner .b365-header-search-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.b365-header-search-close {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.b365-header-search-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.b365-header-search-close:focus-visible {
+  outline: 2px solid var(--b365-yellow);
+  outline-offset: 2px;
+}
+
+.b365-header-search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  min-height: 40px;
+  border-radius: 12px;
+  background: #333;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.b365-header-search-field:hover {
+  border-color: rgba(72, 209, 176, 0.3);
+  box-shadow: 0 0 0 1px rgba(72, 209, 176, 0.16);
+}
+
+.b365-header-search-field:focus-within {
+  border-color: rgba(72, 209, 176, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(72, 209, 176, 0.42),
+    0 0 14px rgba(72, 209, 176, 0.18);
+}
+
+.b365-header-search-glyph {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%);
+  color: rgba(245, 245, 247, 0.85);
+  pointer-events: none;
+}
+
+.b365-header-search-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.b365-header-search-input {
+  width: 100%;
+  height: 40px;
+  border: none;
+  outline: none;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--b365-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0 12px 0 38px;
+}
+
+.b365-header-search-input::placeholder {
+  color: rgba(220, 220, 224, 0.9);
+  opacity: 1;
+}
+
 .b365-header-inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 16px;
+  height: var(--b365-header-h);
+  padding: 2px 16px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: flex;
@@ -137,12 +339,49 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: nowrap;
-  min-height: var(--b365-header-h);
 }
 
 @media (max-width: 520px) {
+  .b365-header-search-panel {
+    padding: 8px 12px 12px;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .b365-header-search-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .b365-header-search-icon-btn-svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .b365-header-search-panel-inner {
+    gap: 8px;
+  }
+
+  .b365-header-search-field {
+    border-radius: 14px;
+    min-height: 36px;
+  }
+
+  .b365-header-search-input {
+    height: 36px;
+    font-size: 0.78rem;
+    padding: 0 10px 0 34px;
+  }
+
+  .b365-header-search-close {
+    width: 38px;
+    height: 38px;
+    font-size: 1.35rem;
+  }
+
   .b365-header-inner {
-    padding: 6px 12px;
+    height: var(--b365-header-h);
+    padding: 1px 12px;
     padding-left: max(12px, env(safe-area-inset-left, 0px));
     padding-right: max(12px, env(safe-area-inset-right, 0px));
     gap: 8px;
@@ -154,8 +393,8 @@
   }
 
   .b365-brand-logo {
-    height: 40px;
-    max-width: min(220px, 58vw);
+    height: min(40px, calc(var(--b365-header-h) - 10px));
+    max-width: min(210px, 58vw);
   }
 
   .b365-header-pill {
@@ -223,12 +462,13 @@
 .b365-brand {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
+  padding-inline: 4px;
   color: #fff !important;
   text-decoration: none !important;
   flex-shrink: 0;
   min-width: 0;
   line-height: 0;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
 }
 
 .b365-brand:hover {
@@ -237,11 +477,17 @@
 }
 
 .b365-brand-logo {
-  height: 52px;
+  height: min(46px, calc(var(--b365-header-h) - 8px));
   width: auto;
-  max-width: min(280px, 62vw);
+  max-width: min(280px, 58vw);
+  max-height: 100%;
   object-fit: contain;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter:
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.42))
+    brightness(1.04);
 }
 
 .b365-header-actions {
@@ -362,7 +608,7 @@ a.b365-btn-header-login {
 .b365-body {
   flex: 1;
   display: grid;
-  grid-template-columns: var(--b365-sidebar-w) minmax(0, 1fr) var(--b365-betslip-w);
+  grid-template-columns: minmax(0, 1fr) var(--b365-betslip-w);
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
@@ -372,15 +618,32 @@ a.b365-btn-header-login {
   align-content: start;
 }
 
+.b365-sports-rail-wrap {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, #323234 0%, var(--b365-bg) 55%, #242426 100%);
+}
+
+@media (min-width: 1200px) {
+  .b365-sports-rail-wrap--home .b365-sidebar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-left: calc(260px + 12px);
+  }
+}
+
 .b365-sidebar-left {
   background: var(--b365-bg);
   border-right: 1px solid var(--b365-border);
   overflow: auto;
-  min-height: calc(100vh - var(--b365-header-h) - var(--b365-topbar-h));
+  min-height: calc(100vh - var(--b365-header-h) - var(--b365-topbar-h) - var(--b365-subnav-h));
+}
+
+.b365-desktop-sports-sidebar {
+  display: none;
 }
 
 .b365-main {
-  padding: 12px 14px calc(var(--b365-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
+  padding: 16px 14px calc(var(--b365-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
   background: var(--b365-bg-deep);
   min-width: 0;
   min-height: 0;
@@ -392,7 +655,7 @@ a.b365-btn-header-login {
 
 @media (max-width: 520px) {
   .b365-main {
-    padding: 10px 12px calc(var(--b365-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+    padding: 14px 12px calc(var(--b365-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -426,97 +689,224 @@ a.b365-btn-header-login {
   flex-shrink: 0;
 }
 
+.b365-sidebar-hint {
+  padding: 0 10px 8px;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.b365-sidebar-section--sports {
+  min-width: 0;
+}
+
+.b365-sidebar-divider--home {
+  display: none;
+}
+
+.b365-sidebar-section--leagues {
+  display: none;
+}
+
+.b365-sidebar-subhint {
+  margin: 0;
+  padding: 0 10px 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--b365-text-dim);
+  letter-spacing: 0.04em;
+}
+
+.b365-sidebar-league-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 8px 10px;
+  min-width: 0;
+}
+
+.b365-sidebar-league-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #383838;
+  color: rgba(245, 245, 247, 0.94);
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: left;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  position: relative;
+  box-shadow:
+    0 7px 18px rgba(0, 0, 0, 0.32),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    filter 0.2s ease,
+    color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.b365-sidebar-league-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(56, 56, 58, 0.92) 0%, rgba(36, 36, 36, 0.98) 100%);
+  color: rgba(245, 245, 247, 0.98);
+}
+
+.b365-sidebar-league-btn.active {
+  color: #fffdf5;
+  border-color: rgba(255, 214, 10, 0.72);
+  background:
+    radial-gradient(circle at 18% 50%, rgba(255, 214, 10, 0.18), transparent 55%),
+    linear-gradient(180deg, rgba(50, 50, 52, 0.94) 0%, rgba(34, 34, 34, 1) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 214, 10, 0.28) inset,
+    0 0 20px rgba(255, 214, 10, 0.18),
+    0 9px 20px rgba(0, 0, 0, 0.36);
+}
+
+.b365-sidebar-league-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25) inset;
+}
+
+.b365-sidebar-league-btn.active .b365-sidebar-league-dot {
+  background: linear-gradient(145deg, rgba(255, 214, 10, 0.95), rgba(230, 185, 0, 0.85));
+  box-shadow: 0 0 10px rgba(255, 214, 10, 0.45);
+}
+
+.b365-sidebar-league-label {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .b365-sports-list {
   flex: 1;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 4px;
-  padding: 6px 8px 12px;
+  gap: 6px;
+  padding: 8px 10px 12px;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: var(--b365-border) transparent;
+  scrollbar-width: none;
   min-height: 0;
-  /* Prevent tiles stretching to full nav height (empty band under icon/text) */
   align-items: flex-start;
   align-content: flex-start;
+  touch-action: pan-x;
 }
 
 .b365-sports-list::-webkit-scrollbar {
-  height: 6px;
-}
-
-.b365-sports-list::-webkit-scrollbar-thumb {
-  background: var(--b365-border);
-  border-radius: 3px;
+  display: none;
 }
 
 .b365-sport-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   flex: 0 0 auto;
   align-self: flex-start;
-  height: fit-content;
-  min-height: 0;
-  min-width: 56px;
-  max-width: 76px;
-  padding: 8px 6px 6px;
-  border-radius: 6px;
-  color: var(--b365-text) !important;
+  width: 66px;
+  height: 66px;
+  padding: 8px 7px 7px;
+  border-radius: 14px;
+  color: rgba(245, 245, 247, 0.94) !important;
   text-decoration: none !important;
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #383838;
   position: relative;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow:
+    0 7px 18px rgba(0, 0, 0, 0.32),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    filter 0.2s ease;
 }
 
 .b365-sport-tile:hover {
-  background: var(--b365-surface);
+  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, rgba(56, 56, 58, 0.92) 0%, rgba(36, 36, 36, 0.98) 100%);
 }
 
 .b365-sport-tile.active {
-  background: linear-gradient(180deg, rgba(20, 128, 94, 0.22) 0%, var(--b365-surface) 100%);
-  border-color: rgba(20, 128, 94, 0.65);
-  box-shadow: 0 0 0 1px rgba(255, 214, 10, 0.2) inset;
+  border-color: rgba(255, 214, 10, 0.72);
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255, 214, 10, 0.22), transparent 58%),
+    linear-gradient(180deg, rgba(50, 50, 52, 0.94) 0%, rgba(34, 34, 34, 1) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 214, 10, 0.28) inset,
+    0 0 20px rgba(255, 214, 10, 0.22),
+    0 9px 20px rgba(0, 0, 0, 0.36);
 }
 
 .b365-sport-tile-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   margin-bottom: 4px;
-  color: var(--b365-text-muted);
+  color: rgba(242, 242, 245, 0.92);
+}
+
+.b365-sport-tile-svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.65;
 }
 
 .b365-sport-tile.active .b365-sport-tile-icon {
-  color: var(--b365-green);
+  color: #fffdf5;
 }
 
 .b365-sport-tile-label {
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.15;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
   text-align: center;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   overflow: hidden;
   max-width: 100%;
-  word-break: break-word;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .b365-sport-tile-count {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
-  color: var(--b365-text-dim);
-  margin-top: 3px;
+  color: rgba(174, 174, 178, 0.9);
+  margin-top: 2px;
   line-height: 1;
 }
 
@@ -694,6 +1084,16 @@ a.b365-btn-header-login {
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
 }
 
+@media (min-width: 1200px) {
+  .app-shell.b365.b365-home-shell .b365-bottom-nav {
+    left: var(--b365-home-sidebar-w);
+    width: calc(100% - var(--b365-home-sidebar-w));
+    right: auto;
+    z-index: 46;
+    justify-content: space-evenly;
+  }
+}
+
 .b365-bottom-nav-item {
   flex: 1;
   display: flex;
@@ -747,6 +1147,10 @@ a.b365-btn-header-login {
 
 .b365-bottom-nav-item.active .b365-bottom-nav-icon {
   color: var(--b365-yellow);
+}
+
+.b365-desktop-subnav {
+  display: none;
 }
 
 /* ——— Global footer (all pages using Layout) ——— */
@@ -1013,6 +1417,178 @@ a.b365-btn-header-login {
   margin-top: 28px;
 }
 
+.b365-home-layout {
+  display: block;
+  margin-top: 0;
+  margin-left: 0;
+  width: 100%;
+}
+
+.b365-home-main {
+  min-width: 0;
+}
+
+.b365-home-popular-sidebar {
+  display: block;
+}
+
+.b365-trending-sidebar {
+  position: sticky;
+  top: 0;
+  width: var(--b365-home-sidebar-w);
+  height: calc(100vh - var(--b365-header-h) - var(--b365-subnav-h));
+  max-height: calc(100vh - var(--b365-header-h) - var(--b365-subnav-h));
+  min-height: 0;
+  overflow-y: scroll;
+  margin-left: 0;
+  padding-left: 0;
+  border-radius: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(165deg, rgba(20, 128, 94, 0.08) 0%, transparent 42%),
+    linear-gradient(180deg, #1e1e22 0%, #161618 100%);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.35);
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.b365-trending-sidebar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.b365-trending-sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.b365-trending-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(180, 180, 190, 0.95);
+  border-radius: 999px;
+  border: 2px solid rgba(26, 26, 26, 0.95);
+}
+
+.b365-trending-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 180, 190, 0.95) rgba(255, 255, 255, 0.08);
+}
+
+.b365-trending-group + .b365-trending-group {
+  margin-top: 8px;
+}
+
+.b365-trending-title {
+  margin: 0;
+  padding: 12px 12px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(120, 230, 200, 0.95);
+  font-variant: all-small-caps;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.b365-trending-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 0;
+  padding: 0 8px 10px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.b365-trending-list::-webkit-scrollbar {
+  display: none;
+}
+
+.b365-trending-item {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 120px;
+  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(212, 212, 216, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  justify-content: flex-start;
+  padding: 10px 10px 8px;
+  text-align: center;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.b365-trending-item:first-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.b365-trending-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.b365-trending-item.active {
+  color: #8ef2d2;
+  background: linear-gradient(180deg, rgba(20, 128, 94, 0.2) 0%, rgba(20, 128, 94, 0.04) 100%);
+  border-color: rgba(72, 209, 176, 0.45);
+}
+
+.b365-trending-item.active::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--b365-green);
+}
+
+.b365-trending-item-icon {
+  width: 13px;
+  height: 13px;
+  color: rgba(245, 245, 247, 0.92);
+  flex-shrink: 0;
+}
+
+.b365-trending-item-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.b365-trending-item-label {
+  min-width: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.15;
+}
+
+@media (min-width: 1200px) {
+  .b365-home-popular-sidebar {
+    display: none;
+  }
+
+  .b365-home-main {
+    margin-top: 0;
+    margin-left: 0;
+  }
+}
+
 .b365-pop-leagues {
   margin: 0 0 0;
 }
@@ -1051,6 +1627,143 @@ a.b365-btn-header-login {
   border-color: var(--b365-green);
   background: linear-gradient(180deg, var(--b365-surface-2) 0%, var(--b365-surface) 100%);
   color: var(--b365-text);
+}
+
+/* ——— Home promo banner carousel ——— */
+.b365-home-promo-carousel {
+  margin: 0 0 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.b365-home-promo-carousel-viewport {
+  position: relative;
+  border-radius: var(--b365-radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: radial-gradient(120% 80% at 50% -20%, rgba(20, 128, 94, 0.2) 0%, #141416 55%);
+  overflow: hidden;
+  min-height: 148px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 10px 36px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 1000px) {
+  .b365-home-promo-carousel-viewport {
+    min-height: 188px;
+  }
+}
+
+.b365-home-promo-carousel-slide {
+  line-height: 0;
+  display: block;
+}
+
+.b365-home-promo-carousel-link {
+  display: block;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.b365-home-promo-carousel-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(300px, 48vw);
+  min-height: 140px;
+  object-fit: cover;
+  object-position: center center;
+  margin: 0 auto;
+  vertical-align: middle;
+}
+
+@media (min-width: 640px) {
+  .b365-home-promo-carousel-img {
+    max-height: min(340px, 42vw);
+    min-height: 160px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .b365-home-promo-carousel-img {
+    max-height: min(320px, 42vh);
+    min-height: 180px;
+  }
+}
+
+.b365-home-promo-carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.48);
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.b365-home-promo-carousel-nav:hover {
+  background: rgba(0, 0, 0, 0.65);
+  border-color: rgba(255, 214, 10, 0.55);
+}
+
+.b365-home-promo-carousel-nav:focus-visible {
+  outline: 2px solid var(--b365-yellow);
+  outline-offset: 2px;
+}
+
+.b365-home-promo-carousel-nav--prev {
+  left: 8px;
+}
+
+.b365-home-promo-carousel-nav--next {
+  right: 8px;
+}
+
+.b365-home-promo-carousel-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.b365-home-promo-carousel-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(80, 80, 86, 0.9);
+  cursor: pointer;
+  font-size: 0;
+  transition:
+    width 0.25s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.b365-home-promo-carousel-dot:hover {
+  border-color: rgba(72, 209, 176, 0.45);
+}
+
+.b365-home-promo-carousel-dot.active {
+  width: 26px;
+  border-color: rgba(72, 209, 176, 0.75);
+  background: linear-gradient(90deg, var(--b365-green) 0%, #3ecf9a 100%);
 }
 
 /* ——— Match of the Day ——— */
@@ -1197,6 +1910,162 @@ a.b365-btn-header-login {
 
 .b365-motd-swiper:active {
   cursor: grabbing;
+}
+
+.b365-motd-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.b365-motd-grid .b365-motd-card {
+  min-width: 0;
+}
+
+.b365-motd-grid .b365-motd-card-main {
+  padding: 10px 10px 8px;
+}
+
+/* Narrow columns: stack teams vertically; each team = logo + name row (full width for text) */
+.b365-motd-grid .b365-motd-teams {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 2px 0 4px;
+}
+
+.b365-motd-grid .b365-motd-team {
+  flex: none;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+}
+
+.b365-motd-grid .b365-motd-logo,
+.b365-motd-grid .b365-motd-logo-fallback {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  margin-bottom: 0;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.b365-motd-grid .b365-motd-team-line {
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+}
+
+.b365-motd-grid .b365-motd-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  line-height: 1.3;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.b365-motd-grid .b365-motd-score-pill {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.b365-motd-grid .b365-motd-vs {
+  align-self: center;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 6px 10px;
+  max-width: 100%;
+}
+
+.b365-motd-grid .b365-motd-vs--live {
+  flex-direction: column;
+}
+
+.b365-motd-grid .b365-motd-vs-text {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.b365-motd-grid .b365-motd-kickoff,
+.b365-motd-grid .b365-motd-time {
+  font-size: 9px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+}
+
+.b365-motd-grid .b365-motd-live-badge {
+  font-size: 7px;
+  padding: 4px 9px;
+}
+
+.b365-motd-grid .b365-motd-odds {
+  padding: 8px 8px 10px;
+  gap: 6px;
+}
+
+.b365-motd-grid .b365-motd-odd {
+  padding: 8px 5px;
+  min-height: 38px;
+  border-radius: 8px;
+}
+
+.b365-motd-grid .b365-motd-odd-label {
+  font-size: 8px;
+}
+
+.b365-motd-grid .b365-motd-odd-val {
+  font-size: 14px;
+}
+
+.b365-motd-grid .b365-motd-skel--logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.b365-motd-grid .b365-motd-card--skeleton .b365-motd-teams {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 6px 6px 4px;
+}
+
+.b365-motd-grid .b365-motd-card--skeleton .b365-motd-team {
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.b365-motd-grid .b365-motd-card--skeleton .b365-motd-vs {
+  align-self: center;
+  margin: 0 auto;
 }
 
 .b365-motd-card {
@@ -1474,6 +2343,9 @@ a.b365-btn-header-login {
   color: var(--b365-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .b365-motd-odd-val {
@@ -1481,6 +2353,11 @@ a.b365-btn-header-login {
   font-weight: 800;
   color: var(--b365-odds-gold);
   font-variant-numeric: tabular-nums;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .b365-motd-odd.selected .b365-motd-odd-label {
@@ -1667,13 +2544,15 @@ a.b365-btn-header-login {
   border-top: 1px solid var(--b365-border);
 }
 
-/* Day header: date + 1/X/2 block — second column width matches three odds tracks below */
+/* Day header: same total width as .b365-mm-row (no horizontal padding on grid — padding only on title) */
 .b365-mm-day-head {
+  --b365-mm-odds-col: min(62px, 12vw);
+  --b365-mm-tools-col: 78px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, calc(min(62px, 12vw) * 3));
+  grid-template-columns: minmax(0, 1fr) var(--b365-mm-tools-col) minmax(0, calc(var(--b365-mm-odds-col) * 3));
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 0;
+  padding: 10px 0;
   min-width: 0;
   background: #252525;
   border-bottom: 1px solid var(--b365-border);
@@ -1684,6 +2563,8 @@ a.b365-btn-header-login {
   font-size: 13px;
   color: #e8e8e8;
   letter-spacing: 0.02em;
+  padding-left: 12px;
+  min-width: 0;
 }
 
 .b365-mm-day-cols {
@@ -1694,16 +2575,34 @@ a.b365-btn-header-login {
   font-size: 12px;
   font-weight: 700;
   color: #9a9a9a;
-  border-left: 1px solid var(--b365-border);
+  /* divider only on tools column (border-right); avoid extra border here — it skews 1/X/2 vs row odds */
   padding: 4px 0;
   align-self: stretch;
   align-items: center;
 }
 
+.b365-mm-day-cols > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+}
+
+.b365-mm-day-tools {
+  align-self: stretch;
+  border-left: 1px solid var(--b365-border);
+  border-right: 1px solid var(--b365-border);
+}
+
 /* Row: team column takes remaining space; odds capped (~36vw max) so names are not squeezed */
 .b365-mm-row {
+  --b365-mm-odds-col: min(62px, 12vw);
+  --b365-mm-tools-col: 78px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, min(62px, 12vw)));
+  grid-template-columns: minmax(0, 1fr) var(--b365-mm-tools-col) repeat(3, minmax(0, var(--b365-mm-odds-col)));
   grid-template-rows: auto auto auto;
   align-items: stretch;
   min-width: 0;
@@ -1727,9 +2626,8 @@ a.b365-btn-header-login {
 }
 
 .b365-mm-rpad {
-  grid-column: 2 / 5;
+  grid-column: 3 / 6;
   grid-row: 1;
-  border-left: 1px solid var(--b365-border);
   background: #1e1e1e;
 }
 
@@ -1761,12 +2659,18 @@ a.b365-btn-header-login {
   overflow: hidden;
 }
 
-.b365-mm-rpad-foot {
-  grid-column: 2 / 5;
-  grid-row: 3;
+.b365-mm-tools {
+  grid-column: 2;
+  grid-row: 1 / 4;
   border-left: 1px solid var(--b365-border);
+  border-right: 1px solid var(--b365-border);
   background: #1e1e1e;
-  min-height: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 6px;
 }
 
 .b365-mm-day .b365-mm-row:last-child {
@@ -1881,6 +2785,17 @@ a.b365-btn-header-login {
   opacity: 0.95;
 }
 
+.b365-mm-tools .b365-mm-stream {
+  width: 18px;
+  height: 18px;
+  font-size: 9px;
+}
+
+.b365-mm-tools .b365-mm-markets {
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
 .b365-mm-live {
   font-size: 10px;
   font-weight: 800;
@@ -1914,12 +2829,11 @@ a.b365-btn-header-login {
 }
 
 .b365-mm-odds {
-  grid-column: 2 / 5;
+  grid-column: 3 / 6;
   grid-row: 2;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   min-width: 0;
-  border-left: 1px solid var(--b365-border);
   align-items: stretch;
   justify-items: stretch;
   align-self: stretch;
@@ -1985,6 +2899,10 @@ a.b365-btn-header-login {
 
 .b365-mm-odd--locked .b365-mm-lock-ico {
   flex-shrink: 0;
+}
+
+.b365-mm-odd .b365-odd-flash-slot:empty {
+  display: none;
 }
 
 .b365-match-table {
@@ -2801,10 +3719,21 @@ a.b365-btn-header-login {
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  justify-content: center;
 }
 
 .b365-motd-odd-val-inner {
   width: 100%;
+  justify-content: center;
+}
+
+/* No reserved arrow gutter when idle — keeps 1/X/2 labels and prices visually centered */
+.b365-motd-odd .b365-odd-flash-slot:empty {
+  display: none;
+}
+
+.b365-motd-odd .b365-odd-price-with-flash {
+  justify-content: center;
 }
 
 .b365-odd-flash-slot {
@@ -3081,19 +4010,26 @@ a.b365-btn-header-login {
 /* ——— Mobile / narrow: keep date + 1X2 header in one row; match rows stay horizontal grid ——— */
 @media (max-width: 640px) {
   .b365-mm-day-head {
-    grid-template-columns: minmax(0, 1fr) minmax(0, calc(min(56px, 11.5vw) * 3));
-    gap: 6px;
-    padding: 8px 8px;
+    --b365-mm-odds-col: min(56px, 11.5vw);
+    --b365-mm-tools-col: 66px;
+    grid-template-columns: minmax(0, 1fr) var(--b365-mm-tools-col) minmax(0, calc(var(--b365-mm-odds-col) * 3));
+    gap: 0;
+    padding: 8px 0;
+  }
+
+  .b365-mm-day-title {
+    padding-left: 10px;
   }
 
   .b365-mm-day-cols {
-    border-left: 1px solid var(--b365-border);
     padding: 4px 0;
     width: auto;
   }
 
   .b365-mm-row {
-    grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, min(56px, 11.5vw)));
+    --b365-mm-odds-col: min(56px, 11.5vw);
+    --b365-mm-tools-col: 66px;
+    grid-template-columns: minmax(0, 1fr) var(--b365-mm-tools-col) repeat(3, minmax(0, var(--b365-mm-odds-col)));
   }
 
   .b365-mm-odd {
@@ -3183,28 +4119,45 @@ a.b365-btn-header-login {
 
 /* ——— Responsive ——— */
 @media (max-width: 1199px) {
+  .b365-home-layout {
+    display: block;
+    margin-top: 0;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /** League strip below Match of the day on mobile; desktop uses left sidebar only. */
+  .b365-home-main > .b365-home-popular-sidebar {
+    margin-top: 16px;
+  }
+
+  .b365-trending-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: 58vh;
+    overflow-y: auto;
+  }
+
   .b365-body {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /** Tight gap under horizontal sports strip (was 12px / 10px from .b365-main) */
+  /** Space under horizontal sports strip / below fixed header area */
   .b365-main {
-    padding-top: 4px;
+    padding-top: 16px;
   }
 
   /**
    * Sports rail: fixed vertical size so tapping / loading / %min-height cannot
    * briefly expand the strip to viewport height (Safari + flex + min-height:100% issue).
    */
-  .b365-sidebar-left {
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  .b365-sports-rail-wrap {
     min-height: unset;
     height: var(--b365-sports-rail-total);
     max-height: var(--b365-sports-rail-total);
     overflow: hidden;
     flex-shrink: 0;
-    background: linear-gradient(180deg, #323234 0%, var(--b365-bg) 55%, #242426 100%);
     border-radius: 0 0 var(--b365-radius) var(--b365-radius);
     contain: layout style;
   }
@@ -3225,12 +4178,11 @@ a.b365-btn-header-login {
   }
 
   .b365-sports-list {
-    /* Do not grow to fill rail height — keeps row height = content, stops tile stretch */
     flex: 0 1 auto;
     min-height: 0;
     max-height: 100%;
-    padding: 1px 6px 0;
-    gap: 2px;
+    padding: 3px 8px 4px;
+    gap: 4px;
     align-items: flex-start;
     align-content: flex-start;
     touch-action: pan-x;
@@ -3240,35 +4192,32 @@ a.b365-btn-header-login {
   }
 
   .b365-sports-list::-webkit-scrollbar {
-    height: 2px;
+    display: none;
   }
 
   .b365-sport-tile {
-    min-width: 48px;
-    max-width: 76px;
-    min-height: 0;
-    height: fit-content;
-    max-height: none;
+    width: 60px;
+    height: 60px;
     align-self: flex-start;
-    padding: 3px 4px 2px;
-    border-radius: 4px;
-    justify-content: flex-start;
+    padding: 6px 4px 4px;
+    border-radius: 12px;
+    justify-content: center;
   }
 
   .b365-sport-tile-icon {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 1px;
+    width: 20px;
+    height: 20px;
+    margin-bottom: 3px;
   }
 
   .b365-sport-tile-label {
-    font-size: 8px;
-    line-height: 1.1;
+    font-size: 7px;
+    line-height: 1.15;
     -webkit-line-clamp: 1;
   }
 
   .b365-sport-tile-count {
-    margin-top: 0;
+    margin-top: 1px;
     font-size: 7px;
   }
 
@@ -3281,6 +4230,455 @@ a.b365-btn-header-login {
     align-items: center;
     justify-content: center;
     bottom: calc(var(--b365-nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}
+
+@media (min-width: 1000px) {
+  .app-shell.b365 {
+    /* Gap below fixed desktop subnav so in-flow content never sits under it (font zoom / rounding). */
+    padding-top: calc(var(--b365-header-h) + var(--b365-subnav-h) + 8px);
+  }
+
+  :root {
+    --b365-header-h: 52px;
+    --b365-home-sidebar-w: 240px;
+    --b365-sidebar-w: 216px;
+    --b365-betslip-w: 280px;
+    --b365-subnav-h: 60px;
+  }
+
+  .b365-bottom-nav {
+    display: none;
+  }
+
+  .b365-desktop-subnav {
+    display: flex;
+    position: fixed;
+    top: var(--b365-header-h);
+    left: 0;
+    right: 0;
+    z-index: 49;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 6px 10px;
+    min-height: var(--b365-subnav-h);
+    padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    background: linear-gradient(180deg, #2e2e32 0%, #252528 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  }
+
+  .b365-desktop-subnav::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .b365-desktop-subnav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+  }
+
+  .b365-desktop-subnav-item {
+    flex: 0 0 auto;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 18px;
+    max-width: 100%;
+    color: var(--b365-text-muted);
+    text-decoration: none;
+    font-size: 0.94rem;
+    font-weight: 600;
+    border-radius: var(--b365-radius-sm);
+    position: relative;
+    transition:
+      color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .b365-desktop-subnav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    flex-shrink: 0;
+  }
+
+  .b365-desktop-subnav-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .b365-desktop-subnav-item.active {
+    color: #fff;
+    background: rgba(20, 128, 94, 0.28);
+  }
+
+  .b365-desktop-subnav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 14px;
+    right: 14px;
+    height: 3px;
+    border-radius: 2px 2px 0 0;
+    background: var(--b365-yellow);
+  }
+
+  .b365-desktop-subnav-item.active .b365-desktop-subnav-icon {
+    color: var(--b365-yellow);
+  }
+
+  .b365-app-footer {
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .b365-body {
+    grid-template-columns: var(--b365-sidebar-w) minmax(0, 1fr) var(--b365-betslip-w);
+    max-width: 1560px;
+    align-items: stretch;
+  }
+
+  .b365-header-inner {
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  .b365-brand-logo {
+    height: 38px;
+    max-width: min(240px, 36vw);
+  }
+
+  .b365-btn-outline,
+  .b365-btn-header-login,
+  .b365-header-pill {
+    font-size: 0.78rem;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .b365-main {
+    padding: 16px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .b365-motd {
+    padding: 12px 12px 14px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+  }
+
+  .b365-motd-header {
+    margin-bottom: 8px;
+  }
+
+  .b365-motd-title {
+    font-size: 0.84rem;
+    letter-spacing: 0.08em;
+  }
+
+  .b365-motd-sport {
+    font-size: 8px;
+    padding: 3px 10px;
+  }
+
+  .b365-motd-nav-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .b365-motd-card-main {
+    padding: 10px 10px 8px;
+  }
+
+  .b365-motd-logo,
+  .b365-motd-logo-fallback,
+  .b365-motd-skel--logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+  }
+
+  .b365-motd-name {
+    font-size: 11px;
+  }
+
+  .b365-motd-score-pill {
+    min-width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .b365-motd-vs {
+    padding: 6px 10px;
+    gap: 6px 8px;
+  }
+
+  .b365-motd-vs-text {
+    font-size: 0.78rem;
+  }
+
+  .b365-motd-kickoff,
+  .b365-motd-time {
+    font-size: 10px;
+  }
+
+  .b365-motd-odds {
+    gap: 6px;
+    padding: 8px 10px 10px;
+  }
+
+  .b365-motd-odd {
+    padding: 10px 6px;
+    min-height: 42px;
+    border-radius: 8px;
+  }
+
+  .b365-motd-odd-val {
+    font-size: 15px;
+  }
+
+  .b365-motd-dot.active {
+    width: 22px;
+  }
+
+  .b365-mm-day-head {
+    --b365-mm-odds-col: 50px;
+    --b365-mm-tools-col: 58px;
+    padding: 6px 0;
+  }
+
+  .b365-mm-day-cols {
+    font-size: 10px;
+    padding: 2px 0;
+  }
+
+  .b365-mm-row {
+    --b365-mm-odds-col: 50px;
+    --b365-mm-tools-col: 58px;
+  }
+
+  .b365-mm-tools {
+    gap: 6px;
+    padding: 6px 4px;
+  }
+
+  .b365-mm-odd {
+    min-height: 34px;
+    padding: 3px 2px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .b365-mm-odd.selected {
+    box-shadow:
+      inset 0 0 0 1px var(--b365-odds-sel-ring),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+      0 0 0 1px var(--b365-odds-sel-accent),
+      0 2px 10px var(--b365-odds-sel-glow);
+    text-shadow:
+      0 0 10px rgba(255, 214, 10, 0.35),
+      0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  .b365-motd-grid .b365-motd-odds {
+    padding: 6px 6px 8px;
+    gap: 5px;
+  }
+
+  .b365-motd-grid .b365-motd-odd {
+    min-height: 32px;
+    padding: 5px 3px;
+  }
+
+  .b365-motd-grid .b365-motd-odd-val {
+    font-size: 12px;
+  }
+
+  .b365-motd-grid .b365-motd-odd-label {
+    font-size: 7px;
+  }
+
+  .b365-desktop-sports-sidebar {
+    display: block;
+  }
+
+  .b365-home-shell .b365-desktop-sports-sidebar.b365-sidebar-left {
+    position: sticky;
+    top: calc(var(--b365-header-h) + var(--b365-subnav-h));
+    align-self: start;
+    height: calc(100vh - var(--b365-header-h) - var(--b365-subnav-h));
+    max-height: calc(100vh - var(--b365-header-h) - var(--b365-subnav-h));
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--b365-bg);
+    border-right: 1px solid var(--b365-border);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.2);
+    z-index: 2;
+  }
+
+  .b365-home-shell .b365-desktop-sports-sidebar .b365-sidebar-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-inner--home-split {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    height: 100%;
+    background: linear-gradient(180deg, var(--b365-bg) 0%, var(--b365-bg-deep) 100%);
+    box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.06);
+    border-radius: 0 10px 10px 0;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-section--sports {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-inner--home-split .b365-sidebar-section--sports .b365-sports-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-section--leagues {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: transparent;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-league-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-divider--home {
+    display: block;
+    flex-shrink: 0;
+    height: 1px;
+    margin: 6px 10px 10px;
+    border: none;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 15%,
+      rgba(255, 214, 10, 0.35) 50%,
+      rgba(255, 255, 255, 0.08) 85%,
+      transparent 100%
+    );
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-inner--home-split .b365-sidebar-heading {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-subhint {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-inner {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-heading {
+    padding: 10px 10px 6px;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sports-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow-x: hidden;
+    overflow-y: auto;
+    align-items: stretch;
+    align-content: stretch;
+    gap: 6px;
+    padding: 6px 8px 12px;
+    scrollbar-width: thin;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sport-tile {
+    width: 100%;
+    height: auto;
+    min-height: 54px;
+    border-radius: 8px;
+    padding: 8px 10px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sport-tile-icon {
+    width: 18px;
+    height: 18px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sport-tile-label {
+    font-size: 0.8rem;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sport-tile-count {
+    margin-left: auto;
+    margin-top: 0;
+    font-size: 0.72rem;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-league-btn {
+    min-height: 54px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .b365-desktop-sports-sidebar .b365-sidebar-league-list {
+    gap: 6px;
+    padding: 4px 8px 12px;
+  }
+
+  .b365-sports-rail-wrap {
+    display: none;
   }
 }
 

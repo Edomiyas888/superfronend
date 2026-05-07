@@ -1,11 +1,12 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
 import SportsSidebar from './SportsSidebar';
 import BetslipContent from './BetslipContent';
 import BottomNav from './BottomNav';
+import DesktopSubNav from './DesktopSubNav';
 import AppFooter from './AppFooter';
 
 function isHomeRoute(pathname: string): boolean {
@@ -41,19 +42,26 @@ export default function Layout() {
           ? `${Number(walletQ.data.balance).toFixed(2)} ${balanceCurrency}`
           : `— ${balanceCurrency}`;
 
-  return (
-    <div className="app-shell b365">
-      <div className="b365-topbar">
-        <div className="b365-topbar-inner">
-          <span className="b365-topbar-links">
-            <a href="#main">Help</a>
-            <a href="#main">Rules</a>
-            <a href="#main">Responsible Gambling</a>
-          </span>
-          <span className="b365-topbar-meta">18+ · Superbet demo UI</span>
-        </div>
-      </div>
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (!searchOpen) return;
+    const id = window.setTimeout(() => searchInputRef.current?.focus(), 10);
+    return () => window.clearTimeout(id);
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSearchOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [searchOpen]);
+
+  return (
+    <div className={`app-shell b365 ${isHomeRoute(location.pathname) ? 'b365-home-shell' : ''}`}>
       <header className="b365-header">
         <div className="b365-header-inner">
           <div className="b365-header-start">
@@ -73,6 +81,21 @@ export default function Layout() {
           </div>
 
           <div className="b365-header-actions">
+            <div className="b365-header-search-trigger-wrap">
+              <button
+                type="button"
+                className={`b365-header-search-icon-btn ${searchOpen ? 'active' : ''}`}
+                aria-label={searchOpen ? 'Close search' : 'Open search'}
+                aria-expanded={searchOpen}
+                aria-controls="b365-header-search-panel"
+                onClick={() => setSearchOpen((open) => !open)}
+              >
+                <svg className="b365-header-search-icon-btn-svg" viewBox="0 0 24 24" aria-hidden focusable="false">
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path d="M16 16l5 5" />
+                </svg>
+              </button>
+            </div>
             {loggedIn ? (
               <>
                 <NavLink to="/profile" className="b365-header-pill b365-header-pill--name" title="Account">
@@ -94,14 +117,63 @@ export default function Layout() {
             )}
           </div>
         </div>
+
+        {searchOpen ? (
+          <>
+            <div
+              className="b365-header-search-backdrop"
+              aria-hidden
+              onClick={() => setSearchOpen(false)}
+            />
+            <div id="b365-header-search-panel" className="b365-header-search-panel" role="search">
+              <div className="b365-header-search-panel-inner">
+                <label className="b365-header-search-field" htmlFor="header-search-input">
+                  <span className="b365-header-search-glyph" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <circle cx="11" cy="11" r="6.5" />
+                      <path d="M16 16l5 5" />
+                    </svg>
+                  </span>
+                  <input
+                    ref={searchInputRef}
+                    id="header-search-input"
+                    type="search"
+                    className="b365-header-search-input"
+                    placeholder="Search for matches, leagues, or players..."
+                    autoComplete="off"
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="b365-header-search-close"
+                  aria-label="Close search"
+                  onClick={() => setSearchOpen(false)}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </>
+        ) : null}
       </header>
 
-      <div className="b365-body">
-        <aside className="b365-sidebar-left" aria-label="Sports menu">
+      <DesktopSubNav />
+
+      <section
+        className={`b365-sports-rail-wrap ${isHomeRoute(location.pathname) ? 'b365-sports-rail-wrap--home' : ''}`}
+        aria-label="Sports menu"
+      >
+        <SportsSidebar />
+      </section>
+
+      <div className="b365-body"       style={{ paddingTop: '35px' }}
+      >
+        <aside className="b365-sidebar-left b365-desktop-sports-sidebar" aria-label="Sports menu">
           <SportsSidebar />
         </aside>
 
-        <main id="main" className="b365-main">
+        <main id="main" className="b365-main"       
+        >
           <Outlet />
         </main>
 

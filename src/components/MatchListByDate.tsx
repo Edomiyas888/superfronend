@@ -96,6 +96,7 @@ export default function MatchListByDate({
           <section key={day.dayKey} className="b365-mm-day" aria-label={day.label}>
             <header className="b365-mm-day-head">
               <span className="b365-mm-day-title">{day.label}</span>
+              <span className="b365-mm-day-tools" aria-hidden />
               <div className="b365-mm-day-cols" aria-hidden>
                 <span>1</span>
                 <span>X</span>
@@ -140,6 +141,18 @@ export default function MatchListByDate({
                       {showScores ? <span className="b365-mm-score-pill">{g.awayScore}</span> : null}
                     </div>
                   </Link>
+
+                  <div className="b365-mm-cell b365-mm-tools" aria-label="Row tools">
+                    <span className="b365-mm-stats-wrap" title="Statistics" aria-label="Statistics">
+                      <StatsGlyph className="b365-mm-stats-ico" />
+                    </span>
+                    <span className="b365-mm-stream" title="Match centre">
+                      ▶
+                    </span>
+                    <span className="b365-mm-markets">
+                      {g.marketsCount} »
+                    </span>
+                  </div>
 
                   <div className="b365-mm-cell b365-mm-odds" role="group" aria-label="Match result odds">
                     {mr ? (
@@ -202,19 +215,7 @@ export default function MatchListByDate({
                     {g.competitionName ? (
                       <span className="b365-mm-comp">· {g.competitionName}</span>
                     ) : null}
-                    <span className="b365-mm-footer-icons">
-                      <span className="b365-mm-stats-wrap" title="Statistics" aria-label="Statistics">
-                        <StatsGlyph className="b365-mm-stats-ico" />
-                      </span>
-                      <span className="b365-mm-stream" title="Match centre">
-                        ▶
-                      </span>
-                      <span className="b365-mm-markets">
-                        {g.marketsCount} »
-                      </span>
-                    </span>
                   </div>
-                  <div className="b365-mm-cell b365-mm-rpad-foot" aria-hidden />
                 </div>
               );
             })}

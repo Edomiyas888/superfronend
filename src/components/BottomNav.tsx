@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
-function useSportsNavActive(): boolean {
+export function useSportsNavActive(): boolean {
   const { pathname } = useLocation();
   return pathname === '/sports' || pathname.startsWith('/sport/');
 }

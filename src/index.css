@@ -35,7 +35,10 @@
   --b365-odds-sel-glow: rgba(0, 220, 180, 0.22);
   --b365-error: #ff453a;
   --b365-link: #64d2ff;
-  --b365-header-h: 52px;
+  --b365-header-h: 56px;
+  /** Desktop main subnav below green header; 0 on mobile */
+  --b365-subnav-h: 0px;
+  --b365-home-sidebar-w: 256px;
   --b365-topbar-h: 28px;
   --b365-sidebar-w: 232px;
   --b365-betslip-w: 300px;
@@ -44,7 +47,7 @@
   --b365-radius-lg: 14px;
   --b365-nav-h: 60px;
   /** Mobile sports strip total height (heading + horizontal scroller); fixed to avoid layout jump */
-  --b365-sports-rail-total: 76px;
+  --b365-sports-rail-total: 94px;
   --font-ui: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 
   font-family: var(--font-ui);
