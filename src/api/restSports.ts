@@ -1,9 +1,9 @@
 import { swarmPost, unwrapData } from './http';
-import { MATCH_RESULT_TYPES, P1XP2_MARKET_TYPES } from './marketConstants';
+import { DOUBLE_CHANCE_MARKET_TYPES, MATCH_RESULT_TYPES, MATCH_ROW_MARKET_TYPES, P1XP2_MARKET_TYPES } from './marketConstants';
 import { liveDisplayFieldsFromRawGame } from '../utils/liveGameDisplay';
 import { pickTeamIdFromGame } from '../utils/teamLogos';
 import type { SwarmResponse } from './swarmTypes';
-import type { FlatGameRow, GameView, LiveLastEvent, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
+import type { DoubleChanceOdds, FlatGameRow, GameView, LiveLastEvent, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
 import { normalizeGameInfo } from '../utils/liveGameDisplay';
 
 const SUB = { subscribe: true as const };
@@ -219,7 +219,7 @@ export async function restGetMatchesForSport(
       where: {
         sport: sportWhere,
         game: { '@and': gameAnd },
-        market: { type: { '@in': MATCH_RESULT_TYPES } },
+        market: { type: { '@in': MATCH_ROW_MARKET_TYPES } },
       },
       ...SUB,
     },
@@ -269,7 +269,7 @@ export async function restGetUpcomingMatches(opts?: {
     where: {
       sport: { alias: sportAlias },
       game: { '@and': gameAnd },
-      market: { type: { '@in': MATCH_RESULT_TYPES } },
+      market: { type: { '@in': MATCH_ROW_MARKET_TYPES } },
     },
     ...SUB,
   };
@@ -405,7 +405,6 @@ export async function restGetLiveGames(): Promise<GameView[]> {
       where: {
         game: { type: 1, '@limit': 400 },
         market: { type: { '@in': P1XP2_MARKET_TYPES } },
-        event: { type: { '@in': ['P1', 'X', 'P2'] } },
       },
       ...SUB,
     },
@@ -419,7 +418,6 @@ export async function restGetPromotedMatches(opts?: { sportAlias?: string }): Pr
   const where: Record<string, unknown> = {
     game: { promoted: true, '@limit': 200 },
     market: { type: { '@in': P1XP2_MARKET_TYPES } },
-    event: { type: { '@in': ['P1', 'X', 'P2'] } },
   };
   if (opts?.sportAlias) {
     where.sport = { alias: String(opts.sportAlias) };
@@ -511,6 +509,105 @@ function pickThreeWay(events: ParsedEvent[]): { home: ParsedEvent; draw: ParsedE
   return null;
 }
 
+function isProbablyDoubleChanceMarket(mk: Record<string, unknown>): boolean {
+  const t = String(mk.type ?? '');
+  if (DOUBLE_CHANCE_MARKET_TYPES.includes(t)) return true;
+  const n = String(mk.name ?? '').toLowerCase();
+  return /double\s*chance|\b(?:1x[-\s]?12[-\s]?2x)|doppelt|дв\.?\s*шанс/i.test(n);
+}
+
+/** Map three events to Double Chance legs (home+draw / home+away / draw+away). */
+function pickDoubleChance(
+  events: ParsedEvent[],
+  allowOrderFallback: boolean,
+): { homeOrDraw: ParsedEvent; homeOrAway: ParsedEvent; drawOrAway: ParsedEvent } | null {
+  if (events.length < 3) return null;
+
+  type Key = '1X' | '12' | 'X2';
+  const bucket = {} as Partial<Record<Key, ParsedEvent>>;
+
+  const classify = (e: ParsedEvent): Key | null => {
+    const t = e.type.replace(/\s+/g, '').toUpperCase();
+    const nl = e.name.trim().toLowerCase().replace(/\s+/g, '');
+
+    if (['DC1X', 'P1X', 'HOMEDRAW', '1XDRAW', '1ANDX'].includes(t)) return '1X';
+    if (['DC12', 'HOMEAWAY', '12MARKET'].includes(t) || t === 'P1P2') return '12';
+    if (['DCX2', 'PX2', 'DRAWAWAY', 'X2MARKET', 'DC2X'].includes(t)) return 'X2';
+
+    if (nl === '1x' || nl === 'x1' || nl === '1-x') return '1X';
+    if (nl === '12' || nl === '1-2') return '12';
+    if (nl === 'x2' || nl === '2x' || nl === 'x-2') return 'X2';
+
+    if (/^1[&+/]x$/i.test(nl) || /^x[&+/]1$/i.test(nl)) return '1X';
+    if (/^1[&+/]2$/i.test(nl) || /^2[&+/]1$/i.test(nl)) return '12';
+    if (/^x[&+/]2$/i.test(nl) || /^2[&+/]x$/i.test(nl)) return 'X2';
+
+    if (nl.includes('home') && nl.includes('draw') && !nl.includes('away')) return '1X';
+    if (nl.includes('home') && nl.includes('away') && !nl.includes('draw')) return '12';
+    if (nl.includes('draw') && nl.includes('away') && !nl.includes('home')) return 'X2';
+
+    return null;
+  };
+
+  for (const e of events) {
+    const k = classify(e);
+    if (k) bucket[k] = e;
+  }
+
+  if (bucket['1X'] && bucket['12'] && bucket['X2']) {
+    return { homeOrDraw: bucket['1X'], homeOrAway: bucket['12'], drawOrAway: bucket['X2'] };
+  }
+
+  if (allowOrderFallback && events.length === 3) {
+    const [a, b, c] = events;
+    if (a && b && c) {
+      return { homeOrDraw: a, homeOrAway: b, drawOrAway: c };
+    }
+  }
+  return null;
+}
+
+/**
+ * Pick Double Chance market and map events to 1X / 12 / X2 (shown as «2X»).
+ */
+function extractDoubleChanceFromGame(g: Record<string, unknown>): DoubleChanceOdds | undefined {
+  const marketObj = (g.market as Record<string, unknown>) ?? {};
+  const markets = Object.values(marketObj) as Record<string, unknown>[];
+  const sorted = [...markets].sort((a, b) => {
+    const prio = (mk: Record<string, unknown>) => {
+      const t = String(mk.type ?? '');
+      if (DOUBLE_CHANCE_MARKET_TYPES.includes(t)) return 0;
+      const n = String(mk.name ?? '').toLowerCase();
+      if (/double\s*chance|\b(?:1x[-\s]?12[-\s]?2x)\b/i.test(n)) return 1;
+      return 2;
+    };
+    return prio(a) - prio(b);
+  });
+
+  for (const mk of sorted) {
+    const mkt = String(mk.type ?? '');
+    if (MATCH_RESULT_TYPES.includes(mkt)) continue;
+    const evObj = (mk.event as Record<string, unknown>) ?? {};
+    const events = parseGameEvents(evObj);
+    const allowFb = isProbablyDoubleChanceMarket(mk);
+    const triple = pickDoubleChance(events, allowFb);
+    if (!triple) continue;
+    const { homeOrDraw, homeOrAway, drawOrAway } = triple;
+    if (![homeOrDraw, homeOrAway, drawOrAway].every((e) => Number.isFinite(e.price) && e.price > 0 && Number.isFinite(e.id))) {
+      continue;
+    }
+
+    return {
+      marketId: Number(mk.id),
+      marketName: String(mk.name ?? 'Double Chance'),
+      homeOrDraw: { eventId: homeOrDraw.id, price: homeOrDraw.price, name: homeOrDraw.name },
+      homeOrAway: { eventId: homeOrAway.id, price: homeOrAway.price, name: homeOrAway.name },
+      drawOrAway: { eventId: drawOrAway.id, price: drawOrAway.price, name: drawOrAway.name },
+    };
+  }
+  return undefined;
+}
+
 /**
  * Pick the first suitable 3-way market and map events to home / draw / away (P1/X/P2, 1/X/2, or order).
  */
@@ -524,6 +621,7 @@ function extractMatchResult1x2FromGame(g: Record<string, unknown>): MatchResult1
   });
 
   for (const mk of sorted) {
+    if (isProbablyDoubleChanceMarket(mk)) continue;
     const evObj = (mk.event as Record<string, unknown>) ?? {};
     const events = parseGameEvents(evObj);
     const triple = pickThreeWay(events);
@@ -715,6 +813,7 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
           marketsCount: Number(g.markets_count ?? 0),
           promoted: !!g.promoted,
           matchResult1x2: extractMatchResult1x2FromGame(g),
+          doubleChance: extractDoubleChanceFromGame(g),
           ...liveDisplayFieldsFromRawGame(g),
         });
       }
@@ -743,6 +842,7 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
             marketsCount: Number(g.markets_count ?? 0),
             promoted: !!g.promoted,
             matchResult1x2: extractMatchResult1x2FromGame(g),
+          doubleChance: extractDoubleChanceFromGame(g),
             ...liveDisplayFieldsFromRawGame(g),
           });
         }

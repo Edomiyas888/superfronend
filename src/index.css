@@ -1,22 +1,22 @@
 :root {
-  /* bet365-inspired palette (not affiliated; demo UI only) */
-  --b365-green: #14805e;
-  --b365-green-hover: #179a72;
-  --b365-green-dark: #0f6047;
-  --b365-green-darkest: #0a4a38;
-  --b365-bg: #2c2c2e;
-  --b365-bg-deep: #1c1c1e;
-  --b365-surface: #3a3a3c;
-  --b365-surface-2: #48484a;
-  --b365-border: #545458;
-  --b365-border-light: #636366;
-  --b365-text: #f5f5f7;
-  --b365-text-muted: #aeaeb2;
-  --b365-text-dim: #8e8e93;
-  --b365-yellow: #ffd60a;
-  --b365-odds-gold: #ffcc00;
-  --b365-market-badge: #63cfbb;
-  --b365-odds-hover: #48484a;
+  /* Navy bookmaker-style palette (demo UI only) */
+  --b365-green: #86af28;
+  --b365-green-hover: #98c232;
+  --b365-green-dark: #739424;
+  --b365-green-darkest: #5f7b1e;
+  --b365-bg: #335f91;
+  --b365-bg-deep: #234267;
+  --b365-surface: #32577f;
+  --b365-surface-2: #426891;
+  --b365-border: #517aa8;
+  --b365-border-light: #6289b8;
+  --b365-text: #ffffff;
+  --b365-text-muted: #afc3d9;
+  --b365-text-dim: #8fa9c6;
+  --b365-yellow: #f0c13a;
+  --b365-odds-gold: #e8bc3a;
+  --b365-market-badge: #64a8ff;
+  --b365-odds-hover: #3d6994;
   /** Selected odds: layered gradient + ring (used in App.css) */
   --b365-odds-sel-shine: linear-gradient(
     180deg,
@@ -26,17 +26,17 @@
   );
   --b365-odds-sel-body: linear-gradient(
     155deg,
-    rgba(72, 209, 176, 0.2) 0%,
-    rgba(20, 128, 94, 0.52) 45%,
-    rgba(6, 42, 34, 0.98) 100%
+    rgba(134, 175, 40, 0.28) 0%,
+    rgba(44, 84, 110, 0.55) 45%,
+    rgba(26, 50, 78, 0.96) 100%
   );
-  --b365-odds-sel-ring: rgba(72, 209, 176, 0.65);
-  --b365-odds-sel-accent: rgba(255, 214, 10, 0.42);
-  --b365-odds-sel-glow: rgba(0, 220, 180, 0.22);
+  --b365-odds-sel-ring: rgba(134, 175, 40, 0.55);
+  --b365-odds-sel-accent: rgba(240, 193, 58, 0.38);
+  --b365-odds-sel-glow: rgba(134, 175, 40, 0.22);
   --b365-error: #ff453a;
-  --b365-link: #64d2ff;
+  --b365-link: #7ab8ff;
   --b365-header-h: 56px;
-  /** Desktop main subnav below green header; 0 on mobile */
+  /** Desktop main subnav below main header; 0 on mobile */
   --b365-subnav-h: 0px;
   --b365-home-sidebar-w: 256px;
   --b365-topbar-h: 28px;
@@ -72,7 +72,7 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  -webkit-tap-highlight-color: rgba(20, 128, 94, 0.25);
+  -webkit-tap-highlight-color: rgba(134, 175, 40, 0.25);
 }
 
 @media (prefers-reduced-motion: reduce) {

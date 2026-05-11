@@ -66,6 +66,15 @@ export type MatchResult1x2Odds = {
   away: { eventId: number; price: number; name: string };
 };
 
+/** Double chance (1X / 12 / draw-or-away shown as «2X» in the fixture row). */
+export type DoubleChanceOdds = {
+  marketId: number;
+  marketName: string;
+  homeOrDraw: { eventId: number; price: number; name: string };
+  homeOrAway: { eventId: number; price: number; name: string };
+  drawOrAway: { eventId: number; price: number; name: string };
+};
+
 export type GameView = {
   id: number;
   team1: string;
@@ -84,6 +93,8 @@ export type GameView = {
   promoted?: boolean;
   /** Parsed from nested `game.market` when present (upcoming / sport list queries). */
   matchResult1x2?: MatchResult1x2Odds;
+  /** Double chance outcomes when provider includes that market alongside match result. */
+  doubleChance?: DoubleChanceOdds;
   /** Live feed: current score from match market (`home_score` / `away_score`). */
   homeScore?: number;
   awayScore?: number;

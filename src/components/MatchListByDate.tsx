@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
-import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
+import { toggleDoubleChanceOdd, toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
 import type { GameView } from '../api/types';
 import { groupGamesByDay } from '../utils/matchDayGrouping';
 import { formatMatchListClock } from '../utils/matchListClock';
@@ -101,10 +101,14 @@ export default function MatchListByDate({
                 <span>1</span>
                 <span>X</span>
                 <span>2</span>
+                <span>1X</span>
+                <span>12</span>
+                <span>2X</span>
               </div>
             </header>
             {day.games.map((g) => {
               const mr = g.matchResult1x2;
+              const dc = g.doubleChance;
               const isLiveRow = !!(liveMode || g.isLive);
               const showScores = isLiveRow && g.homeScore != null && g.awayScore != null;
               const clockText = formatMatchListClock(g, isLiveRow);
@@ -154,7 +158,7 @@ export default function MatchListByDate({
                     </span>
                   </div>
 
-                  <div className="b365-mm-cell b365-mm-odds" role="group" aria-label="Match result odds">
+                  <div className="b365-mm-cell b365-mm-odds" role="group" aria-label="Match result and double chance odds">
                     {mr ? (
                       <>
                         {(
@@ -183,7 +187,7 @@ export default function MatchListByDate({
                       <>
                         {([0, 1, 2] as const).map((i) => (
                           <button
-                            key={i}
+                            key={`1x2-${i}`}
                             type="button"
                             className="b365-mm-odd b365-mm-odd--locked"
                             disabled
@@ -196,7 +200,54 @@ export default function MatchListByDate({
                     ) : (
                       <>
                         {(['—', '—', '—'] as const).map((dash, i) => (
-                          <button key={i} type="button" className="b365-mm-odd muted" disabled>
+                          <button key={`1x2-${i}`} type="button" className="b365-mm-odd muted" disabled>
+                            {dash}
+                          </button>
+                        ))}
+                      </>
+                    )}
+                    {dc ? (
+                      <>
+                        {(
+                          [
+                            ['homeOrDraw', dc.homeOrDraw] as const,
+                            ['homeOrAway', dc.homeOrAway] as const,
+                            ['drawOrAway', dc.drawOrAway] as const,
+                          ] as const
+                        ).map(([leg, cell]) => {
+                          const sel = !!slipEvents[keyFor(g.id, dc.marketId, cell.eventId)];
+                          return (
+                            <MmOddButton
+                              key={leg}
+                              price={cell.price}
+                              selected={sel}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggleDoubleChanceOdd(g, dc, leg, addSelection, removeSelection, slipEvents);
+                              }}
+                            />
+                          );
+                        })}
+                      </>
+                    ) : isLiveRow ? (
+                      <>
+                        {([0, 1, 2] as const).map((i) => (
+                          <button
+                            key={`dc-${i}`}
+                            type="button"
+                            className="b365-mm-odd b365-mm-odd--locked"
+                            disabled
+                            aria-label="Double chance odds locked"
+                          >
+                            <LockGlyph className="b365-mm-lock-ico" />
+                          </button>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {(['—', '—', '—'] as const).map((dash, i) => (
+                          <button key={`dc-${i}`} type="button" className="b365-mm-odd muted" disabled>
                             {dash}
                           </button>
                         ))}
