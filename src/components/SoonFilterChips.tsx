@@ -1,27 +1,31 @@
+import { SOON_FILTER_OPTIONS, type SoonFilterKey } from '../constants/upcomingSoon';
+
 type Props = {
-  leagues: readonly string[];
-  value: string;
-  onChange: (league: string) => void;
-  /** Screen reader label for the tab list */
+  value: SoonFilterKey;
+  onChange: (key: SoonFilterKey) => void;
   ariaLabel?: string;
 };
 
-export default function PopularLeagueChips({ leagues, value, onChange, ariaLabel = 'League filter' }: Props) {
+export default function SoonFilterChips({
+  value,
+  onChange,
+  ariaLabel = 'Kickoff time window',
+}: Props) {
   return (
     <div className="b365-pop-leagues" role="tablist" aria-label={ariaLabel}>
       <div className="b365-pop-leagues-scroll">
-        {leagues.map((name) => {
-          const active = value === name;
+        {SOON_FILTER_OPTIONS.map(({ key, label }) => {
+          const active = value === key;
           return (
             <button
-              key={name}
+              key={key}
               type="button"
               role="tab"
               aria-selected={active}
               className={`b365-pop-league-chip ${active ? 'active' : ''}`}
-              onClick={() => onChange(name)}
+              onClick={() => onChange(key)}
             >
-              {name}
+              {label}
             </button>
           );
         })}

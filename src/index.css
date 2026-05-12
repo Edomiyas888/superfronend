@@ -49,9 +49,12 @@
   /** Mobile sports strip total height (heading + horizontal scroller); fixed to avoid layout jump */
   --b365-sports-rail-total: 94px;
   --font-ui: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  /** Compact desktop bookmaker scale (odds ~15px, body ~13px, titles ~15px) */
+  --b365-fs-odds-mm: clamp(12px, 1.85vw, 15px);
+  --b365-fs-page-title: 15px;
 
   font-family: var(--font-ui);
-  line-height: 1.45;
+  line-height: 1.4;
   font-weight: 400;
   color: var(--b365-text);
   background: var(--b365-bg-deep);

@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('smoke', () => {
-  test('home shows Popular and Featured headings', async ({ page }) => {
+  test('home shows fixtures tabs and Match of the Day', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Popular' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Featured' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Home' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Upcoming matches' })).toBeVisible();
+    await expect(page.getByText('Match of the Day').first()).toBeVisible();
   });
 
   test('profile page loads', async ({ page }) => {
