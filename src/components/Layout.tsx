@@ -1,12 +1,17 @@
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
 import SportsSidebar from './SportsSidebar';
 import BetslipContent from './BetslipContent';
+import BetslipDrawer from './BetslipDrawer';
+import BetslipFab from './BetslipFab';
+import NavDrawer from './NavDrawer';
 import BottomNav from './BottomNav';
 import AppFooter from './AppFooter';
+import { useBetslipOddsSync } from '../hooks/useBetslipOddsSync';
+import { useNavDrawerStore } from '../features/nav/navDrawerStore';
 
 function isHomeRoute(pathname: string): boolean {
   return pathname === '/' || pathname === '/sport-new';
@@ -18,6 +23,7 @@ export default function Layout() {
   const { username, hydrate } = useSessionStore();
   const loggedIn = !!(username && username.length > 0);
   const showHeaderBack = !isHomeRoute(location.pathname);
+  const openNavDrawer = useNavDrawerStore((s) => s.open);
 
   const walletQ = useQuery({
     queryKey: ['wallet', 'header'],
@@ -31,6 +37,16 @@ export default function Layout() {
     void hydrate();
   }, [hydrate]);
 
+  useBetslipOddsSync();
+
+  useEffect(() => {
+    const onWallet = () => {
+      void walletQ.refetch();
+    };
+    window.addEventListener('superbet:wallet-changed', onWallet);
+    return () => window.removeEventListener('superbet:wallet-changed', onWallet);
+  }, [walletQ]);
+
   const balanceCurrency = walletQ.data?.currency ?? 'ETB';
   const balanceLabel =
     walletQ.isPending && loggedIn
@@ -43,17 +59,6 @@ export default function Layout() {
 
   return (
     <div className="app-shell b365">
-      <div className="b365-topbar">
-        <div className="b365-topbar-inner">
-          <span className="b365-topbar-links">
-            <a href="#main">Help</a>
-            <a href="#main">Rules</a>
-            <a href="#main">Responsible Gambling</a>
-          </span>
-          <span className="b365-topbar-meta">18+ · Superbet demo UI</span>
-        </div>
-      </div>
-
       <header className="b365-header">
         <div className="b365-header-inner">
           <div className="b365-header-start">
@@ -64,34 +69,62 @@ export default function Layout() {
                 aria-label="Back"
                 onClick={() => navigate(-1)}
               >
-                ←
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path
+                    d="M12.5 15L7.5 10L12.5 5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </button>
             )}
-            <NavLink to="/" className="b365-brand" end title="Superbet">
-              <img src="/sblogo.png" alt="Superbet" className="b365-brand-logo" />
+            <NavLink to="/" className="b365-brand" end title="S Bet">
+              <img src="/sblogo.png" alt="S Bet" className="b365-brand-logo" />
             </NavLink>
           </div>
 
           <div className="b365-header-actions">
             {loggedIn ? (
               <>
-                <NavLink to="/profile" className="b365-header-pill b365-header-pill--name" title="Account">
-                  {username}
-                </NavLink>
-                <span className="b365-header-pill b365-header-pill--wallet" title="Balance">
+                <Link to="/wallet" className="b365-header-balance" title="Wallet">
                   {balanceLabel}
-                </span>
+                </Link>
+                <button type="button" className="b365-header-icon-btn" aria-label="Notifications">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                  </svg>
+                </button>
               </>
             ) : (
               <>
-                <NavLink to="/profile?tab=signup" className="b365-btn-outline">
+                <NavLink to="/profile?tab=signup" className="b365-btn-outline b365-header-auth-btn">
                   Join
                 </NavLink>
-                <NavLink to="/profile" className="b365-btn-header-login">
+                <NavLink to="/profile" className="b365-btn-header-login b365-header-auth-btn">
                   Log In
                 </NavLink>
               </>
             )}
+
+            <button
+              type="button"
+              className="b365-header-icon-btn"
+              aria-label="Open menu"
+              onClick={openNavDrawer}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+              </svg>
+            </button>
           </div>
         </div>
       </header>
@@ -115,6 +148,12 @@ export default function Layout() {
       <AppFooter />
 
       <BottomNav />
+
+      <BetslipFab />
+
+      <BetslipDrawer />
+
+      <NavDrawer balanceLabel={balanceLabel} loggedIn={loggedIn} />
     </div>
   );
 }

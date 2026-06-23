@@ -6,172 +6,60 @@
   background: var(--b365-bg-deep);
 }
 
-/* ——— Top strip ——— */
-.b365-topbar {
-  position: relative;
-  z-index: 2;
-  background: linear-gradient(180deg, #2c2c30 0%, #1e1e22 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  min-height: var(--b365-topbar-h);
-  font-size: 11px;
-  color: var(--b365-text-dim);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-}
-
-.b365-topbar::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 5%, rgba(72, 209, 176, 0.4) 50%, transparent 95%);
-  pointer-events: none;
-  opacity: 0.85;
-}
-
-.b365-topbar-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 5px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.b365-topbar-links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-}
-
-.b365-topbar-links a {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.28rem 0.65rem;
-  border-radius: 999px;
-  color: var(--b365-text-muted);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  transition:
-    background 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.b365-topbar-links a:hover {
-  color: var(--b365-text);
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
-  text-decoration: none;
-}
-
-.b365-topbar-meta {
-  white-space: nowrap;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: rgba(180, 180, 186, 0.95);
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.2);
-}
-
-@media (max-width: 520px) {
-  .b365-topbar-inner {
-    justify-content: center;
-    padding: 5px 12px;
-  }
-
-  .b365-topbar-links {
-    display: none;
-  }
-
-  .b365-topbar-meta {
-    font-size: 9px;
-  }
-}
-
 /* ——— App bar (main header) ——— */
 .b365-header {
-  position: relative;
-  z-index: 3;
-  background: linear-gradient(
-    180deg,
-    #18a882 0%,
-    var(--b365-green) 42%,
-    var(--b365-green-dark) 100%
-  );
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.14) inset,
-    0 10px 36px rgba(0, 0, 0, 0.42);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--b365-header-bg);
+  border-bottom: 1px solid var(--b365-border);
   min-height: var(--b365-header-h);
   padding-top: env(safe-area-inset-top, 0px);
-}
-
-.b365-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 245, 160, 0.5) 45%, rgba(255, 214, 10, 0.65) 50%, rgba(255, 245, 160, 0.5) 55%, transparent 100%);
-  pointer-events: none;
-  opacity: 0.9;
 }
 
 .b365-header-inner {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 16px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding: 10px 20px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: nowrap;
   min-height: var(--b365-header-h);
 }
 
 @media (max-width: 520px) {
   .b365-header-inner {
-    padding: 6px 12px;
-    padding-left: max(12px, env(safe-area-inset-left, 0px));
-    padding-right: max(12px, env(safe-area-inset-right, 0px));
-    gap: 8px;
+    padding: 8px 14px;
+    padding-left: max(14px, env(safe-area-inset-left, 0px));
+    padding-right: max(14px, env(safe-area-inset-right, 0px));
+    gap: 10px;
   }
 
-  .b365-header-back {
-    width: 44px;
-    height: 44px;
+  .b365-header-back,
+  .b365-header-icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .b365-header-balance {
+    max-width: min(140px, 38vw);
+    font-size: 0.78rem;
+    padding: 7px 10px;
+  }
+
+  .b365-header-auth-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    min-height: 36px;
   }
 
   .b365-brand-logo {
-    height: 40px;
-    max-width: min(220px, 58vw);
-  }
-
-  .b365-header-pill {
-    max-width: 100px;
-    padding: 6px 10px;
-    font-size: 0.78rem;
-  }
-
-  .b365-btn-outline,
-  .b365-btn-header-login {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    min-height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    height: 34px;
+    max-width: min(160px, 46vw);
   }
 }
 
@@ -185,39 +73,147 @@
 
 .b365-header-back {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
-  line-height: 1;
-  color: #fff;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.18) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  border-radius: 999px;
+  color: var(--b365-text-muted);
+  background: var(--b365-header-surface);
+  border: 1px solid var(--b365-border);
+  border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   transition:
-    transform 0.15s ease,
     background 0.15s ease,
+    color 0.15s ease,
     border-color 0.15s ease;
 }
 
 .b365-header-back:hover {
-  background: rgba(0, 0, 0, 0.38);
-  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--b365-text);
+  background: var(--b365-surface);
+  border-color: var(--b365-border-light);
 }
 
 .b365-header-back:active {
-  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .b365-header-back:focus-visible {
-  outline: 2px solid var(--b365-yellow);
+  outline: 2px solid var(--b365-accent);
   outline-offset: 2px;
+}
+
+.b365-header-icon-btn {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--b365-text-muted);
+  background: transparent;
+  border: 1px solid var(--b365-border);
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.b365-header-icon-btn:hover {
+  color: var(--b365-text);
+  background: var(--b365-header-surface);
+  border-color: var(--b365-border-light);
+}
+
+.b365-header-icon-btn:focus-visible {
+  outline: 2px solid var(--b365-accent);
+  outline-offset: 2px;
+}
+
+.b365-header-balance {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  max-width: 180px;
+  border-radius: 999px;
+  background: var(--b365-header-surface);
+  border: 1px solid var(--b365-border);
+  color: var(--b365-text);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.b365-header-balance:hover {
+  text-decoration: underline;
+}
+
+.b365-header-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.b365-header-betslip {
+  position: relative;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--b365-text-muted);
+  background: var(--b365-header-surface);
+  border: 1px solid var(--b365-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.b365-header-betslip:hover {
+  color: var(--b365-text);
+  background: var(--b365-surface);
+  border-color: var(--b365-border-light);
+}
+
+.b365-header-betslip:focus-visible {
+  outline: 2px solid var(--b365-accent);
+  outline-offset: 2px;
+}
+
+.b365-header-betslip-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--b365-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--b365-header-bg);
 }
 
 .b365-brand {
@@ -228,18 +224,17 @@
   flex-shrink: 0;
   min-width: 0;
   line-height: 0;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
 }
 
 .b365-brand:hover {
   text-decoration: none;
-  opacity: 0.96;
+  opacity: 0.92;
 }
 
 .b365-brand-logo {
-  height: 52px;
+  height: 40px;
   width: auto;
-  max-width: min(280px, 62vw);
+  max-width: min(180px, 48vw);
   object-fit: contain;
   display: block;
 }
@@ -251,41 +246,56 @@
   flex-shrink: 0;
 }
 
-.b365-header-pill {
+.b365-header-userbar {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 280px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--b365-header-surface);
+  border: 1px solid var(--b365-border);
+}
+
+.b365-header-userbar-name,
+.b365-header-userbar-balance {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 7px 15px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 700;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  font-weight: 600;
   white-space: nowrap;
-  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transition:
-    background 0.18s ease,
-    box-shadow 0.18s ease;
 }
 
-.b365-header-pill--name {
-  border: 1px solid rgba(255, 214, 10, 0.85);
-  color: #fff6b8 !important;
+.b365-header-userbar-name {
+  color: var(--b365-text-muted) !important;
   text-decoration: none !important;
-  background: rgba(0, 0, 0, 0.12);
+  min-width: 0;
+  max-width: 120px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
-.b365-header-pill--name:hover {
-  background: rgba(0, 0, 0, 0.22);
-  box-shadow: 0 0 0 1px rgba(255, 214, 10, 0.35);
+.b365-header-userbar-name:hover {
+  background: var(--b365-surface);
+  color: var(--b365-text) !important;
+  text-decoration: none;
 }
 
-.b365-header-pill--wallet {
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  color: #fff;
+.b365-header-userbar-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--b365-border);
+  flex-shrink: 0;
+}
+
+.b365-header-userbar-balance {
+  color: var(--b365-text);
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: default;
-  background: rgba(0, 0, 0, 0.1);
 }
 
 .b365-user {
@@ -300,52 +310,47 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.88);
-  color: #fff !important;
-  font-size: 0.85rem;
-  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--b365-border-light);
+  color: var(--b365-text) !important;
+  font-size: 0.84rem;
+  font-weight: 600;
   text-decoration: none !important;
-  background: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  background: var(--b365-header-surface);
   transition:
-    background 0.18s ease,
-    transform 0.15s ease,
-    box-shadow 0.18s ease;
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .b365-btn-outline:hover {
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  background: var(--b365-surface);
+  border-color: var(--b365-text-dim);
 }
 
 .b365-btn-outline:active {
-  transform: scale(0.98);
+  background: var(--b365-bg);
 }
 
 .b365-btn-header-login {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: linear-gradient(180deg, #ffe566 0%, var(--b365-yellow) 45%, #e6b800 100%);
-  color: #1a1a1a !important;
-  font-size: 0.85rem;
-  font-weight: 800;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--b365-accent);
+  color: #fff !important;
+  font-size: 0.84rem;
+  font-weight: 700;
   text-decoration: none !important;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.45) inset,
-    0 4px 16px rgba(0, 0, 0, 0.35);
   transition:
-    filter 0.15s ease,
+    background 0.15s ease,
     transform 0.15s ease;
 }
 
 .b365-btn-header-login:hover {
-  filter: brightness(1.06);
+  background: var(--b365-accent-hover);
 }
 
 .b365-btn-header-login:active {
@@ -376,7 +381,7 @@ a.b365-btn-header-login {
   background: var(--b365-bg);
   border-right: 1px solid var(--b365-border);
   overflow: auto;
-  min-height: calc(100vh - var(--b365-header-h) - var(--b365-topbar-h));
+  min-height: calc(100vh - var(--b365-header-h));
 }
 
 .b365-main {
@@ -586,6 +591,33 @@ a.b365-btn-header-login {
   margin: 8px 0;
 }
 
+.b365-betslip-correction {
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.b365-betslip-correction p {
+  margin: 0 0 8px;
+}
+
+.b365-betslip-price-changed {
+  color: #e6a817;
+  font-weight: 600;
+}
+
+.b365-betslip-hint {
+  font-size: 11px;
+  margin: 4px 0 0;
+}
+
+.b365-betslip-selection--suspended {
+  opacity: 0.65;
+}
+
 .b365-betslip-actions {
   display: flex;
   gap: 8px;
@@ -730,7 +762,7 @@ a.b365-btn-header-login {
 
 .b365-bottom-nav-item.active {
   color: #fff;
-  background: rgba(20, 128, 94, 0.28);
+  background: rgba(57, 255, 20, 0.15);
 }
 
 .b365-bottom-nav-item.active::after {
@@ -742,11 +774,11 @@ a.b365-btn-header-login {
   width: 26px;
   height: 3px;
   border-radius: 2px;
-  background: var(--b365-yellow);
+  background: var(--b365-neon);
 }
 
 .b365-bottom-nav-item.active .b365-bottom-nav-icon {
-  color: var(--b365-yellow);
+  color: var(--b365-neon);
 }
 
 /* ——— Global footer (all pages using Layout) ——— */
@@ -924,6 +956,226 @@ a.b365-btn-header-login {
   margin-top: 12px;
 }
 
+.b365-wallet-tabs {
+  margin-top: 12px;
+}
+
+.b365-wallet-balance-card {
+  margin-bottom: 0;
+}
+
+.b365-wallet-balance-card .b365-profile-balance {
+  margin-bottom: 0;
+}
+
+.b365-wallet-history-filters {
+  margin-bottom: 14px;
+  max-width: 220px;
+}
+
+.b365-wallet-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.b365-wallet-history-item {
+  padding: 12px;
+  border: 1px solid var(--b365-border);
+  border-radius: 4px;
+  background: var(--b365-surface);
+}
+
+.b365-wallet-history-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.b365-wallet-tx-deposit {
+  color: var(--b365-green);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.b365-wallet-tx-withdraw {
+  color: #c0392b;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.b365-wallet-history-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-wallet-history-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-wallet-history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.b365-profile-subheading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 18px 0 10px;
+}
+
+.b365-telebirr-flow {
+  margin-top: 8px;
+}
+
+.b365-telebirr-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.b365-telebirr-steps span {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--b365-border);
+  color: var(--b365-text-muted);
+}
+
+.b365-telebirr-steps span.active {
+  border-color: var(--b365-green);
+  color: var(--b365-green);
+}
+
+.b365-telebirr-note {
+  margin: 0 0 12px;
+}
+
+.b365-telebirr-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.b365-telebirr-amount-reminder {
+  margin: 0;
+}
+
+.b365-telebirr-payee {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--b365-border);
+  border-radius: var(--b365-radius);
+  background: var(--b365-bg);
+}
+
+.b365-telebirr-payee-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.b365-telebirr-payee-row strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.b365-telebirr-copy {
+  flex-shrink: 0;
+  padding: 6px 12px;
+}
+
+.b365-telebirr-instructions {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--b365-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.b365-telebirr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.b365-telebirr-proof-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.b365-telebirr-proof-tabs button {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--b365-border);
+  background: var(--b365-surface);
+  color: var(--b365-text);
+  cursor: pointer;
+}
+
+.b365-telebirr-proof-tabs button.active {
+  border-color: var(--b365-green);
+  color: var(--b365-green);
+}
+
+.b365-file-input {
+  padding: 8px 0;
+}
+
+.b365-telebirr-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 280px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--b365-border);
+}
+
+.b365-telebirr-success {
+  padding: 12px;
+  border: 1px solid var(--b365-green);
+  border-radius: var(--b365-radius);
+  background: rgba(99, 207, 187, 0.08);
+}
+
+.b365-telebirr-success-title {
+  margin: 0 0 8px;
+  color: var(--b365-green);
+}
+
+.b365-telebirr-receipt-dl {
+  margin: 12px 0;
+}
+
+.b365-telebirr-receipt-dl dt {
+  font-size: 11px;
+  color: var(--b365-text-muted);
+}
+
+.b365-telebirr-receipt-dl dd {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
 /* ——— All sports page ——— */
 .b365-all-sports-grid {
   display: grid;
@@ -972,17 +1224,447 @@ a.b365-btn-header-login {
   margin-top: 6px;
 }
 
+.b365-my-bets-page {
+  padding-bottom: 8px;
+}
+
 .b365-my-bets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.b365-my-bets-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 16px;
+}
+
+.b365-my-bets-loading__dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.b365-my-bets-loading__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--b365-yellow);
+  display: inline-block;
+  margin: 0 3px;
+  animation: b365-my-bets-pulse 1.2s ease-in-out infinite;
+}
+
+.b365-my-bets-loading__dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.b365-my-bets-loading__dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes b365-my-bets-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+.b365-my-bets-empty {
+  text-align: center;
+  padding: 28px 20px;
+}
+
+/* ——— My bets accordions ——— */
+.b365-my-bets-acc {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(165deg, rgba(44, 44, 46, 0.98) 0%, rgba(28, 28, 30, 0.99) 100%);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.b365-my-bets-acc--open {
+  border-color: rgba(255, 214, 10, 0.22);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 214, 10, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.b365-my-bets-acc__summary {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 16px;
+  border: none;
+  background: transparent;
+  color: var(--b365-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background 0.15s ease;
+}
+
+.b365-my-bets-acc__summary:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.b365-my-bets-acc__summary-main {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.b365-my-bets-row {
+.b365-my-bets-acc__title-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.b365-my-bets-acc__title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+
+.b365-my-bets-status {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.b365-my-bets-status--open {
+  color: #7dd3fc;
+  background: rgba(100, 210, 255, 0.12);
+  border-color: rgba(100, 210, 255, 0.28);
+}
+
+.b365-my-bets-status--won {
+  color: #6ee7b7;
+  background: rgba(20, 128, 94, 0.22);
+  border-color: rgba(20, 128, 94, 0.45);
+}
+
+.b365-my-bets-status--lost {
+  color: #fca5a5;
+  background: rgba(232, 34, 42, 0.16);
+  border-color: rgba(232, 34, 42, 0.35);
+}
+
+.b365-my-bets-status--void {
+  color: var(--b365-text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.b365-my-bets-acc__metrics {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.b365-my-bets-acc__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.b365-my-bets-acc__metric-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--b365-text-dim);
+}
+
+.b365-my-bets-acc__metric-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--b365-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-my-bets-acc__metric-value--win {
+  color: var(--b365-yellow);
+}
+
+.b365-my-bets-acc__metric-value--paid {
+  color: #6ee7b7;
+}
+
+.b365-my-bets-acc__metric-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.b365-my-bets-acc__preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.b365-my-bets-acc__preview-match {
+  color: var(--b365-text-muted);
+  font-weight: 600;
+}
+
+.b365-my-bets-acc__preview-pick {
+  color: var(--b365-yellow);
+  font-weight: 700;
+}
+
+.b365-my-bets-acc__preview-more {
+  color: var(--b365-text-dim);
+  font-size: 11px;
+}
+
+.b365-my-bets-acc__date {
+  font-size: 11px;
+  color: var(--b365-text-dim);
+}
+
+.b365-my-bets-acc__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.b365-my-bets-acc__legs-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--b365-text-dim);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.b365-my-bets-acc__chev {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid rgba(255, 255, 255, 0.45);
+  transition: transform 0.22s ease;
+  margin-top: auto;
+}
+
+.b365-my-bets-acc__chev--open {
+  transform: rotate(180deg);
+}
+
+.b365-my-bets-acc__body {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 12px 16px 16px;
+  background: rgba(0, 0, 0, 0.18);
+  animation: b365-my-bets-expand 0.22s ease;
+}
+
+@keyframes b365-my-bets-expand {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.b365-my-bets-acc__body-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--b365-text-dim);
+}
+
+.b365-my-bets-acc__refreshing {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--b365-yellow);
+}
+
+.b365-my-bets-acc__empty {
+  margin: 0;
+  font-size: 13px;
+}
+
+.b365-my-bets-legs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.b365-my-bets-leg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.b365-my-bets-leg__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.b365-my-bets-leg__match {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--b365-text);
+  line-height: 1.35;
+}
+
+.b365-my-bets-leg__market {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--b365-text-muted);
+}
+
+.b365-my-bets-leg__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.b365-my-bets-leg__odds {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--b365-yellow);
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 214, 10, 0.1);
+  border: 1px solid rgba(255, 214, 10, 0.22);
+}
+
+.b365-my-bets-leg-status {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.b365-my-bets-leg-status--won {
+  color: #6ee7b7;
+  background: rgba(20, 128, 94, 0.2);
+  border-color: rgba(20, 128, 94, 0.4);
+}
+
+.b365-my-bets-leg-status--lost {
+  color: #fca5a5;
+  background: rgba(232, 34, 42, 0.16);
+  border-color: rgba(232, 34, 42, 0.35);
+}
+
+.b365-my-bets-leg-status--live {
+  color: #fde68a;
+  background: rgba(255, 214, 10, 0.14);
+  border-color: rgba(255, 214, 10, 0.35);
+  animation: b365-my-bets-live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes b365-my-bets-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.b365-my-bets-leg-status--pending {
+  color: #93c5fd;
+  background: rgba(100, 210, 255, 0.1);
+  border-color: rgba(100, 210, 255, 0.25);
+}
+
+.b365-my-bets-leg-status--void {
+  color: var(--b365-text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.b365-my-bets-acc__combo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-my-bets-acc__combo strong {
+  font-size: 15px;
+  color: var(--b365-yellow);
+  font-variant-numeric: tabular-nums;
 }
 
 .b365-profile-card .b365-btn-secondary {
@@ -1340,9 +2022,11 @@ a.b365-btn-header-login {
 
 .b365-motd-time--live {
   color: #7ee8b8;
+  font-size: 12px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 12px rgba(100, 220, 160, 0.35);
+  line-height: 1.2;
 }
 
 /* VS + kickoff / live clock on one horizontal row */
@@ -1362,7 +2046,30 @@ a.b365-btn-header-login {
 }
 
 .b365-motd-vs--live {
-  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 76px;
+  padding: 10px 14px;
+}
+
+.b365-motd-live-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  font-size: 1.45rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.b365-motd-live-score-sep {
+  margin: 0 3px;
+  font-weight: 700;
+  color: var(--b365-text-dim);
 }
 
 .b365-motd-vs-text {
@@ -1469,6 +2176,8 @@ a.b365-btn-header-login {
 }
 
 .b365-motd-odd-label {
+  width: 100%;
+  text-align: center;
   font-size: 9px;
   font-weight: 800;
   color: var(--b365-text-muted);
@@ -1477,6 +2186,11 @@ a.b365-btn-header-login {
 }
 
 .b365-motd-odd-val {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   font-size: 17px;
   font-weight: 800;
   color: var(--b365-odds-gold);
@@ -1667,12 +2381,12 @@ a.b365-btn-header-login {
   border-top: 1px solid var(--b365-border);
 }
 
-/* Day header: date + 1/X/2 block — second column width matches three odds tracks below */
+/* Day header: date + 1/X/2 — same 4-column grid as match rows for alignment */
 .b365-mm-day-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, calc(min(62px, 12vw) * 3));
+  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(54px, 68px));
   align-items: center;
-  gap: 8px;
+  gap: 0;
   padding: 10px 12px;
   min-width: 0;
   background: #252525;
@@ -1680,6 +2394,7 @@ a.b365-btn-header-login {
 }
 
 .b365-mm-day-title {
+  grid-column: 1;
   font-weight: 700;
   font-size: 13px;
   color: #e8e8e8;
@@ -1687,6 +2402,7 @@ a.b365-btn-header-login {
 }
 
 .b365-mm-day-cols {
+  grid-column: 2 / 5;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   min-width: 0;
@@ -1700,10 +2416,18 @@ a.b365-btn-header-login {
   align-items: center;
 }
 
-/* Row: team column takes remaining space; odds capped (~36vw max) so names are not squeezed */
+.b365-mm-day-cols span {
+  border-right: 1px solid var(--b365-border);
+}
+
+.b365-mm-day-cols span:last-child {
+  border-right: none;
+}
+
+/* Row: team column + three equal odds tracks */
 .b365-mm-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, min(62px, 12vw)));
+  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(54px, 68px));
   grid-template-rows: auto auto auto;
   align-items: stretch;
   min-width: 0;
@@ -1726,13 +2450,6 @@ a.b365-btn-header-login {
   text-decoration: none !important;
 }
 
-.b365-mm-rpad {
-  grid-column: 2 / 5;
-  grid-row: 1;
-  border-left: 1px solid var(--b365-border);
-  background: #1e1e1e;
-}
-
 .b365-mm-t2 {
   grid-column: 1;
   grid-row: 2;
@@ -1748,25 +2465,26 @@ a.b365-btn-header-login {
   text-decoration: underline;
 }
 
+.b365-mm-rpad {
+  display: none;
+}
+
 .b365-mm-foot {
-  grid-column: 1;
+  grid-column: 1 / -1;
   grid-row: 3;
-  padding: 4px 10px 10px 12px;
+  padding: 7px 12px 10px;
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: 6px;
+  gap: 8px;
   font-size: 11px;
   min-width: 0;
-  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: #1a1a1a;
 }
 
 .b365-mm-rpad-foot {
-  grid-column: 2 / 5;
-  grid-row: 3;
-  border-left: 1px solid var(--b365-border);
-  background: #1e1e1e;
-  min-height: 8px;
+  display: none;
 }
 
 .b365-mm-day .b365-mm-row:last-child {
@@ -1864,7 +2582,7 @@ a.b365-btn-header-login {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
-  flex: 1 1 0%;
+  flex: 1 1 auto;
 }
 
 .b365-mm-footer-icons {
@@ -1915,13 +2633,13 @@ a.b365-btn-header-login {
 
 .b365-mm-odds {
   grid-column: 2 / 5;
-  grid-row: 2;
+  grid-row: 1 / 3;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   min-width: 0;
   border-left: 1px solid var(--b365-border);
   align-items: stretch;
-  justify-items: stretch;
+  justify-items: center;
   align-self: stretch;
   min-height: 100%;
 }
@@ -1935,15 +2653,21 @@ a.b365-btn-header-login {
   min-height: 48px;
   background: transparent;
   border: none;
+  border-right: 1px solid var(--b365-border);
   color: var(--b365-odds-gold);
   font-weight: 800;
   font-size: clamp(0.8rem, 2.8vw, 1.05rem);
-  padding: 10px max(2px, 0.8vw);
+  padding: 10px 4px;
   cursor: pointer;
   line-height: 1;
   font-family: inherit;
   font-variant-numeric: tabular-nums;
+  text-align: center;
   transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+}
+
+.b365-mm-odd:last-child {
+  border-right: none;
 }
 
 .b365-mm-odd:hover:not(:disabled):not(.selected) {
@@ -2798,13 +3522,37 @@ a.b365-btn-header-login {
 }
 
 .b365-mm-odd .b365-odd-price-with-flash {
-  width: 100%;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
   min-width: 0;
   max-width: 100%;
 }
 
+.b365-mm-odd .b365-odd-flash-slot {
+  position: absolute;
+  right: calc(100% + 2px);
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 0.9em;
+}
+
 .b365-motd-odd-val-inner {
-  width: 100%;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+}
+
+.b365-motd-odd-val-inner .b365-odd-flash-slot {
+  position: absolute;
+  right: calc(100% + 2px);
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 0.9em;
 }
 
 .b365-odd-flash-slot {
@@ -3020,80 +3768,316 @@ a.b365-btn-header-login {
   margin-top: 2px;
 }
 
-/* ——— Mobile betslip FAB ——— */
-.betslip-fab {
-  display: none;
-  position: fixed;
-  right: max(12px, env(safe-area-inset-right, 0px));
-  bottom: 12px;
-  z-index: 50;
-  border: none;
-  border-radius: 999px;
-  padding: 14px 20px;
-  min-height: 48px;
-  background: linear-gradient(180deg, #ffe566 0%, var(--b365-yellow) 100%);
-  color: #1a1a1a;
-  font-weight: 800;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
-  touch-action: manipulation;
+/* ——— Betslip drawer (mobile / tablet) ——— */
+@keyframes b365-drawer-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
-.drawer-backdrop {
+@keyframes b365-drawer-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.b365-drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 60;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 200;
+  animation: b365-drawer-fade-in 0.2s ease;
 }
 
-.drawer-panel {
+.b365-drawer-panel {
   position: fixed;
   right: 0;
   top: 0;
   bottom: 0;
-  width: min(400px, 100vw);
+  width: min(380px, 100vw);
   background: var(--b365-bg);
   border-left: 1px solid var(--b365-border);
-  z-index: 70;
+  z-index: 210;
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
-  padding-left: max(12px, env(safe-area-inset-left, 0px));
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  animation: b365-drawer-slide-in 0.25s ease;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.45);
 }
 
 .b365-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--b365-border);
-  padding-bottom: 10px;
-  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
-.drawer-head {
-  display: flex;
-  justify-content: space-between;
+.b365-drawer-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--b365-text);
+  letter-spacing: 0.02em;
+}
+
+.b365-drawer-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  color: var(--b365-text-muted);
+  background: var(--b365-surface);
+  border: 1px solid var(--b365-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.b365-drawer-close:hover {
+  color: var(--b365-text);
+  background: var(--b365-surface-2);
+}
+
+.b365-drawer-body {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 14px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ——— Nav drawer ——— */
+.b365-nav-drawer-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: var(--b365-radius);
+  background: var(--b365-header-surface);
+  border: 1px solid var(--b365-border);
+}
+
+.b365-nav-drawer-avatar {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--b365-green) 0%, var(--b365-green-dark) 100%);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.b365-nav-drawer-user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.b365-nav-drawer-user-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--b365-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.b365-nav-drawer-user-balance {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--b365-green-hover);
+}
+
+.b365-nav-drawer-auth {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.b365-nav-drawer-auth-btn {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+}
+
+.b365-nav-drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.b365-nav-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--b365-radius-sm);
+  color: var(--b365-text-muted) !important;
+  text-decoration: none !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.b365-nav-drawer-link:hover {
+  background: var(--b365-surface);
+  color: var(--b365-text) !important;
+}
+
+.b365-nav-drawer-link.active {
+  background: rgba(20, 128, 94, 0.22);
+  color: #fff !important;
+}
+
+.b365-nav-drawer-link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  color: inherit;
+}
+
+.b365-nav-drawer-logout {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px 14px;
+  border-radius: var(--b365-radius-sm);
+  border: 1px solid var(--b365-border);
+  background: transparent;
+  color: var(--b365-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.b365-nav-drawer-logout:hover {
+  background: rgba(232, 34, 42, 0.12);
+  border-color: rgba(232, 34, 42, 0.35);
+  color: var(--b365-accent-hover);
+}
+
+/* ——— Bet slip FAB (mobile / tablet) ——— */
+.b365-betslip-fab {
+  display: none;
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(var(--b365-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--b365-green-hover) 0%, var(--b365-green) 55%, var(--b365-green-dark) 100%);
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.b365-betslip-fab:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.b365-betslip-fab:active {
+  transform: scale(0.97);
+}
+
+.b365-betslip-fab:focus-visible {
+  outline: 2px solid var(--b365-yellow);
+  outline-offset: 3px;
+}
+
+.b365-betslip-fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--b365-accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--b365-bg-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-betslip-fab {
+    transition: none;
+  }
+
+  .b365-betslip-fab:hover,
+  .b365-betslip-fab:active {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-drawer-backdrop,
+  .b365-drawer-panel {
+    animation: none;
+  }
 }
 
 /* ——— Mobile / narrow: keep date + 1X2 header in one row; match rows stay horizontal grid ——— */
 @media (max-width: 640px) {
   .b365-mm-day-head {
-    grid-template-columns: minmax(0, 1fr) minmax(0, calc(min(56px, 11.5vw) * 3));
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) repeat(3, minmax(50px, 62px));
+    gap: 0;
     padding: 8px 8px;
   }
 
   .b365-mm-day-cols {
+    grid-column: 2 / 5;
     border-left: 1px solid var(--b365-border);
     padding: 4px 0;
     width: auto;
   }
 
   .b365-mm-row {
-    grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, min(56px, 11.5vw)));
+    grid-template-columns: minmax(0, 1fr) repeat(3, minmax(50px, 62px));
   }
 
   .b365-mm-odd {
@@ -3111,7 +4095,7 @@ a.b365-btn-header-login {
   }
 
   .b365-mm-foot {
-    padding: 2px 6px 8px 10px;
+    padding: 6px 10px 8px;
   }
 
   .b365-league-header {
@@ -3131,41 +4115,9 @@ a.b365-btn-header-login {
     align-items: center;
   }
 
-  /** Match of the Day: title + sport pill + arrows stay on one row */
-  .b365-motd-header {
-    flex-wrap: nowrap;
-    gap: 6px;
-  }
-
-  .b365-motd-headline {
-    flex: 1 1 0;
-    flex-wrap: nowrap;
-    min-width: 0;
-    gap: 6px;
-  }
-
-  .b365-motd-title {
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .b365-motd-sport {
-    flex-shrink: 0;
-    padding: 3px 8px;
-    font-size: 8px;
-  }
-
-  .b365-motd-nav {
-    flex-shrink: 0;
-  }
-
-  .b365-motd-nav-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.15rem;
+  /** Match of the Day toolbar on small screens */
+  .b365-motd-toolbar {
+    gap: 8px;
   }
 
   .b365-motd-odd {
@@ -3276,16 +4228,13 @@ a.b365-btn-header-login {
     display: none;
   }
 
-  .betslip-fab {
+  .b365-betslip-fab {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    bottom: calc(var(--b365-nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
   }
 }
 
 @media (min-width: 1200px) {
-  .betslip-fab {
+  .b365-betslip-fab {
     display: none !important;
   }
 }

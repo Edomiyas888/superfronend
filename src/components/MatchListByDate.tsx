@@ -126,7 +126,6 @@ export default function MatchListByDate({
                       {showScores ? <span className="b365-mm-score-pill">{g.homeScore}</span> : null}
                     </div>
                   </Link>
-                  <div className="b365-mm-cell b365-mm-rpad" aria-hidden />
 
                   <Link to={`/match/${g.id}`} className="b365-mm-cell b365-mm-t2" title={matchTitle}>
                     <div className="b365-mm-team-line">
@@ -214,7 +213,6 @@ export default function MatchListByDate({
                       </span>
                     </span>
                   </div>
-                  <div className="b365-mm-cell b365-mm-rpad-foot" aria-hidden />
                 </div>
               );
             })}

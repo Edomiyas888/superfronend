@@ -1,0 +1,409 @@
+/* ——— Match of the Day (neon carousel) ——— */
+.b365-motd {
+  position: relative;
+  padding: 0 0 8px;
+  margin: 0 0 16px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.b365-motd::before,
+.b365-motd::after {
+  display: none;
+}
+
+.b365-motd-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.b365-motd-live-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--b365-green-hover) 0%, var(--b365-green) 50%, var(--b365-green-dark) 100%);
+  color: #0a0a0b !important;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none !important;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 0 24px rgba(57, 255, 20, 0.35),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.b365-motd-live-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 32px rgba(57, 255, 20, 0.5),
+    0 6px 16px rgba(0, 0, 0, 0.4);
+  text-decoration: none !important;
+}
+
+.b365-motd-live-btn:active {
+  transform: translateY(0);
+}
+
+.b365-motd-quick-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.b365-motd-quick-icon {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--b365-border);
+  color: var(--b365-text-muted) !important;
+  background: rgba(255, 255, 255, 0.04);
+  text-decoration: none !important;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.b365-motd-quick-icon:hover {
+  color: var(--b365-neon) !important;
+  border-color: var(--b365-neon-soft);
+  background: rgba(57, 255, 20, 0.08);
+  text-decoration: none !important;
+}
+
+.b365-motd-carousel {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  border-radius: var(--b365-radius-lg);
+}
+
+.b365-motd-carousel:active {
+  cursor: grabbing;
+}
+
+.b365-motd-track {
+  display: flex;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.b365-motd-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+.b365-motd-card {
+  position: relative;
+  border-radius: var(--b365-radius-lg);
+  border: 1px solid rgba(57, 255, 20, 0.12);
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 50%, rgba(120, 25, 45, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 70% at 85% 50%, rgba(20, 80, 40, 0.45) 0%, transparent 55%),
+    linear-gradient(135deg, #1a0a10 0%, #0f1812 45%, #0a140e 100%);
+  overflow: hidden;
+  box-shadow:
+    0 0 40px rgba(57, 255, 20, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.b365-motd-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  height: auto;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(57, 255, 20, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(57, 255, 20, 0.04) 0%, transparent 35%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.b365-motd-card-main {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 20px 16px 12px;
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.b365-motd-card-main:hover {
+  opacity: 0.96;
+}
+
+.b365-motd-card-main:hover .b365-motd-name {
+  text-decoration: none;
+}
+
+.b365-motd-teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0;
+}
+
+.b365-motd-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+}
+
+.b365-motd-logo-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.b365-motd-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  margin-bottom: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.b365-motd-logo-fallback {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--b365-neon);
+  background: rgba(57, 255, 20, 0.12);
+  border: 1px solid var(--b365-neon-soft);
+  box-shadow: none;
+}
+
+.b365-motd-name {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.b365-motd-time--live {
+  color: var(--b365-neon);
+  text-shadow: 0 0 12px rgba(57, 255, 20, 0.35);
+}
+
+.b365-motd-vs {
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0 6px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.b365-motd-vs--live {
+  gap: 8px;
+  min-width: auto;
+  padding: 0 6px;
+}
+
+.b365-motd-vs-text {
+  font-family: 'Segoe Script', 'Bradley Hand', 'Snell Roundhand', cursive;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--b365-neon);
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 0 24px rgba(57, 255, 20, 0.55),
+    0 0 48px rgba(57, 255, 20, 0.2);
+}
+
+.b365-motd-odds {
+  position: relative;
+  z-index: 1;
+  padding: 0 14px 16px;
+  border-top: none;
+  background: transparent;
+}
+
+.b365-motd-odd {
+  flex-direction: row;
+  gap: 6px;
+  padding: 11px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.b365-motd-odd:hover {
+  border-color: var(--b365-neon-soft);
+  background: rgba(57, 255, 20, 0.08);
+  transform: translateY(-1px);
+}
+
+.b365-motd-odd.selected {
+  border-color: var(--b365-neon);
+  background: rgba(57, 255, 20, 0.15);
+  box-shadow:
+    0 0 20px rgba(57, 255, 20, 0.25),
+    inset 0 0 0 1px rgba(57, 255, 20, 0.2);
+}
+
+.b365-motd-odd-label {
+  width: auto;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.b365-motd-odd-val {
+  width: auto;
+  font-size: 0.88rem;
+  color: #fff;
+}
+
+.b365-motd-odd.selected .b365-motd-odd-label,
+.b365-motd-odd.selected .b365-motd-odd-val {
+  color: var(--b365-neon);
+  text-shadow: none;
+}
+
+.b365-motd-dots {
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.b365-motd-dot {
+  width: 6px;
+  height: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.b365-motd-dot:hover {
+  border: none;
+  background: rgba(57, 255, 20, 0.4);
+}
+
+.b365-motd-dot.active {
+  width: 24px;
+  border: none;
+  background: var(--b365-neon);
+  box-shadow: 0 0 16px rgba(57, 255, 20, 0.55);
+}
+
+.b365-motd-card--skeleton {
+  padding: 20px 16px 16px;
+  min-height: 200px;
+}
+
+.b365-motd-card--skeleton .b365-motd-teams {
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.b365-motd-card--skeleton .b365-motd-vs {
+  flex-direction: column;
+}
+
+.b365-motd-skel--live-btn {
+  width: 130px;
+  height: 40px;
+  border-radius: 999px;
+}
+
+.b365-motd-skel--icon-row {
+  width: 130px;
+  height: 38px;
+  border-radius: 999px;
+}
+
+.b365-motd-skel--logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-bottom: 0;
+}
+
+.b365-motd-skel--odd {
+  height: 40px;
+  border-radius: 999px;
+}
+
+@media (max-width: 640px) {
+  .b365-motd-live-btn {
+    padding: 9px 14px;
+    font-size: 0.82rem;
+  }
+
+  .b365-motd-quick-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .b365-motd-logo-wrap {
+    width: 56px;
+    height: 56px;
+  }
+
+  .b365-motd-logo,
+  .b365-motd-logo-fallback {
+    width: 38px;
+    height: 38px;
+  }
+
+  .b365-motd-vs-text {
+    font-size: 1.5rem;
+  }
+
+  .b365-motd-odd {
+    min-height: 44px;
+    padding: 10px 6px;
+  }
+
+  .b365-motd-kickoff {
+    font-size: 10px;
+    white-space: normal;
+    text-align: center;
+    max-width: 9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-motd-track {
+    transition: none;
+  }
+
+  .b365-motd-live-btn:hover {
+    transform: none;
+  }
+}

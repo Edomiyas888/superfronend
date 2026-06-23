@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
 import { toggleMatchOdd } from '../features/betslip/toggleMatchOdd';
 import { useMatchOfTheDay } from '../hooks/useMatchOfTheDay';
 import { selectMatchOfTheDayGames } from '../utils/matchOfDaySelect';
-import { formatMatchListClock } from '../utils/matchListClock';
+import { formatMotdLiveDisplay } from '../utils/matchListClock';
 import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
 import OddsFlashArrow from './OddsFlashArrow';
 import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { GameView } from '../api/types';
+
+const AUTO_INTERVAL_MS = 5000;
 
 function formatMotdKickoff(ts: number): string {
   const d = new Date(ts * 1000);
@@ -35,15 +37,9 @@ function formatMotdKickoff(ts: number): string {
 function MotdSkeleton() {
   return (
     <div className="b365-motd">
-      <div className="b365-motd-header">
-        <div className="b365-motd-headline">
-          <span className="b365-motd-title">Match of the Day</span>
-          <span className="b365-motd-sport">Soccer</span>
-        </div>
-        <div className="b365-motd-nav" aria-hidden>
-          <span className="b365-motd-nav-btn disabled">‹</span>
-          <span className="b365-motd-nav-btn disabled">›</span>
-        </div>
+      <div className="b365-motd-toolbar">
+        <div className="b365-motd-skel b365-motd-skel--live-btn" />
+        <div className="b365-motd-skel b365-motd-skel--icon-row" />
       </div>
       <div className="b365-motd-card b365-motd-card--skeleton">
         <div className="b365-motd-teams">
@@ -53,7 +49,6 @@ function MotdSkeleton() {
           </div>
           <div className="b365-motd-vs">
             <div className="b365-motd-skel b365-motd-skel--vs" />
-            <div className="b365-motd-skel b365-motd-skel--time" />
           </div>
           <div className="b365-motd-team">
             <div className="b365-motd-skel b365-motd-skel--logo" />
@@ -66,6 +61,36 @@ function MotdSkeleton() {
           <div className="b365-motd-skel b365-motd-skel--odd" />
         </div>
       </div>
+      <div className="b365-motd-dots" aria-hidden>
+        <span className="b365-motd-dot" />
+        <span className="b365-motd-dot active" />
+        <span className="b365-motd-dot" />
+      </div>
+    </div>
+  );
+}
+
+function MotdQuickIcons() {
+  return (
+    <div className="b365-motd-quick-icons" aria-label="Quick links">
+      <Link to="/sports" className="b365-motd-quick-icon" aria-label="Sports">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 3v4M12 17v4M3 12h4M17 12h4" strokeLinecap="round" />
+        </svg>
+      </Link>
+      <Link to="/my-bets" className="b365-motd-quick-icon" aria-label="My bets">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" strokeLinecap="round" />
+          <path d="M9 12h6M9 16h4" strokeLinecap="round" />
+        </svg>
+      </Link>
+      <Link to="/profile" className="b365-motd-quick-icon" aria-label="Wallet">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
+          <path d="M3 7h18v12H3z" strokeLinejoin="round" />
+          <path d="M3 11h18M16 15h2" strokeLinecap="round" />
+        </svg>
+      </Link>
     </div>
   );
 }
@@ -77,8 +102,12 @@ export default function MatchOfTheDay() {
     [q.data]
   );
   const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
   const swipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const lastSwipeAtRef = useRef(0);
+  const prefersReducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 
   useEffect(() => {
     setActiveIndex((i) => {
@@ -86,6 +115,20 @@ export default function MatchOfTheDay() {
       return Math.min(i, matches.length - 1);
     });
   }, [matches.length]);
+
+  const goNext = useCallback(() => {
+    setActiveIndex((prev) => (prev + 1) % matches.length);
+  }, [matches.length]);
+
+  const goPrev = useCallback(() => {
+    setActiveIndex((prev) => (prev - 1 + matches.length) % matches.length);
+  }, [matches.length]);
+
+  useEffect(() => {
+    if (matches.length <= 1 || paused || prefersReducedMotion.current) return;
+    const id = window.setInterval(goNext, AUTO_INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, [matches.length, paused, goNext]);
 
   const addSelection = useBetslipStore((s) => s.addSelection);
   const removeSelection = useBetslipStore((s) => s.removeSelection);
@@ -97,9 +140,6 @@ export default function MatchOfTheDay() {
   if (q.isError || matches.length === 0) {
     return null;
   }
-
-  const g = matches[activeIndex];
-  if (!g) return null;
 
   const swipeMinPx = 48;
   const swipeAxisRatio = 1.25;
@@ -124,130 +164,159 @@ export default function MatchOfTheDay() {
     const absY = Math.abs(dy);
     if (absX < swipeMinPx || absX < absY * swipeAxisRatio) return;
     lastSwipeAtRef.current = Date.now();
-    if (dx < 0) {
-      setActiveIndex((prev) => (prev + 1) % matches.length);
-    } else {
-      setActiveIndex((prev) => (prev - 1 + matches.length) % matches.length);
-    }
+    setPaused(true);
+    window.setTimeout(() => setPaused(false), AUTO_INTERVAL_MS * 2);
+    if (dx < 0) goNext();
+    else goPrev();
   };
 
   const onSwipePointerCancel = (e: React.PointerEvent) => {
     if (swipeStartRef.current?.pointerId === e.pointerId) swipeStartRef.current = null;
   };
 
-  const live = g.isLive;
-  const showLiveScores = live && g.homeScore != null && g.awayScore != null;
-  const liveClock = formatMatchListClock(g, true);
-
   return (
     <div className="b365-motd">
-      <div className="b365-motd-header">
-        <div className="b365-motd-headline">
-          <span className="b365-motd-title">Match of the Day</span>
-          <span className="b365-motd-sport">Soccer</span>
-        </div>
-        <div className="b365-motd-nav">
-          <button
-            type="button"
-            className="b365-motd-nav-btn"
-            disabled={matches.length <= 1}
-            onClick={() =>
-              setActiveIndex((prev) => (prev === 0 ? Math.max(0, matches.length - 1) : prev - 1))
-            }
-            aria-label="Previous match"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            className="b365-motd-nav-btn"
-            disabled={matches.length <= 1}
-            onClick={() => setActiveIndex((prev) => (prev + 1) % matches.length)}
-            aria-label="Next match"
-          >
-            ›
-          </button>
-        </div>
+      <div className="b365-motd-toolbar">
+        <Link to="/live" className="b365-motd-live-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" fill="currentColor" />
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          Live Match
+        </Link>
+        <MotdQuickIcons />
       </div>
 
       <div
-        className="b365-motd-swiper"
+        className="b365-motd-carousel"
         role="region"
-        aria-label="Swipe or use arrows to change featured match"
+        aria-label="Featured matches carousel"
+        aria-live="polite"
         onPointerDown={onSwipePointerDown}
         onPointerUp={onSwipePointerUp}
         onPointerCancel={onSwipePointerCancel}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={() => setPaused(false)}
       >
-        <div className="b365-motd-card">
-          <Link
-            to={`/match/${g.id}`}
-            className="b365-motd-card-main"
-            onClick={(ev) => {
-              if (Date.now() - lastSwipeAtRef.current < 450) ev.preventDefault();
-            }}
-          >
-            <div className="b365-motd-teams">
-              <div className="b365-motd-team">
+        <div
+          className="b365-motd-track"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+        >
+          {matches.map((g) => (
+            <MotdSlide
+              key={g.id}
+              g={g}
+              slipEvents={slipEvents}
+              addSelection={addSelection}
+              removeSelection={removeSelection}
+              lastSwipeAtRef={lastSwipeAtRef}
+            />
+          ))}
+        </div>
+      </div>
+
+      {matches.length > 1 && (
+        <div className="b365-motd-dots" role="tablist" aria-label="Match carousel">
+          {matches.map((m, index) => (
+            <button
+              key={m.id}
+              type="button"
+              role="tab"
+              aria-selected={index === activeIndex}
+              aria-label={`Slide ${index + 1} of ${matches.length}`}
+              className={`b365-motd-dot ${index === activeIndex ? 'active' : ''}`}
+              onClick={() => {
+                setActiveIndex(index);
+                setPaused(true);
+                window.setTimeout(() => setPaused(false), AUTO_INTERVAL_MS * 2);
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MotdSlide({
+  g,
+  slipEvents,
+  addSelection,
+  removeSelection,
+  lastSwipeAtRef,
+}: {
+  g: GameView;
+  slipEvents: Record<string, BetslipEventLike>;
+  addSelection: ReturnType<typeof useBetslipStore.getState>['addSelection'];
+  removeSelection: ReturnType<typeof useBetslipStore.getState>['removeSelection'];
+  lastSwipeAtRef: React.MutableRefObject<number>;
+}) {
+  const live = g.isLive;
+  const liveDisplay = live ? formatMotdLiveDisplay(g) : null;
+
+  return (
+    <div className="b365-motd-slide">
+      <div className="b365-motd-card">
+        <Link
+          to={`/match/${g.id}`}
+          className="b365-motd-card-main"
+          onClick={(ev) => {
+            if (Date.now() - lastSwipeAtRef.current < 450) ev.preventDefault();
+          }}
+        >
+          <div className="b365-motd-teams">
+            <div className="b365-motd-team">
+              <div className="b365-motd-logo-wrap">
                 <TeamLogo
                   teamId={g.team1Id}
                   name={g.team1}
                   className="b365-motd-logo"
                   fallbackClassName="b365-motd-logo-fallback"
                 />
-                <div className="b365-motd-team-line">
-                  <span className="b365-motd-name">{g.team1}</span>
-                  {showLiveScores ? <span className="b365-motd-score-pill">{g.homeScore}</span> : null}
-                </div>
               </div>
-              <div className={`b365-motd-vs ${live ? 'b365-motd-vs--live' : ''}`}>
-                {live ? (
-                  <>
-                    <span className="b365-motd-live-badge">Live</span>
-                    <span className="b365-motd-time b365-motd-time--live">
-                      {liveClock === 'Live' ? 'In play' : liveClock}
+              <span className="b365-motd-name">{g.team1}</span>
+            </div>
+
+            <div className={`b365-motd-vs ${live ? 'b365-motd-vs--live' : ''}`}>
+              {live && liveDisplay ? (
+                <>
+                  <span className="b365-motd-live-badge">Live</span>
+                  {liveDisplay.showScore ? (
+                    <span
+                      className="b365-motd-live-score"
+                      aria-label={`Score ${liveDisplay.home} to ${liveDisplay.away}`}
+                    >
+                      <span>{liveDisplay.home}</span>
+                      <span className="b365-motd-live-score-sep">:</span>
+                      <span>{liveDisplay.away}</span>
                     </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="b365-motd-vs-text">VS</span>
-                    <span className="b365-motd-kickoff">{formatMotdKickoff(g.startTs)}</span>
-                  </>
-                )}
-              </div>
-              <div className="b365-motd-team">
+                  ) : null}
+                  <span className="b365-motd-time b365-motd-time--live">{liveDisplay.clock}</span>
+                </>
+              ) : (
+                <>
+                  <span className="b365-motd-vs-text">VS</span>
+                  <span className="b365-motd-kickoff">{formatMotdKickoff(g.startTs)}</span>
+                </>
+              )}
+            </div>
+
+            <div className="b365-motd-team">
+              <div className="b365-motd-logo-wrap">
                 <TeamLogo
                   teamId={g.team2Id}
                   name={g.team2}
                   className="b365-motd-logo"
                   fallbackClassName="b365-motd-logo-fallback"
                 />
-                <div className="b365-motd-team-line">
-                  <span className="b365-motd-name">{g.team2}</span>
-                  {showLiveScores ? <span className="b365-motd-score-pill">{g.awayScore}</span> : null}
-                </div>
               </div>
+              <span className="b365-motd-name">{g.team2}</span>
             </div>
-          </Link>
-          <MotdOddsRow g={g} slipEvents={slipEvents} addSelection={addSelection} removeSelection={removeSelection} />
-        </div>
-
-        {matches.length > 1 && (
-          <div className="b365-motd-dots" role="tablist" aria-label="Match carousel">
-            {matches.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                role="tab"
-                aria-selected={index === activeIndex}
-                className={`b365-motd-dot ${index === activeIndex ? 'active' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveIndex(index);
-                }}
-              />
-            ))}
           </div>
-        )}
+        </Link>
+        <MotdOddsRow g={g} slipEvents={slipEvents} addSelection={addSelection} removeSelection={removeSelection} />
       </div>
     </div>
   );
@@ -268,11 +337,9 @@ function MotdOddButton({
   return (
     <button type="button" className={`b365-motd-odd ${selected ? 'selected' : ''}`} onClick={onClick}>
       <span className="b365-motd-odd-label">{label}</span>
-      <span className="b365-motd-odd-val">
-        <span className="b365-odd-price-with-flash b365-motd-odd-val-inner">
-          <OddsFlashArrow flash={flash} />
-          <span>{price.toFixed(2)}</span>
-        </span>
+      <span className="b365-odd-price-with-flash b365-motd-odd-val">
+        <OddsFlashArrow flash={flash} />
+        <span>{price.toFixed(2)}</span>
       </span>
     </button>
   );
@@ -313,9 +380,9 @@ function MotdOddsRow({
   }
 
   const cells = [
-    ['home', '1', mr.home] as const,
+    ['home', 'W1', mr.home] as const,
     ['draw', 'X', mr.draw] as const,
-    ['away', '2', mr.away] as const,
+    ['away', 'W2', mr.away] as const,
   ];
 
   return (

@@ -61,9 +61,10 @@ export type FlatGameRow = {
 export type MatchResult1x2Odds = {
   marketId: number;
   marketName: string;
-  home: { eventId: number; price: number; name: string };
-  draw: { eventId: number; price: number; name: string };
-  away: { eventId: number; price: number; name: string };
+  marketType: string;
+  home: { eventId: number; price: number; name: string; type?: string };
+  draw: { eventId: number; price: number; name: string; type?: string };
+  away: { eventId: number; price: number; name: string; type?: string };
 };
 
 export type GameView = {

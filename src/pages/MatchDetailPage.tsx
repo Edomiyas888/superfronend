@@ -87,7 +87,15 @@ export default function MatchDetailPage() {
     [expanded]
   );
 
-  const toggleOdd = (marketId: number, eventId: number, name: string, price: number, marketName: string) => {
+  const toggleOdd = (
+    marketId: number,
+    marketType: string | number | undefined,
+    eventId: number,
+    name: string,
+    price: number,
+    marketName: string,
+    eventType?: string
+  ) => {
     if (!detail) return;
     const k = keyFor(detail.gameId, marketId, eventId);
     const existing = events[k];
@@ -96,11 +104,14 @@ export default function MatchDetailPage() {
       return;
     }
     removeSelectionsForGameMarket(detail.gameId, marketId);
+    const swarmType = marketType != null && String(marketType).trim() ? String(marketType) : 'P1XP2';
     const ev: BetslipEventLike = {
       eventId,
       gameId: detail.gameId,
+      marketId,
       marketName,
-      marketType: marketName,
+      marketType: swarmType,
+      eventType,
       teamone: detail.team1,
       teamtwo: detail.team2,
       region: detail.regionName,
@@ -108,6 +119,7 @@ export default function MatchDetailPage() {
       title: `${detail.team1} vs ${detail.team2}`,
       pick: name,
       price,
+      initialPrice: price,
       isLive: detail.isLive,
       dateofmatch: Math.floor(detail.startTs),
     };
@@ -234,7 +246,9 @@ export default function MatchDetailPage() {
                                 name={e.name}
                                 price={price}
                                 selected={sel}
-                                onToggle={() => toggleOdd(m.id, e.id, e.name, price, m.name)}
+                                onToggle={() =>
+                                  toggleOdd(m.id, m.type, e.id, e.name, price, m.name, e.type ? String(e.type) : undefined)
+                                }
                               />
                             );
                           })}

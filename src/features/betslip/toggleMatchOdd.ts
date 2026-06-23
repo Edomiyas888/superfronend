@@ -20,8 +20,10 @@ export function toggleMatchOdd(
   const ev: BetslipEventLike = {
     eventId: pick.eventId,
     gameId: g.id,
+    marketId: mr.marketId,
     marketName: mr.marketName,
-    marketType: mr.marketName,
+    marketType: mr.marketType,
+    eventType: pick.type,
     teamone: g.team1,
     teamtwo: g.team2,
     region: g.regionName,
@@ -29,6 +31,7 @@ export function toggleMatchOdd(
     title: `${g.team1} v ${g.team2}`,
     pick: pick.name || (leg === 'home' ? '1' : leg === 'draw' ? 'X' : '2'),
     price: pick.price,
+    initialPrice: pick.price,
     isLive: g.isLive,
     dateofmatch: Math.floor(g.startTs),
   };

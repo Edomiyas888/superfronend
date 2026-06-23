@@ -16,7 +16,7 @@ export default function AppFooter() {
             18+
           </span>
           <span className="b365-app-footer-copy">
-            © {year} Superbet · Demo UI · Play responsibly
+            © {year} S Bet · Play responsibly
           </span>
         </div>
       </div>

@@ -68,6 +68,32 @@ export function formatLiveMatchTimeText(g: Record<string, unknown>): string {
   return '';
 }
 
+/**
+ * Strip embedded score fragments from Swarm `text_info` when structured scores are shown elsewhere.
+ * e.g. "0 : 0, (0:0) 16'" -> "16'"
+ */
+export function extractLiveClockOnly(raw: string): string {
+  let s = raw.trim();
+  if (!s) return '';
+
+  s = s.replace(/\(\s*\d+\s*[:\-–]\s*\d+\s*\)/g, ' ');
+  for (let i = 0; i < 4; i++) {
+    const stripped = s.replace(/^\s*\d+\s*[:\-–]\s*\d+\s*[,;–\-]?\s*/u, '');
+    if (stripped === s) break;
+    s = stripped;
+  }
+  s = s.replace(/^[\s,;]+/, '').replace(/[\s,;]+$/, '').trim();
+
+  return s;
+}
+
+/** First score in Swarm live text, e.g. "0 : 0, (0:0) 44'" -> { home: 0, away: 0 }. */
+export function extractPrimaryScoreFromLiveText(raw: string): { home: number; away: number } | null {
+  const m = raw.trim().match(/^(\d+)\s*[:\-–]\s*(\d+)/);
+  if (!m) return null;
+  return { home: Number(m[1]), away: Number(m[2]) };
+}
+
 export function liveDisplayFieldsFromRawGame(g: Record<string, unknown>): {
   homeScore?: number;
   awayScore?: number;

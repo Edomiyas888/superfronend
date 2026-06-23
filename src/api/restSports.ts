@@ -536,9 +536,10 @@ function extractMatchResult1x2FromGame(g: Record<string, unknown>): MatchResult1
     return {
       marketId: Number(mk.id),
       marketName: String(mk.name ?? 'Match Result'),
-      home: { eventId: home.id, price: home.price, name: home.name },
-      draw: { eventId: draw.id, price: draw.price, name: draw.name },
-      away: { eventId: away.id, price: away.price, name: away.name },
+      marketType: String(mk.type ?? 'P1XP2'),
+      home: { eventId: home.id, price: home.price, name: home.name, type: home.type },
+      draw: { eventId: draw.id, price: draw.price, name: draw.name, type: draw.type },
+      away: { eventId: away.id, price: away.price, name: away.name, type: away.type },
     };
   }
   return undefined;
