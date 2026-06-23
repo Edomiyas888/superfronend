@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useBetslipStore } from '../features/betslip/betslipStore';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
+import BetslipMyBetsPanel from './BetslipMyBetsPanel';
+
+type MainTab = 'slip' | 'my-bets';
 
 /** Shared betslip body — desktop rail + mobile drawer. */
 export default function BetslipContent() {
+  const [mainTab, setMainTab] = useState<MainTab>('slip');
   const events = useBetslipStore((s) => s.events);
   const stake = useBetslipStore((s) => s.stake);
   const setStake = useBetslipStore((s) => s.setStake);
@@ -56,12 +61,30 @@ export default function BetslipContent() {
 
   return (
     <>
-      <div className="b365-betslip-tabs">
-        <span className="b365-betslip-tab active">Bet Slip</span>
-        <span className="b365-betslip-tab muted">My Bets</span>
+      <div className="b365-betslip-tabs" role="tablist" aria-label="Bet slip sections">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mainTab === 'slip'}
+          className={`b365-betslip-tab${mainTab === 'slip' ? ' active' : ''}`}
+          onClick={() => setMainTab('slip')}
+        >
+          Bet Slip
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mainTab === 'my-bets'}
+          className={`b365-betslip-tab${mainTab === 'my-bets' ? ' active' : ''}`}
+          onClick={() => setMainTab('my-bets')}
+        >
+          My Bets
+        </button>
       </div>
 
-      {!hasSelections ? (
+      {mainTab === 'my-bets' ? (
+        <BetslipMyBetsPanel authHeaders={getAuthHeader()} loggedIn={loggedIn} />
+      ) : !hasSelections ? (
         <p className="b365-betslip-empty">Click odds to add selections to your bet slip.</p>
       ) : (
         <>

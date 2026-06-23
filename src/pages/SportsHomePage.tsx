@@ -7,6 +7,7 @@ import { usePopularMatches } from '../hooks/usePopularMatches';
 import DateFilterChips from '../components/DateFilterChips';
 import MatchListByDate from '../components/MatchListByDate';
 import MatchOfTheDay from '../components/MatchOfTheDay';
+import PromoBannerCarousel from '../components/PromoBannerCarousel';
 import PopularLeagueChips from '../components/PopularLeagueChips';
 import { POPULAR_LEAGUE_KEYS } from '../constants/popularLeagues';
 import type { DateFilterKey } from '../constants/dateFilters';
@@ -27,6 +28,8 @@ export default function SportsHomePage() {
 
   return (
     <div>
+      <PromoBannerCarousel />
+
       <MatchOfTheDay />
 
       <div className="b365-breadcrumb">

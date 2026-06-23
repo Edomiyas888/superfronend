@@ -1,18 +1,37 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import BetSlipAccordion from '../components/BetSlipAccordion';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchMyBets } from '../features/bets/betsApi';
 
+type MyBetsFilter = 'open' | 'lost' | 'won';
+
+const FILTERS: { id: MyBetsFilter; label: string }[] = [
+  { id: 'open', label: 'Open' },
+  { id: 'lost', label: 'Lost' },
+  { id: 'won', label: 'Won' },
+];
+
 export default function MyBetsPage() {
   const { username, getAuthHeader } = useSessionStore();
   const loggedIn = !!username;
+  const [filter, setFilter] = useState<MyBetsFilter>('open');
 
   const q = useQuery({
-    queryKey: ['my-bets'],
-    queryFn: () => fetchMyBets(getAuthHeader(), { limit: 50 }),
+    queryKey: ['my-bets', 'page', filter],
+    queryFn: () => fetchMyBets(getAuthHeader(), { limit: 50, settlementStatus: filter }),
     enabled: loggedIn,
+    staleTime: 20_000,
   });
+
+  useEffect(() => {
+    const refresh = () => {
+      void q.refetch();
+    };
+    window.addEventListener('superbet:my-bets-changed', refresh);
+    return () => window.removeEventListener('superbet:my-bets-changed', refresh);
+  }, [q]);
 
   return (
     <div className="b365-my-bets-page">
@@ -30,29 +49,51 @@ export default function MyBetsPage() {
             Sign in to view your placed bets.
           </p>
         </div>
-      ) : q.isLoading ? (
-        <div className="b365-my-bets-loading">
-          <div className="b365-my-bets-loading__dots" aria-hidden>
-            <span className="b365-my-bets-loading__dot" />
-            <span className="b365-my-bets-loading__dot" />
-            <span className="b365-my-bets-loading__dot" />
-          </div>
-          <p className="b365-muted">Loading your bet slips…</p>
-        </div>
-      ) : q.isError ? (
-        <p className="b365-error">{(q.error as Error).message}</p>
-      ) : (q.data?.items.length ?? 0) === 0 ? (
-        <div className="card b365-card b365-my-bets-empty">
-          <p className="b365-muted" style={{ margin: 0 }}>
-            No placed bets yet. Add selections from a match and place a bet from the bet slip.
-          </p>
-        </div>
       ) : (
-        <div className="b365-my-bets-list">
-          {q.data!.items.map((bet, i) => (
-            <BetSlipAccordion key={bet.id} bet={bet} defaultOpen={i === 0} />
-          ))}
-        </div>
+        <>
+          <div className="b365-betslip-subtabs b365-my-bets-subtabs" role="tablist" aria-label="Bet history filter">
+            {FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={filter === item.id}
+                className={`b365-betslip-subtab${filter === item.id ? ' active' : ''}`}
+                onClick={() => setFilter(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {q.isLoading ? (
+            <div className="b365-my-bets-loading">
+              <div className="b365-my-bets-loading__dots" aria-hidden>
+                <span className="b365-my-bets-loading__dot" />
+                <span className="b365-my-bets-loading__dot" />
+                <span className="b365-my-bets-loading__dot" />
+              </div>
+              <p className="b365-muted">Loading your bet slips…</p>
+            </div>
+          ) : q.isError ? (
+            <p className="b365-error">{(q.error as Error).message}</p>
+          ) : (q.data?.items.length ?? 0) === 0 ? (
+            <div className="card b365-card b365-my-bets-empty">
+              <p className="b365-muted" style={{ margin: 0 }}>
+                No {filter} bets yet.
+                {filter === 'open'
+                  ? ' Add selections from a match and place a bet from the bet slip.'
+                  : ''}
+              </p>
+            </div>
+          ) : (
+            <div className="b365-my-bets-list">
+              {q.data!.items.map((bet, i) => (
+                <BetSlipAccordion key={bet.id} bet={bet} defaultOpen={filter === 'open' && i === 0} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -22,6 +22,7 @@ export type WalletTransaction = {
   balanceAfter: number;
   actor: string;
   note: string;
+  betSlipId?: string | null;
   createdAt: string;
 };
 
@@ -115,17 +116,12 @@ export async function fetchTelebirrDepositInfo(
  */
 export async function depositTelebirr(
   authHeaders: Record<string, string>,
-  params: { amount: number; reference?: string; screenshot?: File }
+  params: { amount: number; screenshot: File }
 ): Promise<TelebirrDepositResult> {
   const base = getApiBaseUrl();
   const form = new FormData();
   form.append('amount', String(params.amount));
-  if (params.reference?.trim()) {
-    form.append('reference', params.reference.trim());
-  }
-  if (params.screenshot) {
-    form.append('screenshot', params.screenshot);
-  }
+  form.append('screenshot', params.screenshot);
 
   const headers: Record<string, string> = {};
   if (authHeaders.Authorization) {
@@ -164,7 +160,7 @@ export async function depositTelebirr(
  */
 export async function fetchWalletTransactions(
   authHeaders: Record<string, string>,
-  params: { page?: number; limit?: number; type?: 'deposit' | 'withdraw' } = {}
+  params: { page?: number; limit?: number; type?: 'deposit' | 'withdraw' | 'bets' } = {}
 ): Promise<WalletTransactionsPage> {
   const base = getApiBaseUrl();
   const qs = new URLSearchParams();

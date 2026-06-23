@@ -8,8 +8,21 @@ import {
   fetchWalletTransactions,
   withdrawWallet,
 } from '../features/wallet/walletApi';
+import {
+  txIcon,
+  txIsCredit,
+  txTypeLabel,
+  type WalletHistoryFilter,
+} from '../features/wallet/transactionLabels';
 
 type WalletTab = 'deposit' | 'withdraw' | 'history';
+
+const HISTORY_FILTERS: { id: WalletHistoryFilter; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'deposit', label: 'Deposits' },
+  { id: 'withdraw', label: 'Withdrawals' },
+  { id: 'bets', label: 'Bets' },
+];
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -21,10 +34,6 @@ function formatDate(iso: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
-}
-
-function formatType(type: string): string {
-  return type.replace(/_/g, ' ');
 }
 
 export default function WalletPage() {
@@ -40,7 +49,7 @@ export default function WalletPage() {
   const [walletAmount, setWalletAmount] = useState('');
   const [walletBusy, setWalletBusy] = useState(false);
   const [walletErr, setWalletErr] = useState<string | null>(null);
-  const [historyType, setHistoryType] = useState<'all' | 'deposit' | 'withdraw'>('all');
+  const [historyType, setHistoryType] = useState<WalletHistoryFilter>('all');
   const [historyPage, setHistoryPage] = useState(1);
 
   const walletQ = useQuery({
@@ -58,9 +67,16 @@ export default function WalletPage() {
         limit: 20,
         type: historyType === 'all' ? undefined : historyType,
       }),
-    enabled: loggedIn && tab === 'history',
+    enabled: loggedIn,
+    staleTime: 30_000,
     placeholderData: (prev) => prev,
   });
+
+  const currency = walletQ.data?.currency ?? 'ETB';
+  const balance =
+    walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
+      ? null
+      : Number(walletQ.data?.balance ?? 0);
 
   const setTab = (next: WalletTab) => {
     setSearchParams(next === 'deposit' ? {} : { tab: next });
@@ -87,6 +103,10 @@ export default function WalletPage() {
       setWalletErr('Enter a positive amount.');
       return;
     }
+    if (balance != null && amt > balance) {
+      setWalletErr('Amount exceeds your available balance.');
+      return;
+    }
     setWalletBusy(true);
     try {
       await withdrawWallet(getAuthHeader(), amt);
@@ -100,7 +120,7 @@ export default function WalletPage() {
   };
 
   return (
-    <div>
+    <div className={`b365-wallet-page${loggedIn ? ' b365-wallet-page--logged-in' : ''}`}>
       <div className="b365-breadcrumb">
         <Link to="/">Home</Link>
         <span aria-hidden>›</span>
@@ -110,7 +130,7 @@ export default function WalletPage() {
       <h1 className="b365-page-title">Wallet</h1>
 
       {!loggedIn ? (
-        <div className="card b365-card">
+        <div className="card b365-card b365-wallet-guest">
           <p className="b365-muted" style={{ margin: 0 }}>
             Sign in to deposit, withdraw, and view your transaction history.{' '}
             <Link to="/profile">Log in</Link>
@@ -118,19 +138,20 @@ export default function WalletPage() {
         </div>
       ) : (
         <>
-          <div className="card b365-card b365-profile-card b365-wallet-balance-card">
-            <h2 className="b365-profile-heading">Balance</h2>
-            <p className="b365-profile-balance">
-              {walletQ.isPending
-                ? '…'
-                : walletQ.isError || walletQ.data?.status === 'error'
-                  ? '—'
-                  : Number(walletQ.data?.balance ?? 0).toFixed(2)}{' '}
-              <span className="b365-muted">{walletQ.data?.currency ?? 'ETB'}</span>
+          <section className="b365-wallet-hero" aria-label="Wallet balance">
+            <div className="b365-wallet-hero__top">
+              <span className="b365-wallet-hero__label">Available balance</span>
+              <span className="b365-wallet-hero__badge">{currency}</span>
+            </div>
+            <p className="b365-wallet-hero__amount">
+              {balance == null ? '—' : balance.toFixed(2)}
             </p>
-          </div>
+            <p className="b365-wallet-hero__hint">
+              Deposits via Telebirr · Winnings credited automatically after settlement
+            </p>
+          </section>
 
-          <div className="b365-profile-tabs b365-wallet-tabs">
+          <nav className="b365-wallet-segments" aria-label="Wallet actions">
             <button
               type="button"
               className={tab === 'deposit' ? 'active' : ''}
@@ -150,109 +171,149 @@ export default function WalletPage() {
               className={tab === 'history' ? 'active' : ''}
               onClick={() => setTab('history')}
             >
-              Transaction history
+              History
+              {historyQ.data?.total ? (
+                <span className="b365-wallet-segments__count">{historyQ.data.total}</span>
+              ) : null}
             </button>
-          </div>
+          </nav>
 
           {tab === 'deposit' ? (
-            <div className="card b365-card b365-profile-card">
-              <h2 className="b365-profile-heading">Deposit via Telebirr</h2>
+            <section key="deposit" className="card b365-card b365-wallet-panel b365-wallet-panel--enter">
+              <header className="b365-wallet-panel__head">
+                <h2>Deposit via Telebirr</h2>
+                <p>Send money from Telebirr, then verify your payment here.</p>
+              </header>
               <TelebirrDepositFlow
                 authHeaders={getAuthHeader()}
-                currency={walletQ.data?.currency ?? 'ETB'}
+                currency={currency}
                 onSuccess={() => {
                   void invalidateWallet();
                 }}
               />
-            </div>
+            </section>
           ) : null}
 
           {tab === 'withdraw' ? (
-            <div className="card b365-card b365-profile-card">
-              <h2 className="b365-profile-heading">Withdraw</h2>
-              <p className="b365-muted b365-profile-note">
-                Withdraw funds from your wallet balance.
-              </p>
+            <section className="card b365-card b365-wallet-panel">
+              <header className="b365-wallet-panel__head">
+                <h2>Withdraw</h2>
+                <p>Move funds out of your betting wallet.</p>
+              </header>
               <label className="b365-field-label">
-                Amount
+                Amount ({currency})
                 <input
                   type="number"
-                  className="b365-input"
+                  className="b365-input b365-wallet-input"
                   min={0}
                   step={0.01}
+                  max={balance ?? undefined}
                   value={walletAmount}
                   onChange={(e) => setWalletAmount(e.target.value)}
                   disabled={walletBusy}
+                  placeholder="e.g. 100"
                 />
               </label>
+              {balance != null ? (
+                <button
+                  type="button"
+                  className="b365-wallet-quick-amt"
+                  onClick={() => setWalletAmount(String(balance))}
+                  disabled={walletBusy}
+                >
+                  Withdraw full balance ({balance.toFixed(2)} {currency})
+                </button>
+              ) : null}
               <div className="b365-wallet-actions">
                 <button
                   type="button"
-                  className="b365-btn-secondary"
+                  className="b365-btn-primary b365-wallet-submit"
                   disabled={walletBusy}
                   onClick={() => void onWithdraw()}
                 >
                   {walletBusy ? 'Withdrawing…' : 'Withdraw'}
                 </button>
               </div>
-              {walletErr && <p className="b365-error">{walletErr}</p>}
-            </div>
+              {walletErr ? <p className="b365-error">{walletErr}</p> : null}
+            </section>
           ) : null}
 
           {tab === 'history' ? (
-            <div className="card b365-card b365-profile-card">
-              <div className="b365-wallet-history-filters">
-                <label className="b365-field-label">
-                  Type
-                  <select
-                    className="b365-input"
-                    value={historyType}
-                    onChange={(e) => {
-                      setHistoryType(e.target.value as 'all' | 'deposit' | 'withdraw');
+            <section className="card b365-card b365-wallet-panel">
+              <header className="b365-wallet-panel__head">
+                <h2>Transaction history</h2>
+                <p>Deposits, withdrawals, stakes, wins, and refunds.</p>
+              </header>
+
+              <div className="b365-wallet-filter-pills" role="tablist" aria-label="Filter transactions">
+                {HISTORY_FILTERS.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={historyType === f.id}
+                    className={historyType === f.id ? 'active' : ''}
+                    onClick={() => {
+                      setHistoryType(f.id);
                       setHistoryPage(1);
                     }}
                   >
-                    <option value="all">All</option>
-                    <option value="deposit">Deposit</option>
-                    <option value="withdraw">Withdraw</option>
-                  </select>
-                </label>
+                    {f.label}
+                  </button>
+                ))}
               </div>
 
               {historyQ.isLoading ? (
-                <p className="b365-muted">Loading transactions…</p>
+                <div className="b365-wallet-history-empty">
+                  <p className="b365-muted">Loading transactions…</p>
+                </div>
               ) : historyQ.isError ? (
-                <p className="b365-error">{(historyQ.error as Error).message}</p>
+                <div className="b365-wallet-history-empty">
+                  <p className="b365-error">{(historyQ.error as Error).message}</p>
+                </div>
               ) : (historyQ.data?.items.length ?? 0) === 0 ? (
-                <p className="b365-muted">No transactions yet.</p>
+                <div className="b365-wallet-history-empty">
+                  <p className="b365-wallet-history-empty__title">No transactions yet</p>
+                  <p className="b365-muted">
+                    Deposits, bets, and withdrawals will appear here.
+                  </p>
+                  <button type="button" className="b365-btn-secondary" onClick={() => setTab('deposit')}>
+                    Make a deposit
+                  </button>
+                </div>
               ) : (
                 <ul className="b365-wallet-history-list">
-                  {historyQ.data!.items.map((tx) => (
-                    <li key={tx.id} className="b365-wallet-history-item">
-                      <div className="b365-wallet-history-main">
+                  {historyQ.data!.items.map((tx) => {
+                    const credit = txIsCredit(tx.type);
+                    return (
+                      <li key={tx.id} className="b365-wallet-history-item">
                         <span
-                          className={
-                            tx.type === 'deposit' || tx.type === 'bet_win' || tx.type === 'bet_void'
-                              ? 'b365-wallet-tx-deposit'
-                              : 'b365-wallet-tx-withdraw'
-                          }
+                          className={`b365-wallet-tx-icon ${credit ? 'b365-wallet-tx-icon--credit' : 'b365-wallet-tx-icon--debit'}`}
+                          aria-hidden
                         >
-                          {formatType(tx.type)}
+                          {txIcon(tx.type)}
                         </span>
-                        <strong>
-                          {tx.type === 'deposit' || tx.type === 'bet_win' || tx.type === 'bet_void'
-                            ? '+'
-                            : '−'}
-                          {Number(tx.amount).toFixed(2)} {walletQ.data?.currency ?? 'ETB'}
-                        </strong>
-                      </div>
-                      <div className="b365-wallet-history-meta">
-                        <span>{formatDate(tx.createdAt)}</span>
-                        <span>Balance after: {Number(tx.balanceAfter).toFixed(2)}</span>
-                      </div>
-                      {tx.note ? <p className="b365-wallet-history-note">{tx.note}</p> : null}
-                    </li>
-                  ))}
+                        <div className="b365-wallet-history-body">
+                          <div className="b365-wallet-history-main">
+                            <span className="b365-wallet-history-type">{txTypeLabel(tx.type)}</span>
+                            <strong
+                              className={
+                                credit ? 'b365-wallet-tx-amount--credit' : 'b365-wallet-tx-amount--debit'
+                              }
+                            >
+                              {credit ? '+' : '−'}
+                              {Number(tx.amount).toFixed(2)} {currency}
+                            </strong>
+                          </div>
+                          <div className="b365-wallet-history-meta">
+                            <span>{formatDate(tx.createdAt)}</span>
+                            <span>Balance {Number(tx.balanceAfter).toFixed(2)} {currency}</span>
+                          </div>
+                          {tx.note ? <p className="b365-wallet-history-note">{tx.note}</p> : null}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
 
@@ -279,7 +340,7 @@ export default function WalletPage() {
                   </button>
                 </div>
               ) : null}
-            </div>
+            </section>
           ) : null}
         </>
       )}

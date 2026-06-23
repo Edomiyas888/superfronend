@@ -7,7 +7,6 @@ import {
 } from '../../api/placeBet';
 import { placeBetSlip } from '../bets/betsApi';
 import { useSessionStore } from '../auth/sessionStore';
-import { isBetslipDrawerViewport, useBetslipDrawerStore } from './betslipDrawerStore';
 
 export type SelectionKey = string;
 
@@ -58,9 +57,6 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       correctionPending: null,
       correctionsAccepted: true,
     }));
-    if (isBetslipDrawerViewport()) {
-      useBetslipDrawerStore.getState().open();
-    }
   },
 
   removeSelection: (key) => {
@@ -210,6 +206,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       });
 
       window.dispatchEvent(new CustomEvent('superbet:wallet-changed'));
+      window.dispatchEvent(new CustomEvent('superbet:my-bets-changed'));
     } catch (e) {
       set({
         placeStatus: 'error',

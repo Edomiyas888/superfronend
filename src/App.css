@@ -46,9 +46,15 @@
   }
 
   .b365-header-balance {
-    max-width: min(140px, 38vw);
-    font-size: 0.78rem;
-    padding: 7px 10px;
+    max-width: min(110px, 34vw);
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+
+  .b365-header-deposit-btn {
+    padding: 4px 9px;
+    font-size: 0.68rem;
+    min-height: 28px;
   }
 
   .b365-header-auth-btn {
@@ -140,13 +146,13 @@
 .b365-header-balance {
   display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
-  max-width: 180px;
+  padding: 5px 10px;
+  max-width: 140px;
   border-radius: 999px;
   background: var(--b365-header-surface);
   border: 1px solid var(--b365-border);
   color: var(--b365-text);
-  font-size: 0.84rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -159,6 +165,55 @@
 
 .b365-header-balance:hover {
   text-decoration: underline;
+  border-color: var(--b365-border-light);
+}
+
+.b365-header-deposit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 5px 11px;
+  min-height: 30px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--b365-green) 0%, var(--b365-green-dark) 100%);
+  border: 1px solid rgba(57, 255, 20, 0.45);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.22);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+  animation: b365-deposit-glow 2.8s ease-in-out infinite;
+}
+
+.b365-header-deposit-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 0 16px rgba(57, 255, 20, 0.4);
+  color: #fff;
+  text-decoration: none;
+}
+
+.b365-header-deposit-btn:focus-visible {
+  outline: 2px solid var(--b365-neon);
+  outline-offset: 2px;
+}
+
+@keyframes b365-deposit-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 14px rgba(57, 255, 20, 0.42);
+  }
 }
 
 .b365-header-auth-btn {
@@ -242,7 +297,7 @@
 .b365-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -540,16 +595,62 @@ a.b365-btn-header-login {
   font-weight: 700;
   text-transform: uppercase;
   color: var(--b365-text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .b365-betslip-tab.active {
   color: var(--b365-text);
-  border-bottom: 2px solid var(--b365-yellow);
-  margin-bottom: -2px;
+  border-bottom-color: var(--b365-yellow);
 }
 
-.b365-betslip-tab.muted {
-  opacity: 0.5;
+.b365-betslip-subtabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.b365-betslip-subtab {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--b365-border);
+  background: var(--b365-bg);
+  color: var(--b365-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.b365-betslip-subtab.active {
+  border-color: var(--b365-green);
+  color: var(--b365-green);
+  background: rgba(99, 207, 187, 0.08);
+}
+
+.b365-betslip-my-bets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.b365-betslip-my-bets .b365-my-bets-acc__summary {
+  padding: 10px 12px;
+}
+
+.b365-betslip-my-bets .b365-my-bets-acc__title {
+  font-size: 0.8125rem;
+}
+
+.b365-betslip-my-bets .b365-my-bets-acc__metrics {
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .b365-betslip-empty {
@@ -949,11 +1050,263 @@ a.b365-btn-header-login {
   margin: 0 0 14px;
 }
 
+.b365-wallet-page {
+  max-width: 560px;
+}
+
+.b365-wallet-page--logged-in .b365-wallet-hero {
+  animation: b365-wallet-fade-up 0.5s ease both;
+}
+
+.b365-wallet-page--logged-in .b365-wallet-segments {
+  animation: b365-wallet-fade-up 0.5s ease 0.08s both;
+}
+
+.b365-wallet-page--logged-in .b365-wallet-panel {
+  animation: b365-wallet-fade-up 0.5s ease 0.14s both;
+}
+
+.b365-wallet-panel--enter {
+  animation: b365-telebirr-step-in 0.35s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-header-deposit-btn,
+  .b365-telebirr-steps span.active,
+  .b365-wallet-page--logged-in .b365-wallet-hero,
+  .b365-wallet-page--logged-in .b365-wallet-segments,
+  .b365-wallet-page--logged-in .b365-wallet-panel,
+  .b365-wallet-panel--enter,
+  .b365-telebirr-panel--enter,
+  .b365-telebirr-payee,
+  .b365-telebirr-success {
+    animation: none;
+  }
+}
+
+@keyframes b365-wallet-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes b365-telebirr-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes b365-telebirr-success-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes b365-telebirr-step-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(50, 217, 88, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 3px rgba(50, 217, 88, 0.22);
+  }
+}
+
+.b365-wallet-guest {
+  padding: 20px;
+}
+
+.b365-wallet-hero {
+  margin-bottom: 16px;
+  padding: 20px 18px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0f6047 0%, #14805e 45%, #1a9d72 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.b365-wallet-hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.b365-wallet-hero__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.b365-wallet-hero__badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #d7ffef;
+}
+
+.b365-wallet-hero__amount {
+  margin: 10px 0 6px;
+  font-size: clamp(2rem, 8vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.b365-wallet-hero__hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.b365-wallet-segments {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.b365-wallet-segments button {
+  border: 1px solid var(--b365-border);
+  border-radius: 10px;
+  background: var(--b365-surface);
+  color: var(--b365-text-muted);
+  padding: 11px 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.b365-wallet-segments button.active {
+  background: var(--b365-green);
+  border-color: var(--b365-green);
+  color: #fff;
+}
+
+.b365-wallet-segments__count {
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.b365-wallet-panel {
+  padding: 18px 16px;
+}
+
+.b365-wallet-panel__head h2 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.b365-wallet-panel__head p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--b365-text-muted);
+  line-height: 1.45;
+}
+
+.b365-wallet-input {
+  margin-top: 6px;
+}
+
+.b365-wallet-quick-amt {
+  margin-top: 8px;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--b365-green);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.b365-wallet-quick-amt:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.b365-wallet-submit {
+  width: 100%;
+}
+
+.b365-wallet-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.b365-wallet-filter-pills button {
+  border: 1px solid var(--b365-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--b365-text-muted);
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.b365-wallet-filter-pills button.active {
+  background: rgba(20, 128, 94, 0.15);
+  border-color: var(--b365-green);
+  color: #d7ffef;
+}
+
+.b365-wallet-history-empty {
+  text-align: center;
+  padding: 28px 12px;
+}
+
+.b365-wallet-history-empty__title {
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+
 .b365-wallet-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .b365-wallet-tabs {
@@ -968,33 +1321,73 @@ a.b365-btn-header-login {
   margin-bottom: 0;
 }
 
-.b365-wallet-history-filters {
-  margin-bottom: 14px;
-  max-width: 220px;
-}
-
 .b365-wallet-history-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .b365-wallet-history-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
   padding: 12px;
   border: 1px solid var(--b365-border);
-  border-radius: 4px;
-  background: var(--b365-surface);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.b365-wallet-tx-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.b365-wallet-tx-icon--credit {
+  background: rgba(20, 128, 94, 0.18);
+  color: #63cfbb;
+}
+
+.b365-wallet-tx-icon--debit {
+  background: rgba(192, 57, 43, 0.14);
+  color: #ff8a7a;
+}
+
+.b365-wallet-history-body {
+  flex: 1;
+  min-width: 0;
 }
 
 .b365-wallet-history-main {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   font-size: 14px;
+}
+
+.b365-wallet-history-type {
+  font-weight: 700;
+  color: var(--b365-text);
+}
+
+.b365-wallet-tx-amount--credit {
+  color: #63cfbb;
+  white-space: nowrap;
+}
+
+.b365-wallet-tx-amount--debit {
+  color: #ff8a7a;
+  white-space: nowrap;
 }
 
 .b365-wallet-tx-deposit {
@@ -1012,16 +1405,17 @@ a.b365-btn-header-login {
 .b365-wallet-history-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 16px;
-  margin-top: 6px;
-  font-size: 12px;
+  gap: 6px 14px;
+  margin-top: 4px;
+  font-size: 11px;
   color: var(--b365-text-muted);
 }
 
 .b365-wallet-history-note {
-  margin: 8px 0 0;
-  font-size: 12px;
+  margin: 6px 0 0;
+  font-size: 11px;
   color: var(--b365-text-muted);
+  line-height: 1.4;
 }
 
 .b365-wallet-history-pagination {
@@ -1055,21 +1449,37 @@ a.b365-btn-header-login {
   border-radius: 999px;
   border: 1px solid var(--b365-border);
   color: var(--b365-text-muted);
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease,
+    background 0.25s ease;
 }
 
 .b365-telebirr-steps span.active {
   border-color: var(--b365-green);
   color: var(--b365-green);
+  background: rgba(50, 217, 88, 0.08);
+  animation: b365-telebirr-step-pulse 2s ease-in-out infinite;
 }
 
 .b365-telebirr-note {
   margin: 0 0 12px;
 }
 
+.b365-telebirr-upload-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .b365-telebirr-panel {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.b365-telebirr-panel--enter {
+  animation: b365-telebirr-step-in 0.35s ease both;
 }
 
 .b365-telebirr-amount-reminder {
@@ -1084,6 +1494,7 @@ a.b365-btn-header-login {
   border: 1px solid var(--b365-border);
   border-radius: var(--b365-radius);
   background: var(--b365-bg);
+  animation: b365-wallet-fade-up 0.4s ease 0.06s both;
 }
 
 .b365-telebirr-payee-row {
@@ -1101,6 +1512,13 @@ a.b365-btn-header-login {
 .b365-telebirr-copy {
   flex-shrink: 0;
   padding: 6px 12px;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.b365-telebirr-copy--copied {
+  border-color: var(--b365-green);
+  color: var(--b365-green);
+  animation: b365-telebirr-step-pulse 0.6s ease;
 }
 
 .b365-telebirr-instructions {
@@ -1154,7 +1572,8 @@ a.b365-btn-header-login {
   padding: 12px;
   border: 1px solid var(--b365-green);
   border-radius: var(--b365-radius);
-  background: rgba(99, 207, 187, 0.08);
+  background: rgba(50, 217, 88, 0.1);
+  animation: b365-telebirr-success-in 0.45s ease both;
 }
 
 .b365-telebirr-success-title {
@@ -1226,6 +1645,15 @@ a.b365-btn-header-login {
 
 .b365-my-bets-page {
   padding-bottom: 8px;
+}
+
+.b365-my-bets-subtabs {
+  margin-bottom: 16px;
+}
+
+.b365-my-bets-subtabs .b365-betslip-subtab {
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
 .b365-my-bets-list {
@@ -1733,6 +2161,193 @@ a.b365-btn-header-login {
   border-color: var(--b365-green);
   background: linear-gradient(180deg, var(--b365-surface-2) 0%, var(--b365-surface) 100%);
   color: var(--b365-text);
+}
+
+/* ——— Promo banner carousel ——— */
+.b365-promo-carousel {
+  margin: 0 0 12px;
+}
+
+.b365-promo-carousel__viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--b365-radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a0a0b;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 8px 32px rgba(0, 0, 0, 0.45);
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.b365-promo-carousel__viewport:active {
+  cursor: grabbing;
+}
+
+.b365-promo-carousel__track {
+  display: flex;
+  align-items: flex-start;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.b365-promo-carousel__slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+.b365-promo-carousel__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1024 / 466;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.b365-promo-carousel__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.b365-promo-carousel__viewport:hover .b365-promo-carousel__nav,
+.b365-promo-carousel__viewport:focus-within .b365-promo-carousel__nav {
+  opacity: 1;
+}
+
+.b365-promo-carousel__nav:hover {
+  background: rgba(20, 128, 94, 0.85);
+  border-color: rgba(72, 209, 176, 0.65);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.b365-promo-carousel__nav--prev {
+  left: 10px;
+}
+
+.b365-promo-carousel__nav--next {
+  right: 10px;
+}
+
+.b365-promo-carousel__footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.b365-promo-carousel__dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.b365-promo-carousel__dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(80, 80, 84, 0.85);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    width 0.25s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.b365-promo-carousel__dot:hover {
+  border-color: rgba(72, 209, 176, 0.55);
+}
+
+.b365-promo-carousel__dot.active {
+  width: 28px;
+  border-color: rgba(72, 209, 176, 0.75);
+  background: rgba(40, 40, 44, 0.95);
+}
+
+.b365-promo-carousel__dot-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--b365-green) 0%, #3ecf9a 100%);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.b365-promo-carousel__dot.active .b365-promo-carousel__dot-fill {
+  animation: b365-promo-dot-progress 5.5s linear forwards;
+}
+
+.b365-promo-carousel.is-paused .b365-promo-carousel__dot-fill {
+  animation-play-state: paused;
+}
+
+@keyframes b365-promo-dot-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .b365-promo-carousel__nav {
+    width: 32px;
+    height: 32px;
+    opacity: 0.85;
+  }
+
+  .b365-promo-carousel__nav--prev {
+    left: 6px;
+  }
+
+  .b365-promo-carousel__nav--next {
+    right: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-promo-carousel__track,
+  .b365-promo-carousel__nav,
+  .b365-promo-carousel__dot {
+    transition: none;
+  }
+
+  .b365-promo-carousel__dot-fill {
+    animation: none;
+    transform: scaleX(1);
+  }
+
+  .b365-promo-carousel__nav:hover {
+    transform: translateY(-50%);
+  }
 }
 
 /* ——— Match of the Day ——— */

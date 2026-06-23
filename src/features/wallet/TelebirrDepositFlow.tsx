@@ -8,7 +8,6 @@ import {
 } from './walletApi';
 
 type Step = 1 | 2 | 3;
-type ProofMode = 'reference' | 'screenshot';
 
 type Props = {
   authHeaders: Record<string, string>;
@@ -37,8 +36,6 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
   const [info, setInfo] = useState<TelebirrDepositInfo | null>(null);
   const [infoErr, setInfoErr] = useState<string | null>(null);
   const [amountInput, setAmountInput] = useState('');
-  const [proofMode, setProofMode] = useState<ProofMode>('reference');
-  const [reference, setReference] = useState('');
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -79,9 +76,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
   const resetFlow = () => {
     setStep(1);
     setAmountInput('');
-    setReference('');
     setScreenshot(null);
-    setProofMode('reference');
     setError(null);
     setSuccess(null);
   };
@@ -114,12 +109,8 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
       setError('Enter a positive amount.');
       return;
     }
-    if (proofMode === 'reference' && !reference.trim()) {
-      setError('Enter the transaction number or receipt link.');
-      return;
-    }
-    if (proofMode === 'screenshot' && !screenshot) {
-      setError('Upload a screenshot of your Telebirr receipt.');
+    if (!screenshot) {
+      setError('Upload a screenshot of your Telebirr success screen.');
       return;
     }
 
@@ -127,8 +118,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
     try {
       const result = await depositTelebirr(authHeaders, {
         amount,
-        reference: proofMode === 'reference' ? reference : undefined,
-        screenshot: proofMode === 'screenshot' ? screenshot ?? undefined : undefined,
+        screenshot,
       });
       setSuccess(result);
       await queryClient.invalidateQueries({ queryKey: ['wallet', 'header'] });
@@ -182,14 +172,16 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
       <div className="b365-telebirr-steps" aria-label="Deposit steps">
         <span className={step >= 1 ? 'active' : ''}>1. Amount</span>
         <span className={step >= 2 ? 'active' : ''}>2. Pay</span>
-        <span className={step >= 3 ? 'active' : ''}>3. Verify</span>
+        <span className={step >= 3 ? 'active' : ''}>3. Upload</span>
       </div>
 
-      <p className="b365-muted b365-telebirr-note">Deposits are verified through Telebirr only.</p>
+      <p className="b365-muted b365-telebirr-note">
+        Deposits are verified from your Telebirr success screenshot only.
+      </p>
       {infoErr ? <p className="b365-error">{infoErr}</p> : null}
 
       {step === 1 ? (
-        <div className="b365-telebirr-panel">
+        <div key="step-1" className="b365-telebirr-panel b365-telebirr-panel--enter">
           <label className="b365-field-label">
             Deposit amount ({currency})
             <input
@@ -210,7 +202,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
       ) : null}
 
       {step === 2 ? (
-        <div className="b365-telebirr-panel">
+        <div key="step-2" className="b365-telebirr-panel b365-telebirr-panel--enter">
           <p className="b365-telebirr-amount-reminder">
             Send exactly <strong>{amount?.toFixed(2)}</strong> {currency} via Telebirr.
           </p>
@@ -223,7 +215,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
               </div>
               <button
                 type="button"
-                className="b365-btn-secondary b365-telebirr-copy"
+                className={`b365-btn-secondary b365-telebirr-copy${copiedField === 'name' ? ' b365-telebirr-copy--copied' : ''}`}
                 onClick={() => void onCopy('name', payeeName)}
               >
                 {copiedField === 'name' ? 'Copied' : 'Copy'}
@@ -236,7 +228,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
               </div>
               <button
                 type="button"
-                className="b365-btn-secondary b365-telebirr-copy"
+                className={`b365-btn-secondary b365-telebirr-copy${copiedField === 'phone' ? ' b365-telebirr-copy--copied' : ''}`}
                 onClick={() => void onCopy('phone', payeePhone)}
               >
                 {copiedField === 'phone' ? 'Copied' : 'Copy'}
@@ -249,7 +241,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
               'Open the Telebirr app',
               'Choose Transfer Money',
               'Paste the recipient number and send the exact amount',
-              'Keep the receipt screen or transaction number for the next step',
+              'Take a screenshot of the success screen before closing it',
             ]).map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -267,53 +259,23 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
       ) : null}
 
       {step === 3 ? (
-        <div className="b365-telebirr-panel">
-          <div className="b365-telebirr-proof-tabs">
-            <button
-              type="button"
-              className={proofMode === 'reference' ? 'active' : ''}
-              onClick={() => setProofMode('reference')}
+        <div key="step-3" className="b365-telebirr-panel b365-telebirr-panel--enter">
+          <label className="b365-field-label">
+            Upload Telebirr success screenshot
+            <input
+              type="file"
+              className="b365-input b365-file-input"
+              accept="image/jpeg,image/png,image/webp"
               disabled={busy}
-            >
-              Transaction no. / link
-            </button>
-            <button
-              type="button"
-              className={proofMode === 'screenshot' ? 'active' : ''}
-              onClick={() => setProofMode('screenshot')}
-              disabled={busy}
-            >
-              Screenshot
-            </button>
-          </div>
-
-          {proofMode === 'reference' ? (
-            <label className="b365-field-label">
-              Transaction number or receipt URL
-              <input
-                type="text"
-                className="b365-input"
-                value={reference}
-                onChange={(e) => setReference(e.target.value)}
-                disabled={busy}
-                placeholder="DFN37VBDJR or https://transactioninfo.ethiotelecom.et/receipt/..."
-              />
-            </label>
-          ) : (
-            <label className="b365-field-label">
-              Upload Telebirr receipt screenshot
-              <input
-                type="file"
-                className="b365-input b365-file-input"
-                accept="image/jpeg,image/png,image/webp"
-                disabled={busy}
-                onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
-              />
-              {previewUrl ? (
-                <img src={previewUrl} alt="Receipt preview" className="b365-telebirr-preview" />
-              ) : null}
-            </label>
-          )}
+              onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+            />
+            {previewUrl ? (
+              <img src={previewUrl} alt="Receipt preview" className="b365-telebirr-preview" />
+            ) : null}
+          </label>
+          <p className="b365-muted b365-telebirr-upload-hint">
+            Make sure the screenshot shows Successful, amount, recipient, and transaction number.
+          </p>
 
           <div className="b365-telebirr-actions">
             <button type="button" className="b365-btn-secondary" disabled={busy} onClick={() => setStep(2)}>
