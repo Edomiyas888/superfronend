@@ -273,7 +273,7 @@ export async function fetchDepositRequests(
  */
 export async function fetchWalletTransactions(
   authHeaders: Record<string, string>,
-  params: { page?: number; limit?: number; type?: 'deposit' | 'withdraw' | 'bets' } = {}
+  params: { page?: number; limit?: number; type?: 'deposit' | 'withdraw' | 'bets' | 'bet_win' } = {}
 ): Promise<WalletTransactionsPage> {
   const base = getApiBaseUrl();
   const qs = new URLSearchParams();

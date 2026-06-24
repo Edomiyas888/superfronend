@@ -6,7 +6,7 @@ export type WalletTxType =
   | 'bet_void'
   | string;
 
-export type WalletHistoryFilter = 'all' | 'deposit' | 'withdraw' | 'bets';
+export type WalletHistoryFilter = 'all' | 'deposit' | 'withdraw' | 'bets' | 'bet_win';
 
 const LABELS: Record<string, string> = {
   deposit: 'Deposit',

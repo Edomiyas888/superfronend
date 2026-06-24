@@ -21,6 +21,7 @@ const HISTORY_FILTERS: { id: WalletHistoryFilter; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'deposit', label: 'Deposits' },
   { id: 'withdraw', label: 'Withdrawals' },
+  { id: 'bet_win', label: 'Bet won' },
   { id: 'bets', label: 'Bets' },
 ];
 
