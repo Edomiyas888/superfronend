@@ -5,6 +5,7 @@ import { pickTeamIdFromGame } from '../utils/teamLogos';
 import type { SwarmResponse } from './swarmTypes';
 import type { FlatGameRow, GameView, LiveLastEvent, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
 import { normalizeGameInfo } from '../utils/liveGameDisplay';
+import { isWorldCupCompetition } from '../utils/worldCupFilter';
 
 const SUB = { subscribe: true as const };
 
@@ -301,6 +302,32 @@ export async function restGetUpcomingMatches(opts?: {
 export async function restGetPopularSoccerMatches(): Promise<GameView[]> {
   const games = await restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours: 48 });
   return games.filter((g) => !g.promoted);
+}
+
+/** FIFA World Cup fixtures (prematch + live), optional kickoff window via `timeHours`. */
+export async function restGetWorldCupMatches(opts?: {
+  timeHours?: string | number;
+}): Promise<GameView[]> {
+  const timeHours = opts?.timeHours ?? 'all';
+
+  const [prematch, live] = await Promise.all([
+    restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours }),
+    timeHours === 'all' || String(timeHours).toLowerCase() === 'today'
+      ? restGetLiveGames().catch(() => [] as GameView[])
+      : Promise.resolve([] as GameView[]),
+  ]);
+
+  const byId = new Map<number, GameView>();
+  for (const g of [...live, ...prematch]) {
+    if (isWorldCupCompetition(g.competitionName)) {
+      byId.set(g.id, g);
+    }
+  }
+
+  return [...byId.values()].sort((a, b) => {
+    if (a.isLive !== b.isLive) return a.isLive ? -1 : 1;
+    return a.startTs - b.startTs;
+  });
 }
 
 function ltSecondsFromTimeHours(timeHours?: string | number): number | null {

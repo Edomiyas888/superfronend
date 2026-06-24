@@ -43,6 +43,246 @@
     box-shadow 0.15s ease;
 }
 
+/* ——— World Cup 2026 CTA (replaces Live Match) ——— */
+.b365-motd-wc-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  padding: 2px;
+  border-radius: 999px;
+  text-decoration: none !important;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(
+    120deg,
+    #ffd700 0%,
+    #39ff14 35%,
+    #00c853 55%,
+    #ffd700 75%,
+    #39ff14 100%
+  );
+  background-size: 220% 100%;
+  animation: b365-wc-btn-gradient 4s ease infinite;
+  box-shadow:
+    0 0 28px rgba(255, 215, 0, 0.35),
+    0 0 40px rgba(57, 255, 20, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.45);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.b365-motd-wc-btn__glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 50%, rgba(57, 255, 20, 0.35) 0%, transparent 70%);
+  opacity: 0.7;
+  animation: b365-wc-btn-pulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.b365-motd-wc-btn__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  animation: b365-wc-btn-shimmer 3.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.b365-motd-wc-btn__inner {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 12px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #0d1a0f 0%, #0a0a0b 45%, #121208 100%);
+  color: #fff !important;
+  min-height: 44px;
+}
+
+.b365-motd-wc-btn__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(57, 255, 20, 0.2) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  color: #ffd700;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.25);
+}
+
+.b365-motd-wc-btn__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.05;
+  gap: 1px;
+}
+
+.b365-motd-wc-btn__title {
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #fff 0%, #ffd700 50%, #39ff14 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.b365-motd-wc-btn__year {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--b365-neon);
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.45);
+}
+
+.b365-motd-wc-btn__arrow {
+  display: flex;
+  align-items: center;
+  color: var(--b365-neon);
+  margin-left: 2px;
+  opacity: 0.85;
+  transition: transform 0.15s ease;
+}
+
+.b365-motd-wc-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 36px rgba(255, 215, 0, 0.5),
+    0 0 52px rgba(57, 255, 20, 0.35),
+    0 10px 28px rgba(0, 0, 0, 0.5);
+  text-decoration: none !important;
+}
+
+.b365-motd-wc-btn:hover .b365-motd-wc-btn__arrow {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
+.b365-motd-wc-btn:active {
+  transform: translateY(0) scale(0.99);
+}
+
+@keyframes b365-wc-btn-gradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes b365-wc-btn-shimmer {
+  0%,
+  70%,
+  100% {
+    transform: translateX(-120%);
+  }
+  85% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes b365-wc-btn-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+/* ——— World Cup 2026 page ——— */
+.b365-wc-page {
+  padding-bottom: 24px;
+}
+
+.b365-wc-hero {
+  position: relative;
+  margin: 0 0 20px;
+  padding: 22px 18px;
+  border-radius: var(--b365-radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  background:
+    radial-gradient(ellipse 90% 80% at 10% 20%, rgba(255, 215, 0, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 70% at 90% 80%, rgba(57, 255, 20, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #121208 0%, #0a140e 50%, #0a0a0b 100%);
+  box-shadow:
+    0 0 40px rgba(255, 215, 0, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.b365-wc-hero__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(57, 255, 20, 0.08) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.b365-wc-hero__content {
+  position: relative;
+  z-index: 1;
+}
+
+.b365-wc-hero__eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 215, 0, 0.85);
+}
+
+.b365-wc-hero__title {
+  margin: 0 0 8px;
+  font-size: clamp(1.75rem, 7vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  background: linear-gradient(90deg, #fff 0%, #ffd700 40%, #39ff14 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.b365-wc-hero__sub {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 36rem;
+}
+
+.b365-wc-filters {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.b365-wc-filters__count {
+  margin: 0;
+  font-size: 13px;
+}
+
 .b365-motd-live-btn:hover {
   transform: translateY(-1px);
   box-shadow:
@@ -335,9 +575,10 @@
   flex-direction: column;
 }
 
+.b365-motd-skel--wc-btn,
 .b365-motd-skel--live-btn {
-  width: 130px;
-  height: 40px;
+  width: 168px;
+  height: 48px;
   border-radius: 999px;
 }
 
@@ -360,6 +601,16 @@
 }
 
 @media (max-width: 640px) {
+  .b365-motd-wc-btn__inner {
+    padding: 9px 14px 9px 10px;
+    min-height: 42px;
+    gap: 8px;
+  }
+
+  .b365-motd-wc-btn__title {
+    font-size: 0.84rem;
+  }
+
   .b365-motd-live-btn {
     padding: 9px 14px;
     font-size: 0.82rem;
@@ -403,6 +654,13 @@
     transition: none;
   }
 
+  .b365-motd-wc-btn,
+  .b365-motd-wc-btn__glow,
+  .b365-motd-wc-btn__shimmer {
+    animation: none;
+  }
+
+  .b365-motd-wc-btn:hover,
   .b365-motd-live-btn:hover {
     transform: none;
   }

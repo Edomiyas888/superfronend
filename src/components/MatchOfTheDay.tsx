@@ -9,6 +9,7 @@ import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
 import OddsFlashArrow from './OddsFlashArrow';
 import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
+import WorldCup2026Button from './WorldCup2026Button';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { GameView } from '../api/types';
 
@@ -38,7 +39,7 @@ function MotdSkeleton() {
   return (
     <div className="b365-motd">
       <div className="b365-motd-toolbar">
-        <div className="b365-motd-skel b365-motd-skel--live-btn" />
+        <div className="b365-motd-skel b365-motd-skel--wc-btn" />
         <div className="b365-motd-skel b365-motd-skel--icon-row" />
       </div>
       <div className="b365-motd-card b365-motd-card--skeleton">
@@ -177,13 +178,7 @@ export default function MatchOfTheDay() {
   return (
     <div className="b365-motd">
       <div className="b365-motd-toolbar">
-        <Link to="/live" className="b365-motd-live-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" fill="currentColor" />
-            <path d="M12 2v2M12 20v2M2 12h2M20 12h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          Live Match
-        </Link>
+        <WorldCup2026Button />
         <MotdQuickIcons />
       </div>
 

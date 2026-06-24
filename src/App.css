@@ -469,6 +469,71 @@ a.b365-btn-header-login {
   top: 0;
 }
 
+.b365-wallet-summary {
+  display: block;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: var(--b365-radius-sm);
+  background: var(--b365-header-surface);
+  border: 1px solid var(--b365-border);
+  text-decoration: none !important;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.b365-wallet-summary:hover {
+  border-color: var(--b365-green);
+}
+
+.b365-wallet-summary--drawer {
+  margin-bottom: 16px;
+}
+
+.b365-wallet-summary__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.b365-wallet-summary__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--b365-text-dim);
+}
+
+.b365-wallet-summary__total {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--b365-green-hover);
+}
+
+.b365-wallet-summary__rows {
+  display: grid;
+  gap: 4px;
+}
+
+.b365-wallet-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-wallet-summary__row strong {
+  font-weight: 700;
+  color: var(--b365-text);
+}
+
+.b365-wallet-summary__row--locked strong {
+  color: var(--b365-text-muted);
+}
+
 /* ——— Sidebar sports ——— */
 .b365-sidebar-inner {
   display: flex;
@@ -1595,6 +1660,37 @@ a.b365-btn-header-login {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.b365-wallet-balance-split {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.b365-wallet-balance-split__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.b365-wallet-balance-split__row strong {
+  font-weight: 700;
+  color: #fff;
+}
+
+.b365-wallet-balance-split__row--locked {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.b365-wallet-balance-split__row--locked strong {
+  color: rgba(255, 255, 255, 0.82);
+}
+
 .b365-wallet-segments {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2606,6 +2702,203 @@ a.b365-btn-header-login {
 .b365-pop-league-chip:hover {
   border-color: var(--b365-border-light);
   color: var(--b365-text);
+}
+
+.b365-match-filters {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.b365-sport-page {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.b365-match-filters-panel {
+  min-width: 0;
+  max-width: 100%;
+  margin-bottom: 14px;
+  padding: 12px 12px 10px;
+  border-radius: var(--b365-radius-lg);
+  border: 1px solid var(--b365-border);
+  background: var(--b365-header-surface);
+  display: grid;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.b365-match-filters-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.b365-match-filters-panel__count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--b365-text);
+}
+
+.b365-match-filters-panel__clear {
+  border: none;
+  background: transparent;
+  color: var(--b365-neon);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.b365-pop-leagues--compact {
+  margin: 0;
+  min-width: 0;
+}
+
+.b365-pop-leagues--compact .b365-pop-leagues-scroll {
+  padding-bottom: 4px;
+  margin: 0 -2px;
+  padding-left: 2px;
+}
+
+.b365-pop-league-chip--featured {
+  font-weight: 800;
+}
+
+.b365-pop-league-chip--wc {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-color: rgba(255, 215, 0, 0.45);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(57, 255, 20, 0.08) 100%);
+  color: #ffd700;
+}
+
+.b365-pop-league-chip--wc.active {
+  border-color: rgba(255, 215, 0, 0.75);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.22) 0%, rgba(57, 255, 20, 0.15) 100%);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.2);
+}
+
+.b365-pop-league-chip__wc-icon {
+  display: inline-flex;
+  color: #ffd700;
+}
+
+.b365-match-filters-wc-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--b365-neon) !important;
+  text-decoration: none !important;
+}
+
+.b365-match-filters-wc-link:hover {
+  text-decoration: underline !important;
+}
+
+.b365-match-filters-advanced {
+  border-top: 1px solid var(--b365-border);
+  padding-top: 8px;
+}
+
+.b365-match-filters-advanced__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--b365-radius-sm);
+  background: transparent;
+  color: var(--b365-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.b365-match-filters-advanced__toggle svg {
+  transition: transform 0.15s ease;
+}
+
+.b365-match-filters-advanced__toggle.open svg {
+  transform: rotate(180deg);
+}
+
+.b365-match-filters-advanced__badge {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--b365-neon);
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
+}
+
+.b365-match-filters-advanced__body {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+  animation: b365-wallet-fade-up 0.2s ease both;
+}
+
+.b365-match-filters-advanced__grid {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 560px) {
+  .b365-match-filters-advanced__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.b365-match-filters-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.b365-match-filters__group {
+  display: grid;
+  gap: 8px;
+}
+
+.b365-match-filters__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--b365-text-dim);
+}
+
+.b365-match-filters__select,
+.b365-match-filters__search {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.b365-match-filters__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.b365-match-filters__clear {
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+.b365-md-selection-error {
+  margin: 0 0 12px;
 }
 
 .b365-pop-league-chip.active {

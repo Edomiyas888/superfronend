@@ -73,11 +73,33 @@ function savePersistedBetslip(data: PersistedBetslip) {
   }
 }
 
-const persisted = loadPersistedBetslip();
+function dedupeEventsByGame(events: Record<string, BetslipEventLike>): Record<string, BetslipEventLike> {
+  const seen = new Set<number>();
+  const next: Record<string, BetslipEventLike> = {};
+  for (const [key, ev] of Object.entries(events)) {
+    const gameId = Number(ev.gameId);
+    if (!gameId || seen.has(gameId)) continue;
+    seen.add(gameId);
+    next[key] = ev;
+  }
+  return next;
+}
+
+function hasSelectionForGame(events: Record<string, BetslipEventLike>, gameId: number, exceptKey?: string) {
+  return Object.entries(events).some(
+    ([key, ev]) => key !== exceptKey && Number(ev.gameId) === Number(gameId)
+  );
+}
 
 function keyFor(gameId: number | string, marketId: number, eventId: number): SelectionKey {
   return `${gameId}-${marketId}-${eventId}`;
 }
+
+const persistedRaw = loadPersistedBetslip();
+const persisted = {
+  stake: persistedRaw.stake,
+  events: dedupeEventsByGame(persistedRaw.events),
+};
 
 type BetslipState = {
   type: number;
@@ -88,9 +110,12 @@ type BetslipState = {
   placeMessage: string | null;
   correctionPending: OddsCorrectionChange[] | null;
   correctionsAccepted: boolean;
-  addSelection: (key: SelectionKey, ev: BetslipEventLike) => void;
+  selectionError: string | null;
+  addSelection: (key: SelectionKey, ev: BetslipEventLike) => boolean;
   removeSelection: (key: SelectionKey) => void;
   removeSelectionsForGameMarket: (gameId: number, marketId: number) => void;
+  removeSelectionsForGame: (gameId: number) => void;
+  clearSelectionError: () => void;
   clear: () => void;
   setStake: (n: number) => void;
   updateSelectionPrice: (key: SelectionKey, price: number, suspended?: boolean) => void;
@@ -109,8 +134,20 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
   placeMessage: null,
   correctionPending: null,
   correctionsAccepted: true,
+  selectionError: null,
 
   addSelection: (key, ev) => {
+    const gameId = Number(ev.gameId);
+    if (!gameId) return false;
+
+    const current = get().events;
+    if (hasSelectionForGame(current, gameId, key)) {
+      set({
+        selectionError: 'Only one selection per match is allowed. Remove the existing pick first.',
+      });
+      return false;
+    }
+
     set((s) => ({
       events: {
         ...s.events,
@@ -124,7 +161,9 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       placeMessage: null,
       correctionPending: null,
       correctionsAccepted: true,
+      selectionError: null,
     }));
+    return true;
   },
 
   removeSelection: (key) => {
@@ -142,9 +181,22 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       for (const key of Object.keys(next)) {
         if (key.startsWith(prefix)) delete next[key];
       }
-      return { events: next, placeMessage: null, correctionPending: null };
+      return { events: next, placeMessage: null, correctionPending: null, selectionError: null };
     });
   },
+
+  removeSelectionsForGame: (gameId) => {
+    const prefix = `${gameId}-`;
+    set((s) => {
+      const next = { ...s.events };
+      for (const key of Object.keys(next)) {
+        if (key.startsWith(prefix)) delete next[key];
+      }
+      return { events: next, placeMessage: null, correctionPending: null, selectionError: null };
+    });
+  },
+
+  clearSelectionError: () => set({ selectionError: null }),
 
   clear: () => {
     savePersistedBetslip({ stake: get().stake, events: {} });
@@ -223,6 +275,15 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     const slip = get().toSlipPayload();
     if (Object.keys(slip.events).length === 0) {
       set({ placeStatus: 'error', placeMessage: 'Add at least one selection.' });
+      return;
+    }
+
+    const gameIds = Object.values(slip.events).map((ev) => Number(ev.gameId));
+    if (new Set(gameIds).size !== gameIds.length) {
+      set({
+        placeStatus: 'error',
+        placeMessage: 'Only one selection per match is allowed.',
+      });
       return;
     }
 

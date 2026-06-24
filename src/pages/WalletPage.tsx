@@ -79,6 +79,14 @@ export default function WalletPage() {
     walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
       ? null
       : Number(walletQ.data?.balance ?? 0);
+  const withdrawable =
+    walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
+      ? null
+      : Number(walletQ.data?.withdrawable ?? walletQ.data?.balance ?? 0);
+  const nonWithdrawable =
+    walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
+      ? null
+      : Number(walletQ.data?.nonWithdrawable ?? 0);
 
   const setTab = (next: WalletTab) => {
     setSearchParams(next === 'deposit' ? {} : { tab: next });
@@ -107,8 +115,12 @@ export default function WalletPage() {
       setWalletErr('Enter a positive amount.');
       return;
     }
-    if (balance != null && amt > balance) {
-      setWalletErr('Amount exceeds your available balance.');
+    if (withdrawable != null && amt > withdrawable) {
+      setWalletErr(
+        nonWithdrawable != null && nonWithdrawable > 0
+          ? `Only winnings are withdrawable. You can withdraw up to ${withdrawable.toFixed(2)} ${currency}.`
+          : 'Amount exceeds your withdrawable balance.'
+      );
       return;
     }
     setWalletBusy(true);
@@ -148,14 +160,28 @@ export default function WalletPage() {
         <>
           <section className="b365-wallet-hero" aria-label="Wallet balance">
             <div className="b365-wallet-hero__top">
-              <span className="b365-wallet-hero__label">Available balance</span>
+              <span className="b365-wallet-hero__label">Total balance</span>
               <span className="b365-wallet-hero__badge">{currency}</span>
             </div>
             <p className="b365-wallet-hero__amount">
               {balance == null ? '—' : balance.toFixed(2)}
             </p>
+            {balance != null && withdrawable != null && nonWithdrawable != null ? (
+              <div className="b365-wallet-balance-split">
+                <div className="b365-wallet-balance-split__row">
+                  <span>Withdrawable</span>
+                  <strong>{withdrawable.toFixed(2)} {currency}</strong>
+                </div>
+                {nonWithdrawable > 0 ? (
+                  <div className="b365-wallet-balance-split__row b365-wallet-balance-split__row--locked">
+                    <span>Non-withdrawable (deposit)</span>
+                    <strong>{nonWithdrawable.toFixed(2)} {currency}</strong>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
             <p className="b365-wallet-hero__hint">
-              Deposits via Telebirr · Winnings credited automatically after settlement
+              Deposits must be played before withdrawal · Winnings are withdrawable after settlement
             </p>
           </section>
 
@@ -206,7 +232,10 @@ export default function WalletPage() {
             <section className="card b365-card b365-wallet-panel">
               <header className="b365-wallet-panel__head">
                 <h2>Withdraw</h2>
-                <p>Request a withdrawal to your Telebirr account. Balance is reserved until approved.</p>
+                <p>
+                  Request a withdrawal to your Telebirr account. Only winnings are withdrawable — deposited
+                  funds must be played first.
+                </p>
               </header>
               <label className="b365-field-label">
                 Telebirr phone number
@@ -226,21 +255,21 @@ export default function WalletPage() {
                   className="b365-input b365-wallet-input"
                   min={0}
                   step={0.01}
-                  max={balance ?? undefined}
+                  max={withdrawable ?? undefined}
                   value={walletAmount}
                   onChange={(e) => setWalletAmount(e.target.value)}
                   disabled={walletBusy}
                   placeholder="e.g. 100"
                 />
               </label>
-              {balance != null ? (
+              {withdrawable != null ? (
                 <button
                   type="button"
                   className="b365-wallet-quick-amt"
-                  onClick={() => setWalletAmount(String(balance))}
-                  disabled={walletBusy}
+                  onClick={() => setWalletAmount(String(withdrawable))}
+                  disabled={walletBusy || withdrawable <= 0}
                 >
-                  Withdraw full balance ({balance.toFixed(2)} {currency})
+                  Withdraw full withdrawable balance ({withdrawable.toFixed(2)} {currency})
                 </button>
               ) : null}
               <div className="b365-wallet-actions">

@@ -48,13 +48,27 @@ export default function Layout() {
   }, [walletQ]);
 
   const balanceCurrency = walletQ.data?.currency ?? 'ETB';
+  const walletLoading = walletQ.isPending && loggedIn;
+  const walletError = walletQ.isError || walletQ.data?.status === 'error';
+  const walletBalance =
+    walletLoading || walletError || walletQ.data?.status === 'error'
+      ? null
+      : Number(walletQ.data?.balance ?? 0);
+  const walletWithdrawable =
+    walletLoading || walletError || walletQ.data?.status === 'error'
+      ? null
+      : Number(walletQ.data?.withdrawable ?? walletQ.data?.balance ?? 0);
+  const walletNonWithdrawable =
+    walletLoading || walletError || walletQ.data?.status === 'error'
+      ? null
+      : Number(walletQ.data?.nonWithdrawable ?? 0);
   const balanceLabel =
-    walletQ.isPending && loggedIn
+    walletLoading
       ? `… ${balanceCurrency}`
-      : walletQ.isError || walletQ.data?.status === 'error'
+      : walletError
         ? `— ${balanceCurrency}`
-        : walletQ.data?.balance != null && Number.isFinite(walletQ.data.balance)
-          ? `${Number(walletQ.data.balance).toFixed(2)} ${balanceCurrency}`
+        : walletBalance != null && Number.isFinite(walletBalance)
+          ? `${walletBalance.toFixed(2)} ${balanceCurrency}`
           : `— ${balanceCurrency}`;
 
   return (
@@ -144,7 +158,14 @@ export default function Layout() {
 
       <BetslipDrawer />
 
-      <NavDrawer balanceLabel={balanceLabel} loggedIn={loggedIn} />
+      <NavDrawer
+        loggedIn={loggedIn}
+        balance={walletBalance}
+        withdrawable={walletWithdrawable}
+        nonWithdrawable={walletNonWithdrawable}
+        currency={balanceCurrency}
+        loading={walletLoading}
+      />
     </div>
   );
 }

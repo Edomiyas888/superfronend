@@ -43,7 +43,9 @@ export default function MatchDetailPage() {
   const id = gameId ? parseInt(gameId, 10) : NaN;
   const addSelection = useBetslipStore((s) => s.addSelection);
   const removeSelection = useBetslipStore((s) => s.removeSelection);
-  const removeSelectionsForGameMarket = useBetslipStore((s) => s.removeSelectionsForGameMarket);
+  const removeSelectionsForGame = useBetslipStore((s) => s.removeSelectionsForGame);
+  const selectionError = useBetslipStore((s) => s.selectionError);
+  const clearSelectionError = useBetslipStore((s) => s.clearSelectionError);
   const events = useBetslipStore((s) => s.events);
 
   const [filter, setFilter] = useState<MarketCategoryId>('all');
@@ -103,7 +105,7 @@ export default function MatchDetailPage() {
       removeSelection(k);
       return;
     }
-    removeSelectionsForGameMarket(detail.gameId, marketId);
+    removeSelectionsForGame(detail.gameId);
     const swarmType = marketType != null && String(marketType).trim() ? String(marketType) : 'P1XP2';
     const ev: BetslipEventLike = {
       eventId,
@@ -125,6 +127,12 @@ export default function MatchDetailPage() {
     };
     addSelection(k, ev);
   };
+
+  useEffect(() => {
+    if (!selectionError) return;
+    const t = window.setTimeout(() => clearSelectionError(), 5000);
+    return () => window.clearTimeout(t);
+  }, [selectionError, clearSelectionError]);
 
   const toggleAccordion = (marketId: number, index: number) => {
     setExpanded((p) => {
@@ -206,6 +214,12 @@ export default function MatchDetailPage() {
                 </button>
               ))}
             </div>
+
+            {selectionError ? (
+              <p className="b365-error b365-md-selection-error" role="alert">
+                {selectionError}
+              </p>
+            ) : null}
 
             {filteredMarkets.length === 0 ? (
               <p className="b365-md-empty b365-muted">No markets in this category.</p>

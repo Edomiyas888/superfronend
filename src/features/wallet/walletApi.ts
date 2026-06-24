@@ -2,6 +2,8 @@ import { getApiBaseUrl } from '../../api/config';
 
 export type WalletInfo = {
   balance: number | null;
+  withdrawable: number | null;
+  nonWithdrawable: number | null;
   currency: string;
   /** `live` when the balance was loaded from the API; `error` on network or HTTP failure. */
   status: 'live' | 'error';
@@ -70,7 +72,13 @@ export type DepositRequestsPage = {
 /** @deprecated Use TelebirrDepositSubmitResult — kept for reference during migration */
 export type TelebirrDepositResult = TelebirrDepositSubmitResult;
 
-type BalanceJson = { balance?: number; currency?: string; error?: string };
+type BalanceJson = {
+  balance?: number;
+  withdrawable?: number;
+  nonWithdrawable?: number;
+  currency?: string;
+  error?: string;
+};
 type TxJson = {
   balance?: number;
   currency?: string;
@@ -97,22 +105,36 @@ async function parseJson<T extends Record<string, unknown>>(res: Response): Prom
  */
 export async function fetchBalance(authHeaders: Record<string, string>): Promise<WalletInfo> {
   if (!authHeaders.Authorization) {
-    return { balance: null, currency: 'ETB', status: 'error' };
+    return { balance: null, withdrawable: null, nonWithdrawable: null, currency: 'ETB', status: 'error' };
   }
   const base = getApiBaseUrl();
   let res: Response;
   try {
     res = await fetch(`${base}/v1/wallet/balance`, { headers: authHeaders });
   } catch {
-    return { balance: null, currency: 'ETB', status: 'error' };
+    return { balance: null, withdrawable: null, nonWithdrawable: null, currency: 'ETB', status: 'error' };
   }
   const data = (await parseJson<BalanceJson>(res)) ?? {};
   if (!res.ok) {
-    return { balance: null, currency: typeof data.currency === 'string' ? data.currency : 'ETB', status: 'error' };
+    return {
+      balance: null,
+      withdrawable: null,
+      nonWithdrawable: null,
+      currency: typeof data.currency === 'string' ? data.currency : 'ETB',
+      status: 'error',
+    };
   }
   const balance = typeof data.balance === 'number' && Number.isFinite(data.balance) ? data.balance : 0;
+  const withdrawable =
+    typeof data.withdrawable === 'number' && Number.isFinite(data.withdrawable)
+      ? data.withdrawable
+      : balance;
+  const nonWithdrawable =
+    typeof data.nonWithdrawable === 'number' && Number.isFinite(data.nonWithdrawable)
+      ? data.nonWithdrawable
+      : 0;
   const currency = typeof data.currency === 'string' ? data.currency : 'ETB';
-  return { balance, currency, status: 'live' };
+  return { balance, withdrawable, nonWithdrawable, currency, status: 'live' };
 }
 
 /**

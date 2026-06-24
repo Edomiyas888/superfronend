@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useNavDrawerStore } from '../features/nav/navDrawerStore';
 import { useSessionStore } from '../features/auth/sessionStore';
+import WalletBalanceSummary from './WalletBalanceSummary';
 
 type NavItem = {
   to: string;
@@ -77,11 +78,22 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 type Props = {
-  balanceLabel: string;
   loggedIn: boolean;
+  balance: number | null;
+  withdrawable: number | null;
+  nonWithdrawable: number | null;
+  currency: string;
+  loading?: boolean;
 };
 
-export default function NavDrawer({ balanceLabel, loggedIn }: Props) {
+export default function NavDrawer({
+  loggedIn,
+  balance,
+  withdrawable,
+  nonWithdrawable,
+  currency,
+  loading = false,
+}: Props) {
   const isOpen = useNavDrawerStore((s) => s.isOpen);
   const close = useNavDrawerStore((s) => s.close);
   const username = useSessionStore((s) => s.username);
@@ -128,7 +140,6 @@ export default function NavDrawer({ balanceLabel, loggedIn }: Props) {
               </div>
               <div className="b365-nav-drawer-user-meta">
                 <span className="b365-nav-drawer-user-name">{username}</span>
-                <span className="b365-nav-drawer-user-balance">{balanceLabel}</span>
               </div>
             </div>
           ) : (
@@ -141,6 +152,17 @@ export default function NavDrawer({ balanceLabel, loggedIn }: Props) {
               </NavLink>
             </div>
           )}
+
+          {loggedIn ? (
+            <WalletBalanceSummary
+              variant="drawer"
+              balance={balance}
+              withdrawable={withdrawable}
+              nonWithdrawable={nonWithdrawable}
+              currency={currency}
+              loading={loading}
+            />
+          ) : null}
 
           <nav className="b365-nav-drawer-links" aria-label="App sections">
             {NAV_ITEMS.map((item) => {

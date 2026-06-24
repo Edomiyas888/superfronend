@@ -6,7 +6,7 @@ export function toggleMatchOdd(
   g: GameView,
   mr: MatchResult1x2Odds,
   leg: 'home' | 'draw' | 'away',
-  addSelection: (k: string, ev: BetslipEventLike) => void,
+  addSelection: (k: string, ev: BetslipEventLike) => boolean,
   removeSelection: (k: string) => void,
   events: Record<string, BetslipEventLike>
 ): void {
@@ -16,7 +16,7 @@ export function toggleMatchOdd(
     removeSelection(k);
     return;
   }
-  useBetslipStore.getState().removeSelectionsForGameMarket(g.id, mr.marketId);
+  useBetslipStore.getState().removeSelectionsForGame(g.id);
   const ev: BetslipEventLike = {
     eventId: pick.eventId,
     gameId: g.id,

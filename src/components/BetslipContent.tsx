@@ -5,6 +5,7 @@ import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
 import BetslipMyBetsPanel from './BetslipMyBetsPanel';
 import BetslipLiveLine from './BetslipLiveLine';
+import WalletBalanceSummary from './WalletBalanceSummary';
 
 type MainTab = 'slip' | 'my-bets';
 
@@ -23,11 +24,13 @@ export default function BetslipContent() {
   const correctionPending = useBetslipStore((s) => s.correctionPending);
   const correctionsAccepted = useBetslipStore((s) => s.correctionsAccepted);
   const acceptCorrections = useBetslipStore((s) => s.acceptCorrections);
+  const selectionError = useBetslipStore((s) => s.selectionError);
+  const clearSelectionError = useBetslipStore((s) => s.clearSelectionError);
   const { username, getAuthHeader } = useSessionStore();
   const loggedIn = !!username;
 
   const walletQ = useQuery({
-    queryKey: ['wallet', 'betslip'],
+    queryKey: ['wallet', 'header'],
     queryFn: () => fetchBalance(getAuthHeader()),
     enabled: loggedIn,
     staleTime: 15_000,
@@ -36,6 +39,9 @@ export default function BetslipContent() {
   const ids = Object.keys(events);
   const hasSelections = ids.length > 0;
   const balance = walletQ.data?.balance ?? null;
+  const withdrawable = walletQ.data?.withdrawable ?? null;
+  const nonWithdrawable = walletQ.data?.nonWithdrawable ?? null;
+  const currency = walletQ.data?.currency ?? 'ETB';
   const isAccumulator = ids.length > 1;
 
   const combinedOdds = ids.reduce((acc, id) => {
@@ -80,6 +86,16 @@ export default function BetslipContent() {
 
   return (
     <>
+      {loggedIn ? (
+        <WalletBalanceSummary
+          variant="sidebar"
+          balance={balance}
+          withdrawable={withdrawable}
+          nonWithdrawable={nonWithdrawable}
+          currency={currency}
+          loading={walletQ.isPending}
+        />
+      ) : null}
       <div className="b365-betslip-tabs" role="tablist" aria-label="Bet slip sections">
         <button
           type="button"
@@ -100,6 +116,15 @@ export default function BetslipContent() {
           My Bets
         </button>
       </div>
+
+      {selectionError ? (
+        <p className="b365-error" role="alert">
+          {selectionError}{' '}
+          <button type="button" className="b365-btn-ghost" onClick={() => clearSelectionError()}>
+            Dismiss
+          </button>
+        </p>
+      ) : null}
 
       {mainTab === 'my-bets' ? (
         <BetslipMyBetsPanel authHeaders={getAuthHeader()} loggedIn={loggedIn} />
