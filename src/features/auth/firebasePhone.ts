@@ -36,6 +36,8 @@ export function friendlyFirebaseAuthError(err: unknown): string {
       return 'Phone number is required.';
     case 'auth/quota-exceeded':
       return 'SMS quota exceeded. Try a test number or wait.';
+    case 'auth/billing-not-enabled':
+      return 'Firebase billing is not enabled. Upgrade to the Blaze plan for real SMS, or use a test phone number in the Firebase console.';
     default:
       if (err instanceof Error && err.message) {
         return err.message;
