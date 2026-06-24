@@ -1555,6 +1555,46 @@ a.b365-btn-header-login {
   color: var(--b365-green);
 }
 
+.b365-telebirr-pending-list {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--b365-border);
+  border-radius: 6px;
+  background: var(--b365-surface);
+}
+
+.b365-telebirr-pending-title {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+}
+
+.b365-telebirr-pending-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.b365-telebirr-pending-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.85rem;
+}
+
+.b365-telebirr-status--pending {
+  color: #d4a017;
+}
+
+.b365-telebirr-status--approved {
+  color: var(--b365-green);
+}
+
+.b365-telebirr-status--rejected {
+  color: #e74c3c;
+}
+
 .b365-file-input {
   padding: 8px 0;
 }

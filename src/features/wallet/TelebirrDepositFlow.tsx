@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import {
-  depositTelebirr,
+  fetchDepositRequests,
   fetchTelebirrDepositInfo,
+  submitTelebirrDepositRef,
+  submitTelebirrDepositScreenshot,
+  type DepositRequestRow,
   type TelebirrDepositInfo,
-  type TelebirrDepositResult,
+  type TelebirrDepositSubmitResult,
 } from './walletApi';
 
 type Step = 1 | 2 | 3;
+type ProofTab = 'screenshot' | 'ref';
 
 type Props = {
   authHeaders: Record<string, string>;
@@ -30,17 +33,25 @@ async function copyText(value: string) {
   }
 }
 
+function formatStatus(status: DepositRequestRow['status']) {
+  if (status === 'pending') return 'Pending review';
+  if (status === 'approved') return 'Approved';
+  return 'Rejected';
+}
+
 export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }: Props) {
-  const queryClient = useQueryClient();
   const [step, setStep] = useState<Step>(1);
+  const [proofTab, setProofTab] = useState<ProofTab>('screenshot');
   const [info, setInfo] = useState<TelebirrDepositInfo | null>(null);
   const [infoErr, setInfoErr] = useState<string | null>(null);
   const [amountInput, setAmountInput] = useState('');
   const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [refInput, setRefInput] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<TelebirrDepositResult | null>(null);
+  const [success, setSuccess] = useState<TelebirrDepositSubmitResult | null>(null);
+  const [pendingRequests, setPendingRequests] = useState<DepositRequestRow[]>([]);
   const [copiedField, setCopiedField] = useState<'phone' | 'name' | null>(null);
 
   const amount = useMemo(() => parseAmountInput(amountInput), [amountInput]);
@@ -64,6 +75,21 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
   }, [authHeaders]);
 
   useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const data = await fetchDepositRequests(authHeaders, { limit: 5 });
+        if (!cancelled) setPendingRequests(data.items);
+      } catch {
+        if (!cancelled) setPendingRequests([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authHeaders, success]);
+
+  useEffect(() => {
     if (!screenshot) {
       setPreviewUrl(null);
       return;
@@ -77,6 +103,8 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
     setStep(1);
     setAmountInput('');
     setScreenshot(null);
+    setRefInput('');
+    setProofTab('screenshot');
     setError(null);
     setSuccess(null);
   };
@@ -109,22 +137,28 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
       setError('Enter a positive amount.');
       return;
     }
-    if (!screenshot) {
-      setError('Upload a screenshot of your Telebirr success screen.');
-      return;
-    }
 
     setBusy(true);
     try {
-      const result = await depositTelebirr(authHeaders, {
-        amount,
-        screenshot,
-      });
+      let result: TelebirrDepositSubmitResult;
+      if (proofTab === 'ref') {
+        const ref = refInput.trim();
+        if (!ref) {
+          setError('Enter your Telebirr transaction reference or receipt URL.');
+          return;
+        }
+        result = await submitTelebirrDepositRef(authHeaders, { amount, ref });
+      } else {
+        if (!screenshot) {
+          setError('Upload a screenshot of your Telebirr success screen.');
+          return;
+        }
+        result = await submitTelebirrDepositScreenshot(authHeaders, { amount, screenshot });
+      }
       setSuccess(result);
-      await queryClient.invalidateQueries({ queryKey: ['wallet', 'header'] });
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Telebirr deposit failed.');
+      setError(err instanceof Error ? err.message : 'Telebirr deposit submission failed.');
     } finally {
       setBusy(false);
     }
@@ -137,27 +171,26 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
     return (
       <div className="b365-telebirr-flow">
         <div className="b365-telebirr-success">
-          <h3 className="b365-telebirr-success-title">Deposit successful</h3>
+          <h3 className="b365-telebirr-success-title">Deposit submitted</h3>
           <p>
-            <strong>{success.deposited.toFixed(2)}</strong> {success.currency} credited to your wallet.
+            Your request for <strong>{success.amount.toFixed(2)}</strong> {success.currency} is pending
+            manual review. We will credit your wallet after approval.
           </p>
           <dl className="b365-telebirr-receipt-dl">
             <div>
-              <dt>Transaction no.</dt>
-              <dd>{success.telebirrRef}</dd>
+              <dt>Request ID</dt>
+              <dd>{success.id}</dd>
             </div>
-            <div>
-              <dt>New balance</dt>
-              <dd>
-                {success.balance.toFixed(2)} {success.currency}
-              </dd>
-            </div>
-            {success.verified.paidAt ? (
+            {success.telebirrRef ? (
               <div>
-                <dt>Paid at</dt>
-                <dd>{success.verified.paidAt}</dd>
+                <dt>Transaction no.</dt>
+                <dd>{success.telebirrRef}</dd>
               </div>
             ) : null}
+            <div>
+              <dt>Status</dt>
+              <dd>Pending review</dd>
+            </div>
           </dl>
           <button type="button" className="b365-btn-secondary" onClick={resetFlow}>
             Make another deposit
@@ -172,13 +205,32 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
       <div className="b365-telebirr-steps" aria-label="Deposit steps">
         <span className={step >= 1 ? 'active' : ''}>1. Amount</span>
         <span className={step >= 2 ? 'active' : ''}>2. Pay</span>
-        <span className={step >= 3 ? 'active' : ''}>3. Upload</span>
+        <span className={step >= 3 ? 'active' : ''}>3. Submit proof</span>
       </div>
 
       <p className="b365-muted b365-telebirr-note">
-        Deposits are verified from your Telebirr success screenshot only.
+        Submit your transaction reference or screenshot. Deposits are credited after manual approval.
       </p>
       {infoErr ? <p className="b365-error">{infoErr}</p> : null}
+
+      {pendingRequests.length > 0 ? (
+        <div className="b365-telebirr-pending-list">
+          <h4 className="b365-telebirr-pending-title">Recent deposit requests</h4>
+          <ul>
+            {pendingRequests.map((row) => (
+              <li key={row.id}>
+                <span>{row.amount.toFixed(2)} {currency}</span>
+                <span className={`b365-telebirr-status b365-telebirr-status--${row.status}`}>
+                  {formatStatus(row.status)}
+                </span>
+                {row.rejectReason ? (
+                  <span className="b365-muted"> — {row.rejectReason}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {step === 1 ? (
         <div key="step-1" className="b365-telebirr-panel b365-telebirr-panel--enter">
@@ -241,7 +293,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
               'Open the Telebirr app',
               'Choose Transfer Money',
               'Paste the recipient number and send the exact amount',
-              'Take a screenshot of the success screen before closing it',
+              'Submit your transaction reference or upload a screenshot',
             ]).map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -260,29 +312,71 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
 
       {step === 3 ? (
         <div key="step-3" className="b365-telebirr-panel b365-telebirr-panel--enter">
-          <label className="b365-field-label">
-            Upload Telebirr success screenshot
-            <input
-              type="file"
-              className="b365-input b365-file-input"
-              accept="image/jpeg,image/png,image/webp"
+          <div className="b365-telebirr-proof-tabs" role="tablist" aria-label="Proof type">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={proofTab === 'screenshot'}
+              className={proofTab === 'screenshot' ? 'active' : ''}
               disabled={busy}
-              onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
-            />
-            {previewUrl ? (
-              <img src={previewUrl} alt="Receipt preview" className="b365-telebirr-preview" />
-            ) : null}
-          </label>
-          <p className="b365-muted b365-telebirr-upload-hint">
-            Make sure the screenshot shows Successful, amount, recipient, and transaction number.
-          </p>
+              onClick={() => setProofTab('screenshot')}
+            >
+              Screenshot
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={proofTab === 'ref'}
+              className={proofTab === 'ref' ? 'active' : ''}
+              disabled={busy}
+              onClick={() => setProofTab('ref')}
+            >
+              Reference
+            </button>
+          </div>
+
+          {proofTab === 'screenshot' ? (
+            <>
+              <label className="b365-field-label">
+                Upload Telebirr success screenshot
+                <input
+                  type="file"
+                  className="b365-input b365-file-input"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={busy}
+                  onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+                />
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Receipt preview" className="b365-telebirr-preview" />
+                ) : null}
+              </label>
+              <p className="b365-muted b365-telebirr-upload-hint">
+                Make sure the screenshot shows Successful, amount, recipient, and transaction number.
+              </p>
+            </>
+          ) : (
+            <label className="b365-field-label">
+              Transaction reference
+              <input
+                type="text"
+                className="b365-input"
+                value={refInput}
+                disabled={busy}
+                placeholder="10-character code or receipt URL"
+                onChange={(e) => setRefInput(e.target.value)}
+              />
+              <p className="b365-muted b365-telebirr-upload-hint">
+                Copy the transaction number from your Telebirr success screen or paste the receipt link.
+              </p>
+            </label>
+          )}
 
           <div className="b365-telebirr-actions">
             <button type="button" className="b365-btn-secondary" disabled={busy} onClick={() => setStep(2)}>
               Back
             </button>
             <button type="button" className="b365-btn-primary" disabled={busy} onClick={() => void onSubmit()}>
-              {busy ? 'Verifying…' : 'Verify & deposit'}
+              {busy ? 'Submitting…' : 'Submit for review'}
             </button>
           </div>
         </div>

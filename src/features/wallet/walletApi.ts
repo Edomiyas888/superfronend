@@ -36,25 +36,45 @@ export type WalletTransactionsPage = {
   hasPrev: boolean;
 };
 
-export type TelebirrDepositResult = {
-  balance: number;
+export type TelebirrDepositSubmitResult = {
+  id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  amount: number;
+  proofType: 'ref' | 'screenshot';
+  telebirrRef: string | null;
   currency: string;
-  deposited: number;
-  telebirrRef: string;
-  verified: {
-    amount: number;
-    recipient: string;
-    paidAt: string;
-    transactionType?: string;
-    payerName?: string;
-    payerPhone?: string;
-  };
+  message: string;
 };
+
+export type DepositRequestRow = {
+  id: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  proofType: 'ref' | 'screenshot';
+  telebirrRef: string | null;
+  rejectReason: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type DepositRequestsPage = {
+  items: DepositRequestRow[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+};
+
+/** @deprecated Use TelebirrDepositSubmitResult — kept for reference during migration */
+export type TelebirrDepositResult = TelebirrDepositSubmitResult;
 
 type BalanceJson = { balance?: number; currency?: string; error?: string };
 type TxJson = { balance?: number; currency?: string; withdrawn?: number; error?: string };
 type TelebirrInfoJson = Partial<TelebirrDepositInfo> & { error?: string };
-type TelebirrDepositJson = Partial<TelebirrDepositResult> & { error?: string };
+type TelebirrDepositJson = Partial<TelebirrDepositSubmitResult> & { error?: string };
+type DepositRequestsJson = Partial<DepositRequestsPage> & { error?: string };
 
 async function parseJson<T extends Record<string, unknown>>(res: Response): Promise<T | null> {
   const text = await res.text();
@@ -112,16 +132,17 @@ export async function fetchTelebirrDepositInfo(
 }
 
 /**
- * POST `/v1/wallet/deposit/telebirr` — multipart proof + amount.
+ * POST `/v1/wallet/deposit/telebirr` — multipart screenshot + amount (pending review).
  */
-export async function depositTelebirr(
+export async function submitTelebirrDepositScreenshot(
   authHeaders: Record<string, string>,
-  params: { amount: number; screenshot: File }
-): Promise<TelebirrDepositResult> {
+  params: { amount: number; screenshot: File; ref?: string }
+): Promise<TelebirrDepositSubmitResult> {
   const base = getApiBaseUrl();
   const form = new FormData();
   form.append('amount', String(params.amount));
   form.append('screenshot', params.screenshot);
+  if (params.ref?.trim()) form.append('ref', params.ref.trim());
 
   const headers: Record<string, string> = {};
   if (authHeaders.Authorization) {
@@ -135,23 +156,86 @@ export async function depositTelebirr(
   });
   const data = (await parseJson<TelebirrDepositJson>(res)) ?? {};
   if (!res.ok) {
-    throw new Error(typeof data.error === 'string' ? data.error : 'Telebirr deposit failed.');
+    throw new Error(typeof data.error === 'string' ? data.error : 'Telebirr deposit submission failed.');
   }
 
   return {
-    balance: typeof data.balance === 'number' ? data.balance : 0,
+    id: typeof data.id === 'string' ? data.id : '',
+    status: data.status === 'approved' || data.status === 'rejected' ? data.status : 'pending',
+    amount: typeof data.amount === 'number' ? data.amount : params.amount,
+    proofType: 'screenshot',
+    telebirrRef: typeof data.telebirrRef === 'string' ? data.telebirrRef : null,
     currency: typeof data.currency === 'string' ? data.currency : 'ETB',
-    deposited: typeof data.deposited === 'number' ? data.deposited : params.amount,
-    telebirrRef: typeof data.telebirrRef === 'string' ? data.telebirrRef : '',
-    verified: {
-      amount: typeof data.verified?.amount === 'number' ? data.verified.amount : params.amount,
-      recipient: typeof data.verified?.recipient === 'string' ? data.verified.recipient : '',
-      paidAt: typeof data.verified?.paidAt === 'string' ? data.verified.paidAt : '',
-      transactionType:
-        typeof data.verified?.transactionType === 'string' ? data.verified.transactionType : undefined,
-      payerName: typeof data.verified?.payerName === 'string' ? data.verified.payerName : undefined,
-      payerPhone: typeof data.verified?.payerPhone === 'string' ? data.verified.payerPhone : undefined,
-    },
+    message: typeof data.message === 'string' ? data.message : 'Deposit submitted for review.',
+  };
+}
+
+/**
+ * POST `/v1/wallet/deposit/telebirr/ref` — JSON ref + amount (pending review).
+ */
+export async function submitTelebirrDepositRef(
+  authHeaders: Record<string, string>,
+  params: { amount: number; ref: string }
+): Promise<TelebirrDepositSubmitResult> {
+  const base = getApiBaseUrl();
+  const res = await fetch(`${base}/v1/wallet/deposit/telebirr/ref`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders },
+    body: JSON.stringify({ amount: params.amount, ref: params.ref }),
+  });
+  const data = (await parseJson<TelebirrDepositJson>(res)) ?? {};
+  if (!res.ok) {
+    throw new Error(typeof data.error === 'string' ? data.error : 'Telebirr deposit submission failed.');
+  }
+
+  return {
+    id: typeof data.id === 'string' ? data.id : '',
+    status: data.status === 'approved' || data.status === 'rejected' ? data.status : 'pending',
+    amount: typeof data.amount === 'number' ? data.amount : params.amount,
+    proofType: 'ref',
+    telebirrRef: typeof data.telebirrRef === 'string' ? data.telebirrRef : null,
+    currency: typeof data.currency === 'string' ? data.currency : 'ETB',
+    message: typeof data.message === 'string' ? data.message : 'Deposit submitted for review.',
+  };
+}
+
+/** @deprecated Use submitTelebirrDepositScreenshot */
+export async function depositTelebirr(
+  authHeaders: Record<string, string>,
+  params: { amount: number; screenshot: File }
+): Promise<TelebirrDepositSubmitResult> {
+  return submitTelebirrDepositScreenshot(authHeaders, params);
+}
+
+/**
+ * GET `/v1/wallet/deposit/requests` — user's deposit request history.
+ */
+export async function fetchDepositRequests(
+  authHeaders: Record<string, string>,
+  params: { page?: number; limit?: number; status?: 'pending' | 'approved' | 'rejected' } = {}
+): Promise<DepositRequestsPage> {
+  const base = getApiBaseUrl();
+  const qs = new URLSearchParams();
+  if (params.page) qs.set('page', String(params.page));
+  if (params.limit) qs.set('limit', String(params.limit));
+  if (params.status) qs.set('status', params.status);
+
+  const res = await fetch(`${base}/v1/wallet/deposit/requests?${qs.toString()}`, {
+    headers: authHeaders,
+  });
+  const data = (await parseJson<DepositRequestsJson>(res)) ?? {};
+  if (!res.ok) {
+    throw new Error(typeof data.error === 'string' ? data.error : 'Could not load deposit requests.');
+  }
+
+  return {
+    items: Array.isArray(data.items) ? (data.items as DepositRequestRow[]) : [],
+    page: typeof data.page === 'number' ? data.page : 1,
+    limit: typeof data.limit === 'number' ? data.limit : 10,
+    total: typeof data.total === 'number' ? data.total : 0,
+    totalPages: typeof data.totalPages === 'number' ? data.totalPages : 1,
+    hasNext: Boolean(data.hasNext),
+    hasPrev: Boolean(data.hasPrev),
   };
 }
 
