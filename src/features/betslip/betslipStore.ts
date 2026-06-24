@@ -11,6 +11,69 @@ import { useSessionStore } from '../auth/sessionStore';
 
 export type SelectionKey = string;
 
+const BETSLIP_STORAGE_KEY = 'superbet_betslip';
+
+type PersistedBetslip = {
+  stake: number;
+  events: Record<string, BetslipEventLike>;
+};
+
+function loadPersistedBetslip(): PersistedBetslip {
+  if (typeof localStorage === 'undefined') {
+    return { stake: 1, events: {} };
+  }
+  try {
+    const raw = localStorage.getItem(BETSLIP_STORAGE_KEY);
+    if (!raw) return { stake: 1, events: {} };
+    const parsed = JSON.parse(raw) as Partial<PersistedBetslip>;
+    const stake = Number(parsed.stake);
+    const events = parsed.events;
+    if (!events || typeof events !== 'object' || Array.isArray(events)) {
+      return { stake: Number.isFinite(stake) && stake >= 0 ? stake : 1, events: {} };
+    }
+    const cleaned: Record<string, BetslipEventLike> = {};
+    for (const [key, ev] of Object.entries(events)) {
+      if (!ev || typeof ev !== 'object') continue;
+      const gameId = Number(ev.gameId);
+      const eventId = Number(ev.eventId);
+      const marketId = Number(ev.marketId);
+      const price = Number(ev.price ?? ev.initialPrice);
+      if (!gameId || !eventId || !marketId || !Number.isFinite(price) || price <= 1) continue;
+      cleaned[key] = {
+        ...ev,
+        gameId,
+        eventId,
+        marketId,
+        price,
+        initialPrice: Number(ev.initialPrice ?? ev.price) || price,
+        priceChanged: Boolean(ev.priceChanged),
+        suspended: Boolean(ev.suspended),
+      };
+    }
+    return {
+      stake: Number.isFinite(stake) && stake >= 0 ? stake : 1,
+      events: cleaned,
+    };
+  } catch {
+    return { stake: 1, events: {} };
+  }
+}
+
+function savePersistedBetslip(data: PersistedBetslip) {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    if (Object.keys(data.events).length === 0) {
+      localStorage.removeItem(BETSLIP_STORAGE_KEY);
+      return;
+    }
+    localStorage.setItem(BETSLIP_STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+const persisted = loadPersistedBetslip();
+
 function keyFor(gameId: number | string, marketId: number, eventId: number): SelectionKey {
   return `${gameId}-${marketId}-${eventId}`;
 }
@@ -36,8 +99,8 @@ type BetslipState = {
 
 export const useBetslipStore = create<BetslipState>((set, get) => ({
   type: BETSLIP_TYPE_SINGLE,
-  stake: 1,
-  events: {},
+  stake: persisted.stake,
+  events: persisted.events,
   placeStatus: 'idle',
   placeMessage: null,
   correctionPending: null,
@@ -79,14 +142,16 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     });
   },
 
-  clear: () =>
+  clear: () => {
+    savePersistedBetslip({ stake: get().stake, events: {} });
     set({
       events: {},
       placeStatus: 'idle',
       placeMessage: null,
       correctionPending: null,
       correctionsAccepted: true,
-    }),
+    });
+  },
 
   setStake: (n) => set({ stake: Math.max(0, n) }),
 
@@ -217,5 +282,10 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     }
   },
 }));
+
+useBetslipStore.subscribe((state, prev) => {
+  if (state.stake === prev.stake && state.events === prev.events) return;
+  savePersistedBetslip({ stake: state.stake, events: state.events });
+});
 
 export { keyFor };
