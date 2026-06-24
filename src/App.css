@@ -2550,6 +2550,21 @@ a.b365-btn-header-login {
   font-size: 12px;
   font-weight: 600;
   color: var(--b365-text-muted);
+  line-height: 1.4;
+}
+
+.b365-my-bets-leg__market-name {
+  color: var(--b365-text-muted);
+  font-weight: 600;
+}
+
+.b365-my-bets-leg__market-sep {
+  opacity: 0.65;
+}
+
+.b365-my-bets-leg__pick {
+  color: var(--b365-text);
+  font-weight: 700;
 }
 
 .b365-my-bets-leg__meta {

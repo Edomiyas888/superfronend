@@ -22,6 +22,10 @@ export type PlacedBetRow = {
     gameId?: number;
     eventId?: number;
     marketId?: number;
+    marketName?: string;
+    marketType?: string;
+    team1?: string;
+    team2?: string;
     pick?: string;
     odds?: number;
     matchTitle?: string;

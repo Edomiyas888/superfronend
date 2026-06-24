@@ -2,6 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { PlacedBetRow } from '../features/bets/betsApi';
 import {
+  formatBetSelectionParts,
+  formatBetSelectionText,
+} from '../features/bets/formatBetSelection';
+import {
   resolveSelectionStatuses,
   selectionStatusClass,
   slipStatusClass,
@@ -57,7 +61,7 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
 
   const preview = selections[0];
   const previewTitle = preview?.matchTitle || 'Selection';
-  const previewPick = preview?.pick ?? '';
+  const previewDetail = preview ? formatBetSelectionText(preview) : '';
   const previewOdds = preview?.odds ?? '';
 
   return (
@@ -111,7 +115,7 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
                 />
               ) : null}
               <span className="b365-my-bets-acc__preview-pick">
-                {previewPick} @ {previewOdds}
+                {previewDetail} @ {previewOdds}
               </span>
               {legCount > 1 ? (
                 <span className="b365-my-bets-acc__preview-more">+{legCount - 1} more</span>
@@ -154,6 +158,7 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
                     : bet.settlementStatus === 'won'
                       ? 'won'
                       : 'pending');
+                const { market, pick } = formatBetSelectionParts(sel);
                 return (
                   <li key={`${sel.gameId}-${sel.eventId}-${i}`} className="b365-my-bets-leg">
                     <div className="b365-my-bets-leg__main">
@@ -161,7 +166,17 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
                       {resolve?.live?.isLive ? (
                         <BetslipLiveLine live={resolve.live} className="b365-betslip-live-line b365-my-bets-leg__live" />
                       ) : null}
-                      <span className="b365-my-bets-leg__market">{sel.pick || 'Pick'}</span>
+                      <span className="b365-my-bets-leg__market">
+                        {market ? (
+                          <>
+                            <span className="b365-my-bets-leg__market-name">{market}</span>
+                            <span className="b365-my-bets-leg__market-sep"> · </span>
+                            <span className="b365-my-bets-leg__pick">{pick}</span>
+                          </>
+                        ) : (
+                          pick
+                        )}
+                      </span>
                     </div>
                     <div className="b365-my-bets-leg__meta">
                       <span className="b365-my-bets-leg__odds">{Number(sel.odds).toFixed(2)}</span>
