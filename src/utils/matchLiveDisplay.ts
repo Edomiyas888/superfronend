@@ -13,7 +13,8 @@ export type LiveGameDisplay = {
 };
 
 export function liveDisplayFromMatchDetail(detail: MatchDetailView): LiveGameDisplay {
-  if (!detail.isLive) {
+  const isLive = detail.isLive;
+  if (!isLive) {
     return { isLive: false };
   }
 

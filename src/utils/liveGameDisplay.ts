@@ -3,6 +3,11 @@
  * Mirrors patterns from finix `LiveMatchesTable.jsx` / `game.info` usage.
  */
 
+/** True when Swarm reports the fixture as live or in progress. */
+export function gameIsLiveInFeed(g: Record<string, unknown>): boolean {
+  return Boolean(g.is_live) || Number(g.type) === 1 || Boolean(g.is_started);
+}
+
 export function normalizeGameInfo(raw: unknown): Record<string, unknown> | null {
   if (raw == null) return null;
   if (typeof raw === 'object' && !Array.isArray(raw)) return raw as Record<string, unknown>;

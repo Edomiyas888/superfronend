@@ -1,10 +1,9 @@
 import { swarmPost, unwrapData } from './http';
 import { MATCH_RESULT_TYPES, P1XP2_MARKET_TYPES } from './marketConstants';
-import { liveDisplayFieldsFromRawGame } from '../utils/liveGameDisplay';
+import { liveDisplayFieldsFromRawGame, gameIsLiveInFeed, normalizeGameInfo } from '../utils/liveGameDisplay';
 import { pickTeamIdFromGame } from '../utils/teamLogos';
 import type { SwarmResponse } from './swarmTypes';
 import type { FlatGameRow, GameView, LiveLastEvent, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
-import { normalizeGameInfo } from '../utils/liveGameDisplay';
 import { isWorldCupCompetition } from '../utils/worldCupFilter';
 
 const SUB = { subscribe: true as const };
@@ -134,8 +133,10 @@ function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
     };
   }) ?? [];
 
+  const liveLike = !!g.is_live;
+
   const liveBlock: MatchDetailView['live'] | undefined =
-    g.is_live
+    liveLike
       ? {
           lastEvent: parseLiveLastEvent(g.last_event),
           info: normalizeGameInfo(g.game_info) ?? null,
@@ -626,7 +627,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
           home_team_id: pickTeamIdFromGame(g, 1),
           away_team_id: pickTeamIdFromGame(g, 2),
           start_time: new Date(Number(g.start_ts) * 1000).toISOString(),
-          is_live: !!g.is_live,
+          is_live: gameIsLiveInFeed(g),
           is_blocked: !!g.is_blocked,
           markets: markets as unknown[],
           home_score: scores.home,
@@ -684,7 +685,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
             home_team_id: pickTeamIdFromGame(g, 1),
             away_team_id: pickTeamIdFromGame(g, 2),
             start_time: new Date(Number(g.start_ts) * 1000).toISOString(),
-            is_live: !!g.is_live,
+            is_live: gameIsLiveInFeed(g),
             is_blocked: !!g.is_blocked,
             markets: markets as unknown[],
             home_score: scores.home,
@@ -734,7 +735,7 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
           team1Id: pickTeamIdFromGame(g, 1),
           team2Id: pickTeamIdFromGame(g, 2),
           startTs: Number(g.start_ts),
-          isLive: !!g.is_live,
+          isLive: gameIsLiveInFeed(g),
           isBlocked: !!g.is_blocked,
           sportId,
           sportName,
@@ -762,7 +763,7 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
             team1Id: pickTeamIdFromGame(g, 1),
             team2Id: pickTeamIdFromGame(g, 2),
             startTs: Number(g.start_ts),
-            isLive: !!g.is_live,
+            isLive: gameIsLiveInFeed(g),
             isBlocked: !!g.is_blocked,
             sportId,
             sportName,
