@@ -48,8 +48,9 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
   const statusQ = useQuery({
     queryKey: ['bet-leg-status', bet.id, bet.settlementStatus],
     queryFn: () => resolveSelectionStatuses(selections, bet.settlementStatus),
-    enabled: open && legCount > 0,
-    staleTime: 30_000,
+    enabled: legCount > 0 && (open || bet.settlementStatus === 'open'),
+    staleTime: 10_000,
+    refetchInterval: bet.settlementStatus === 'open' ? 10_000 : false,
   });
 
   const legResolves = statusQ.data;
@@ -103,6 +104,12 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
           {!open && preview ? (
             <div className="b365-my-bets-acc__preview">
               <span className="b365-my-bets-acc__preview-match">{previewTitle}</span>
+              {legResolves?.[0]?.live?.isLive ? (
+                <BetslipLiveLine
+                  live={legResolves[0].live}
+                  className="b365-betslip-live-line b365-my-bets-acc__preview-live"
+                />
+              ) : null}
               <span className="b365-my-bets-acc__preview-pick">
                 {previewPick} @ {previewOdds}
               </span>
@@ -151,8 +158,8 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
                   <li key={`${sel.gameId}-${sel.eventId}-${i}`} className="b365-my-bets-leg">
                     <div className="b365-my-bets-leg__main">
                       <span className="b365-my-bets-leg__match">{sel.matchTitle || 'Match'}</span>
-                      {legStatus === 'live' ? (
-                        <BetslipLiveLine live={resolve?.live} className="b365-betslip-live-line b365-my-bets-leg__live" />
+                      {resolve?.live?.isLive ? (
+                        <BetslipLiveLine live={resolve.live} className="b365-betslip-live-line b365-my-bets-leg__live" />
                       ) : null}
                       <span className="b365-my-bets-leg__market">{sel.pick || 'Pick'}</span>
                     </div>

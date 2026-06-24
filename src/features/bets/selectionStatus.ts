@@ -1,5 +1,6 @@
 import { swarmPost, unwrapData } from '../../api/http';
 import type { PlacedBetRow } from './betsApi';
+import { gameIsLiveInFeed } from '../../utils/liveGameDisplay';
 import { liveDisplayFromSwarmGame } from '../../utils/matchLiveDisplay';
 import type { LiveGameDisplay } from '../../utils/matchLiveDisplay';
 
@@ -12,37 +13,12 @@ export type SelectionResolve = {
 
 type GameScoreInfo = {
   isLive: boolean;
+  isStarted: boolean;
   startTs: number;
   homeScore: number | null;
   awayScore: number | null;
   liveMatchTime?: string;
 };
-
-const P1XP2_TYPES = new Set([
-  'P1XP2',
-  'P1P2',
-  '1X12X2',
-  'MatchWinner',
-  'MatchResult',
-  'Match Result',
-  '1X2',
-  'ThreeWayResult',
-]);
-
-function normalizePick(pick: string | undefined): 'home' | 'draw' | 'away' | null {
-  const p = String(pick ?? '').trim().toUpperCase();
-  if (p === '1' || p === 'W1' || p === 'P1' || p === 'HOME') return 'home';
-  if (p === 'X' || p === 'D' || p === 'DRAW') return 'draw';
-  if (p === '2' || p === 'W2' || p === 'P2' || p === 'AWAY') return 'away';
-  return null;
-}
-
-function outcomeFromScore(homeScore: number, awayScore: number): 'home' | 'draw' | 'away' | null {
-  if (!Number.isFinite(homeScore) || !Number.isFinite(awayScore)) return null;
-  if (homeScore > awayScore) return 'home';
-  if (homeScore < awayScore) return 'away';
-  return 'draw';
-}
 
 function statusLabel(status: SelectionStatus): string {
   if (status === 'won') return 'Won';
@@ -53,6 +29,12 @@ function statusLabel(status: SelectionStatus): string {
 }
 
 export { statusLabel };
+
+function isMatchInPlay(info: GameScoreInfo): boolean {
+  if (info.isLive || info.isStarted) return true;
+  const now = Math.floor(Date.now() / 1000);
+  return info.startTs > 0 && now >= info.startTs;
+}
 
 async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScoreInfo>> {
   const scores = new Map<number, GameScoreInfo>();
@@ -65,7 +47,7 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
         params: {
           source: 'betting',
           what: {
-            game: ['id', 'is_live', 'start_ts', 'is_started', 'text_info', 'info'],
+            game: ['id', 'is_live', 'is_started', 'type', 'start_ts', 'text_info', 'info'],
             market: ['id', 'type', 'home_score', 'away_score', 'name'],
           },
           where: { game: { id: gameId } },
@@ -78,6 +60,7 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
       if (!sport || typeof sport !== 'object') continue;
 
       let isLive = false;
+      let isStarted = false;
       let startTs = 0;
       let homeScore: number | null = null;
       let awayScore: number | null = null;
@@ -90,17 +73,17 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
           for (const g of Object.values(node.game as Record<string, Record<string, unknown>>)) {
             if (Number(g.id) !== gameId) continue;
             matchedGame = g;
-            isLive = Boolean(g.is_live);
+            isLive = gameIsLiveInFeed(g);
+            isStarted = Boolean(g.is_started);
             startTs = Number(g.start_ts) || 0;
             const markets = (g.market ?? {}) as Record<string, Record<string, unknown>>;
             for (const mk of Object.values(markets)) {
-              const mt = String(mk.type ?? mk.name ?? '');
-              if (!P1XP2_TYPES.has(mt) && !mt.toLowerCase().includes('match result')) continue;
               const hs = Number(mk.home_score);
               const as = Number(mk.away_score);
               if (Number.isFinite(hs) && Number.isFinite(as)) {
                 homeScore = hs;
                 awayScore = as;
+                break;
               }
             }
           }
@@ -122,7 +105,7 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
         liveMatchTime = liveDisplay.liveMatchTime;
       }
 
-      scores.set(gameId, { isLive, startTs, homeScore, awayScore, liveMatchTime });
+      scores.set(gameId, { isLive, isStarted, startTs, homeScore, awayScore, liveMatchTime });
     } catch {
       /* ignore per-game fetch errors */
     }
@@ -132,31 +115,29 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
 }
 
 function evaluateSelection(
-  sel: PlacedBetRow['selections'][number],
+  _sel: PlacedBetRow['selections'][number],
   info: GameScoreInfo | undefined,
   slipStatus: PlacedBetRow['settlementStatus']
 ): SelectionStatus {
   if (slipStatus === 'void') return 'void';
   if (slipStatus === 'won') return 'won';
+  if (slipStatus === 'lost') return 'lost';
 
-  if (!info) return slipStatus === 'lost' ? 'lost' : 'pending';
+  if (!info) return 'pending';
 
-  const { isLive, startTs, homeScore, awayScore } = info;
-  if (isLive) return 'live';
+  if (isMatchInPlay(info)) return 'live';
 
-  const now = Math.floor(Date.now() / 1000);
-  const hasScores = homeScore !== null && awayScore !== null;
+  return 'pending';
+}
 
-  if (!hasScores) {
-    if (startTs > 0 && now < startTs) return 'pending';
-    if (startTs > 0 && now >= startTs) return 'live';
-    return 'pending';
-  }
-
-  const actual = outcomeFromScore(homeScore!, awayScore!);
-  const picked = normalizePick(sel.pick);
-  if (!actual || !picked) return 'pending';
-  return actual === picked ? 'won' : 'lost';
+function liveDisplayForInfo(info: GameScoreInfo | undefined): LiveGameDisplay | undefined {
+  if (!info || !isMatchInPlay(info)) return undefined;
+  return {
+    isLive: true,
+    homeScore: info.homeScore ?? undefined,
+    awayScore: info.awayScore ?? undefined,
+    liveMatchTime: info.liveMatchTime,
+  };
 }
 
 export async function resolveSelectionStatuses(
@@ -165,6 +146,9 @@ export async function resolveSelectionStatuses(
 ): Promise<SelectionResolve[]> {
   if (slipStatus === 'void') return selections.map(() => ({ status: 'void' }));
   if (slipStatus === 'won') return selections.map(() => ({ status: 'won' }));
+  if (slipStatus === 'lost') {
+    return selections.map(() => ({ status: 'lost' }));
+  }
 
   const gameIds = selections.map((s) => Number(s.gameId)).filter(Boolean);
   const scoreMap = await fetchGameScores(gameIds);
@@ -172,17 +156,10 @@ export async function resolveSelectionStatuses(
   return selections.map((sel) => {
     const gameId = Number(sel.gameId);
     const info = scoreMap.get(gameId);
-    const status = evaluateSelection(sel, info, slipStatus);
-    const live =
-      info && (info.isLive || status === 'live')
-        ? {
-            isLive: true,
-            homeScore: info.homeScore ?? undefined,
-            awayScore: info.awayScore ?? undefined,
-            liveMatchTime: info.liveMatchTime,
-          }
-        : undefined;
-    return { status, live };
+    return {
+      status: evaluateSelection(sel, info, slipStatus),
+      live: liveDisplayForInfo(info),
+    };
   });
 }
 
