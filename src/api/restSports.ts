@@ -405,7 +405,17 @@ export async function restGetMatchOdds(gameId: number): Promise<MatchDetailView 
   return nestFromFlatRows(flat);
 }
 
-export async function restGetLiveGames(): Promise<GameView[]> {
+export async function restGetLiveGames(opts?: { sportAlias?: string | null }): Promise<GameView[]> {
+  const where: Record<string, unknown> = {
+    game: { type: 1, '@limit': 400 },
+    market: { type: { '@in': P1XP2_MARKET_TYPES } },
+    event: { type: { '@in': ['P1', 'X', 'P2'] } },
+  };
+  const alias = opts?.sportAlias?.trim();
+  if (alias) {
+    where.sport = { alias: String(alias) };
+  }
+
   const res = await swarmPost({
     command: 'get',
     params: {
@@ -430,11 +440,7 @@ export async function restGetLiveGames(): Promise<GameView[]> {
         market: ['name', 'type', 'id', 'base', 'home_score', 'away_score'],
         event: ['name', 'type', 'id', 'price', 'base'],
       },
-      where: {
-        game: { type: 1, '@limit': 400 },
-        market: { type: { '@in': P1XP2_MARKET_TYPES } },
-        event: { type: { '@in': ['P1', 'X', 'P2'] } },
-      },
+      where,
       ...SUB,
     },
   });

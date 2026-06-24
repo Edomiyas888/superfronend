@@ -2704,6 +2704,35 @@ a.b365-btn-header-login {
   color: var(--b365-text);
 }
 
+.b365-live-sport-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.b365-live-sport-chip__icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.b365-live-sport-chip__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.b365-live-sport-chip__count {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.b365-match-filters__loading {
+  font-size: 11px;
+  padding: 8px 4px;
+}
+
 .b365-match-filters {
   display: grid;
   gap: 14px;
