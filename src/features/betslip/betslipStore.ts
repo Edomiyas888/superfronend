@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import {
   BETSLIP_TYPE_SINGLE,
+  BETSLIP_TYPE_MULTIPLE,
   type BetslipEventLike,
   type BetslipLike,
   type OddsCorrectionChange,
@@ -127,8 +128,9 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
 
   toSlipPayload: (): BetslipLike => {
     const s = get();
+    const count = Object.keys(s.events).length;
     return {
-      type: s.type,
+      type: count > 1 ? BETSLIP_TYPE_MULTIPLE : BETSLIP_TYPE_SINGLE,
       events: { ...s.events },
       stake: s.stake,
     };

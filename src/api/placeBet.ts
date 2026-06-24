@@ -1,4 +1,6 @@
 export const BETSLIP_TYPE_SINGLE = 1;
+/** Swarm accumulator — all selections share one stake and one coupon. */
+export const BETSLIP_TYPE_MULTIPLE = 2;
 
 export type BetslipLike = {
   type: number;

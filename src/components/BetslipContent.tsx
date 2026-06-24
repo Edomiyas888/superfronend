@@ -34,20 +34,37 @@ export default function BetslipContent() {
   const ids = Object.keys(events);
   const hasSelections = ids.length > 0;
   const balance = walletQ.data?.balance ?? null;
+  const isAccumulator = ids.length > 1;
 
-  const possibleWin = ids.reduce((acc, id) => {
+  const combinedOdds = ids.reduce((acc, id) => {
     const ev = events[id];
     if (!ev) return acc;
-    const s = Number.isFinite(Number(ev.singleStake)) && Number(ev.singleStake) > 0 ? Number(ev.singleStake) : stake;
-    return acc + s * (ev.price || 1);
-  }, 0);
+    return acc * (ev.price || 1);
+  }, 1);
 
-  const totalStake = ids.reduce((acc, id) => {
-    const ev = events[id];
-    if (!ev) return acc;
-    const s = Number.isFinite(Number(ev.singleStake)) && Number(ev.singleStake) > 0 ? Number(ev.singleStake) : stake;
-    return acc + s;
-  }, 0);
+  const totalStake = isAccumulator
+    ? stake
+    : ids.reduce((acc, id) => {
+        const ev = events[id];
+        if (!ev) return acc;
+        const s =
+          Number.isFinite(Number(ev.singleStake)) && Number(ev.singleStake) > 0
+            ? Number(ev.singleStake)
+            : stake;
+        return acc + s;
+      }, 0);
+
+  const possibleWin = isAccumulator
+    ? stake * combinedOdds
+    : ids.reduce((acc, id) => {
+        const ev = events[id];
+        if (!ev) return acc;
+        const s =
+          Number.isFinite(Number(ev.singleStake)) && Number(ev.singleStake) > 0
+            ? Number(ev.singleStake)
+            : stake;
+        return acc + s * (ev.price || 1);
+      }, 0);
 
   const hasPendingCorrection = (correctionPending?.length ?? 0) > 0 && !correctionsAccepted;
   const stakeTooHigh = balance != null && totalStake > balance;
@@ -118,7 +135,7 @@ export default function BetslipContent() {
             );
           })}
           <label className="b365-field-label">
-            Stake (per selection)
+            Stake
             <input
               type="number"
               min={0}
@@ -128,9 +145,9 @@ export default function BetslipContent() {
               onChange={(e) => setStake(parseFloat(e.target.value) || 0)}
             />
           </label>
-          {ids.length > 1 ? (
+          {isAccumulator ? (
             <p className="b365-muted b365-betslip-hint">
-              {ids.length} singles × {stake.toFixed(2)} = {totalStake.toFixed(2)} total staked
+              Accumulator · {ids.length} selections · combined odds {combinedOdds.toFixed(2)}
             </p>
           ) : null}
           <p className="b365-betslip-return">Est. return: {possibleWin.toFixed(2)}</p>
