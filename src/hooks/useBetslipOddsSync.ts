@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { restGetMatchOdds } from '../api/restSports';
 import { useBetslipStore } from '../features/betslip/betslipStore';
+import { liveDisplayFromMatchDetail } from '../utils/matchLiveDisplay';
 
 const POLL_MS = 10_000;
 
@@ -11,6 +12,7 @@ const POLL_MS = 10_000;
 export function useBetslipOddsSync() {
   const events = useBetslipStore((s) => s.events);
   const updateSelectionPrice = useBetslipStore((s) => s.updateSelectionPrice);
+  const setLiveDisplay = useBetslipStore((s) => s.setLiveDisplay);
   const ids = Object.keys(events);
   const queryClient = useQueryClient();
 
@@ -36,6 +38,9 @@ export function useBetslipOddsSync() {
           continue;
         }
         if (!detail) continue;
+
+        const liveDisplay = liveDisplayFromMatchDetail(detail);
+        setLiveDisplay(gameId, liveDisplay.isLive ? liveDisplay : null);
 
         for (const id of ids) {
           const ev = events[id];
@@ -63,5 +68,5 @@ export function useBetslipOddsSync() {
     void sync();
     const t = setInterval(() => void sync(), POLL_MS);
     return () => clearInterval(t);
-  }, [ids.join('|'), events, updateSelectionPrice]);
+  }, [ids.join('|'), events, updateSelectionPrice, setLiveDisplay]);
 }

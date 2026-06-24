@@ -4,6 +4,7 @@ import { useBetslipStore } from '../features/betslip/betslipStore';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
 import BetslipMyBetsPanel from './BetslipMyBetsPanel';
+import BetslipLiveLine from './BetslipLiveLine';
 
 type MainTab = 'slip' | 'my-bets';
 
@@ -11,6 +12,7 @@ type MainTab = 'slip' | 'my-bets';
 export default function BetslipContent() {
   const [mainTab, setMainTab] = useState<MainTab>('slip');
   const events = useBetslipStore((s) => s.events);
+  const liveByGameId = useBetslipStore((s) => s.liveByGameId);
   const stake = useBetslipStore((s) => s.stake);
   const setStake = useBetslipStore((s) => s.setStake);
   const removeSelection = useBetslipStore((s) => s.removeSelection);
@@ -118,9 +120,12 @@ export default function BetslipContent() {
             if (!ev) return null;
             const initial = ev.initialPrice ?? ev.price;
             const changed = ev.priceChanged && Math.abs(ev.price - initial) > 0.001;
+            const liveInfo = liveByGameId[String(ev.gameId)];
+            const showLive = ev.isLive || liveInfo?.isLive;
             return (
               <div key={id} className={`b365-betslip-selection${ev.suspended ? ' b365-betslip-selection--suspended' : ''}`}>
                 <div className="b365-betslip-pick-title">{ev.title}</div>
+                {showLive ? <BetslipLiveLine live={liveInfo} /> : null}
                 <div className="b365-betslip-pick-meta">
                   {ev.marketName} · {ev.pick} @ {ev.price}
                   {changed ? (

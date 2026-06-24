@@ -8,6 +8,7 @@ import {
 } from '../../api/placeBet';
 import { placeBetSlip } from '../bets/betsApi';
 import { useSessionStore } from '../auth/sessionStore';
+import type { LiveGameDisplay } from '../../utils/matchLiveDisplay';
 
 export type SelectionKey = string;
 
@@ -82,6 +83,7 @@ type BetslipState = {
   type: number;
   stake: number;
   events: Record<string, BetslipEventLike>;
+  liveByGameId: Record<string, LiveGameDisplay>;
   placeStatus: 'idle' | 'loading' | 'success' | 'error';
   placeMessage: string | null;
   correctionPending: OddsCorrectionChange[] | null;
@@ -92,6 +94,7 @@ type BetslipState = {
   clear: () => void;
   setStake: (n: number) => void;
   updateSelectionPrice: (key: SelectionKey, price: number, suspended?: boolean) => void;
+  setLiveDisplay: (gameId: number | string, display: LiveGameDisplay | null) => void;
   acceptCorrections: () => void;
   toSlipPayload: () => BetslipLike;
   placeBet: (bones?: number) => Promise<void>;
@@ -101,6 +104,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
   type: BETSLIP_TYPE_SINGLE,
   stake: persisted.stake,
   events: persisted.events,
+  liveByGameId: {},
   placeStatus: 'idle',
   placeMessage: null,
   correctionPending: null,
@@ -146,6 +150,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     savePersistedBetslip({ stake: get().stake, events: {} });
     set({
       events: {},
+      liveByGameId: {},
       placeStatus: 'idle',
       placeMessage: null,
       correctionPending: null,
@@ -174,6 +179,19 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
         correctionPending: priceChanged ? [{ selectionKey: key, oldPrice: initial, newPrice: price }] : null,
         correctionsAccepted: !priceChanged,
       };
+    });
+  },
+
+  setLiveDisplay: (gameId, display) => {
+    const key = String(gameId);
+    set((s) => {
+      if (!display?.isLive) {
+        if (!s.liveByGameId[key]) return s;
+        const next = { ...s.liveByGameId };
+        delete next[key];
+        return { liveByGameId: next };
+      }
+      return { liveByGameId: { ...s.liveByGameId, [key]: display } };
     });
   },
 

@@ -8,6 +8,7 @@ import {
   statusLabel,
   type SelectionStatus,
 } from '../features/bets/selectionStatus';
+import BetslipLiveLine from './BetslipLiveLine';
 
 function formatDate(iso: string) {
   try {
@@ -51,7 +52,7 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
     staleTime: 30_000,
   });
 
-  const legStatuses = statusQ.data;
+  const legResolves = statusQ.data;
 
   const preview = selections[0];
   const previewTitle = preview?.matchTitle || 'Selection';
@@ -138,11 +139,21 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
           ) : (
             <ul className="b365-my-bets-legs">
               {selections.map((sel, i) => {
-                const legStatus: SelectionStatus = legStatuses?.[i] ?? (bet.settlementStatus === 'void' ? 'void' : bet.settlementStatus === 'won' ? 'won' : 'pending');
+                const resolve = legResolves?.[i];
+                const legStatus: SelectionStatus =
+                  resolve?.status ??
+                  (bet.settlementStatus === 'void'
+                    ? 'void'
+                    : bet.settlementStatus === 'won'
+                      ? 'won'
+                      : 'pending');
                 return (
                   <li key={`${sel.gameId}-${sel.eventId}-${i}`} className="b365-my-bets-leg">
                     <div className="b365-my-bets-leg__main">
                       <span className="b365-my-bets-leg__match">{sel.matchTitle || 'Match'}</span>
+                      {legStatus === 'live' ? (
+                        <BetslipLiveLine live={resolve?.live} className="b365-betslip-live-line b365-my-bets-leg__live" />
+                      ) : null}
                       <span className="b365-my-bets-leg__market">{sel.pick || 'Pick'}</span>
                     </div>
                     <div className="b365-my-bets-leg__meta">

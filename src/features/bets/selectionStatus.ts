@@ -1,13 +1,21 @@
 import { swarmPost, unwrapData } from '../../api/http';
 import type { PlacedBetRow } from './betsApi';
+import { liveDisplayFromSwarmGame } from '../../utils/matchLiveDisplay';
+import type { LiveGameDisplay } from '../../utils/matchLiveDisplay';
 
 export type SelectionStatus = 'won' | 'lost' | 'live' | 'pending' | 'void';
+
+export type SelectionResolve = {
+  status: SelectionStatus;
+  live?: LiveGameDisplay;
+};
 
 type GameScoreInfo = {
   isLive: boolean;
   startTs: number;
   homeScore: number | null;
   awayScore: number | null;
+  liveMatchTime?: string;
 };
 
 const P1XP2_TYPES = new Set([
@@ -57,7 +65,7 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
         params: {
           source: 'betting',
           what: {
-            game: ['id', 'is_live', 'start_ts', 'is_started'],
+            game: ['id', 'is_live', 'start_ts', 'is_started', 'text_info', 'info'],
             market: ['id', 'type', 'home_score', 'away_score', 'name'],
           },
           where: { game: { id: gameId } },
@@ -73,12 +81,15 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
       let startTs = 0;
       let homeScore: number | null = null;
       let awayScore: number | null = null;
+      let liveMatchTime: string | undefined;
+      let matchedGame: Record<string, unknown> | null = null;
 
       const walk = (node: Record<string, unknown>) => {
         if (!node || typeof node !== 'object') return;
         if (node.game && typeof node.game === 'object') {
           for (const g of Object.values(node.game as Record<string, Record<string, unknown>>)) {
             if (Number(g.id) !== gameId) continue;
+            matchedGame = g;
             isLive = Boolean(g.is_live);
             startTs = Number(g.start_ts) || 0;
             const markets = (g.market ?? {}) as Record<string, Record<string, unknown>>;
@@ -103,7 +114,15 @@ async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScore
       };
 
       for (const sp of Object.values(sport as Record<string, Record<string, unknown>>)) walk(sp);
-      scores.set(gameId, { isLive, startTs, homeScore, awayScore });
+
+      if (matchedGame && isLive) {
+        const liveDisplay = liveDisplayFromSwarmGame(matchedGame, true);
+        if (homeScore == null && liveDisplay.homeScore != null) homeScore = liveDisplay.homeScore;
+        if (awayScore == null && liveDisplay.awayScore != null) awayScore = liveDisplay.awayScore;
+        liveMatchTime = liveDisplay.liveMatchTime;
+      }
+
+      scores.set(gameId, { isLive, startTs, homeScore, awayScore, liveMatchTime });
     } catch {
       /* ignore per-game fetch errors */
     }
@@ -143,16 +162,27 @@ function evaluateSelection(
 export async function resolveSelectionStatuses(
   selections: PlacedBetRow['selections'],
   slipStatus: PlacedBetRow['settlementStatus']
-): Promise<SelectionStatus[]> {
-  if (slipStatus === 'void') return selections.map(() => 'void');
-  if (slipStatus === 'won') return selections.map(() => 'won');
+): Promise<SelectionResolve[]> {
+  if (slipStatus === 'void') return selections.map(() => ({ status: 'void' }));
+  if (slipStatus === 'won') return selections.map(() => ({ status: 'won' }));
 
   const gameIds = selections.map((s) => Number(s.gameId)).filter(Boolean);
   const scoreMap = await fetchGameScores(gameIds);
 
   return selections.map((sel) => {
     const gameId = Number(sel.gameId);
-    return evaluateSelection(sel, scoreMap.get(gameId), slipStatus);
+    const info = scoreMap.get(gameId);
+    const status = evaluateSelection(sel, info, slipStatus);
+    const live =
+      info && (info.isLive || status === 'live')
+        ? {
+            isLive: true,
+            homeScore: info.homeScore ?? undefined,
+            awayScore: info.awayScore ?? undefined,
+            liveMatchTime: info.liveMatchTime,
+          }
+        : undefined;
+    return { status, live };
   });
 }
 

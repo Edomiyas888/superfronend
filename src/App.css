@@ -679,6 +679,37 @@ a.b365-btn-header-login {
   margin: 4px 0 8px;
 }
 
+.b365-betslip-live-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 2px;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.b365-betslip-live-badge {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--b365-live, #e53935);
+  border-radius: 2px;
+  padding: 1px 4px;
+}
+
+.b365-betslip-live-text {
+  color: var(--b365-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-my-bets-leg__live {
+  margin: 2px 0 4px;
+}
+
 .b365-field-label {
   display: block;
   font-size: 11px;
