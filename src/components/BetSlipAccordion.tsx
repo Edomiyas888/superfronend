@@ -49,8 +49,8 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
     queryKey: ['bet-leg-status', bet.id, bet.settlementStatus],
     queryFn: () => resolveSelectionStatuses(selections, bet.settlementStatus),
     enabled: legCount > 0 && (open || bet.settlementStatus === 'open'),
-    staleTime: 10_000,
-    refetchInterval: bet.settlementStatus === 'open' ? 10_000 : false,
+    staleTime: 5_000,
+    refetchInterval: bet.settlementStatus === 'open' ? 5_000 : false,
   });
 
   const legResolves = statusQ.data;

@@ -1,7 +1,7 @@
-import { swarmPost, unwrapData } from '../../api/http';
+import { restGetLiveGames, restGetMatchOdds } from '../../api/restSports';
+import type { GameView } from '../../api/types';
 import type { PlacedBetRow } from './betsApi';
-import { gameIsLiveInFeed } from '../../utils/liveGameDisplay';
-import { liveDisplayFromSwarmGame } from '../../utils/matchLiveDisplay';
+import { liveDisplayFromMatchDetail } from '../../utils/matchLiveDisplay';
 import type { LiveGameDisplay } from '../../utils/matchLiveDisplay';
 
 export type SelectionStatus = 'won' | 'lost' | 'live' | 'pending' | 'void';
@@ -30,88 +30,83 @@ function statusLabel(status: SelectionStatus): string {
 
 export { statusLabel };
 
-function isMatchInPlay(info: GameScoreInfo): boolean {
-  if (info.isLive || info.isStarted) return true;
+function infoFromLiveGame(g: GameView): GameScoreInfo {
+  return {
+    isLive: g.isLive,
+    isStarted: true,
+    startTs: g.startTs,
+    homeScore: g.homeScore ?? null,
+    awayScore: g.awayScore ?? null,
+    liveMatchTime: g.liveMatchTime,
+  };
+}
+
+function infoFromMatchDetail(detail: NonNullable<Awaited<ReturnType<typeof restGetMatchOdds>>>): GameScoreInfo {
+  const liveDisplay = liveDisplayFromMatchDetail(detail);
   const now = Math.floor(Date.now() / 1000);
-  return info.startTs > 0 && now >= info.startTs;
+  const kickoffPassed = detail.startTs > 0 && now >= detail.startTs;
+  const inPlay = liveDisplay.isLive || kickoffPassed;
+
+  return {
+    isLive: detail.isLive || liveDisplay.isLive,
+    isStarted: inPlay,
+    startTs: detail.startTs,
+    homeScore: liveDisplay.homeScore ?? null,
+    awayScore: liveDisplay.awayScore ?? null,
+    liveMatchTime: liveDisplay.liveMatchTime,
+  };
+}
+
+function mergeInfo(primary: GameScoreInfo, fallback: GameScoreInfo): GameScoreInfo {
+  return {
+    isLive: primary.isLive || fallback.isLive,
+    isStarted: primary.isStarted || fallback.isStarted,
+    startTs: primary.startTs || fallback.startTs,
+    homeScore: primary.homeScore ?? fallback.homeScore,
+    awayScore: primary.awayScore ?? fallback.awayScore,
+    liveMatchTime: primary.liveMatchTime ?? fallback.liveMatchTime,
+  };
 }
 
 async function fetchGameScores(gameIds: number[]): Promise<Map<number, GameScoreInfo>> {
   const scores = new Map<number, GameScoreInfo>();
   const unique = [...new Set(gameIds.filter(Boolean))];
+  if (unique.length === 0) return scores;
 
-  for (const gameId of unique) {
-    try {
-      const result = await swarmPost({
-        command: 'get',
-        params: {
-          source: 'betting',
-          what: {
-            game: ['id', 'is_live', 'is_started', 'type', 'start_ts', 'text_info', 'info'],
-            market: ['id', 'type', 'home_score', 'away_score', 'name'],
-          },
-          where: { game: { id: gameId } },
-          subscribe: false,
-        },
-      });
+  const [details, liveGames] = await Promise.all([
+    Promise.all(unique.map((gameId) => restGetMatchOdds(gameId).catch(() => null))),
+    restGetLiveGames().catch(() => [] as GameView[]),
+  ]);
 
-      const data = unwrapData(result) as Record<string, unknown> | undefined;
-      const sport = data?.sport;
-      if (!sport || typeof sport !== 'object') continue;
+  const liveById = new Map(liveGames.map((g) => [g.id, g]));
 
-      let isLive = false;
-      let isStarted = false;
-      let startTs = 0;
-      let homeScore: number | null = null;
-      let awayScore: number | null = null;
-      let liveMatchTime: string | undefined;
-      let matchedGame: Record<string, unknown> | null = null;
+  for (let i = 0; i < unique.length; i++) {
+    const gameId = unique[i]!;
+    const detail = details[i];
+    const liveGame = liveById.get(gameId);
 
-      const walk = (node: Record<string, unknown>) => {
-        if (!node || typeof node !== 'object') return;
-        if (node.game && typeof node.game === 'object') {
-          for (const g of Object.values(node.game as Record<string, Record<string, unknown>>)) {
-            if (Number(g.id) !== gameId) continue;
-            matchedGame = g;
-            isLive = gameIsLiveInFeed(g);
-            isStarted = Boolean(g.is_started);
-            startTs = Number(g.start_ts) || 0;
-            const markets = (g.market ?? {}) as Record<string, Record<string, unknown>>;
-            for (const mk of Object.values(markets)) {
-              const hs = Number(mk.home_score);
-              const as = Number(mk.away_score);
-              if (Number.isFinite(hs) && Number.isFinite(as)) {
-                homeScore = hs;
-                awayScore = as;
-                break;
-              }
-            }
-          }
-        }
-        if (node.region) {
-          for (const reg of Object.values(node.region as Record<string, Record<string, unknown>>)) walk(reg);
-        }
-        if (node.competition) {
-          for (const comp of Object.values(node.competition as Record<string, Record<string, unknown>>)) walk(comp);
-        }
-      };
+    if (liveGame?.isLive) {
+      scores.set(gameId, detail ? mergeInfo(infoFromMatchDetail(detail), infoFromLiveGame(liveGame)) : infoFromLiveGame(liveGame));
+      continue;
+    }
 
-      for (const sp of Object.values(sport as Record<string, Record<string, unknown>>)) walk(sp);
+    if (detail) {
+      scores.set(gameId, infoFromMatchDetail(detail));
+      continue;
+    }
 
-      if (matchedGame && isLive) {
-        const liveDisplay = liveDisplayFromSwarmGame(matchedGame, true);
-        if (homeScore == null && liveDisplay.homeScore != null) homeScore = liveDisplay.homeScore;
-        if (awayScore == null && liveDisplay.awayScore != null) awayScore = liveDisplay.awayScore;
-        liveMatchTime = liveDisplay.liveMatchTime;
-      }
-
-      scores.set(gameId, { isLive, isStarted, startTs, homeScore, awayScore, liveMatchTime });
-    } catch {
-      /* ignore per-game fetch errors */
+    if (liveGame) {
+      scores.set(gameId, infoFromLiveGame(liveGame));
     }
   }
 
   return scores;
+}
+
+function isMatchInPlay(info: GameScoreInfo): boolean {
+  if (info.isLive || info.isStarted) return true;
+  const now = Math.floor(Date.now() / 1000);
+  return info.startTs > 0 && now >= info.startTs;
 }
 
 function evaluateSelection(

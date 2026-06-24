@@ -13,11 +13,6 @@ export type LiveGameDisplay = {
 };
 
 export function liveDisplayFromMatchDetail(detail: MatchDetailView): LiveGameDisplay {
-  const isLive = detail.isLive;
-  if (!isLive) {
-    return { isLive: false };
-  }
-
   let homeScore: number | undefined;
   let awayScore: number | undefined;
   for (const m of detail.markets) {
@@ -36,11 +31,25 @@ export function liveDisplayFromMatchDetail(detail: MatchDetailView): LiveGameDis
     ),
   };
   const fields = liveDisplayFieldsFromRawGame(rawG);
+  homeScore = homeScore ?? fields.homeScore;
+  awayScore = awayScore ?? fields.awayScore;
+
+  const now = Math.floor(Date.now() / 1000);
+  const kickoffPassed = detail.startTs > 0 && now >= detail.startTs;
+  const hasScore = homeScore != null && awayScore != null;
+  const hasClock = Boolean(fields.liveMatchTime?.trim() || detail.live?.textInfo?.trim());
+  const isLive =
+    detail.isLive ||
+    (kickoffPassed && (hasScore || hasClock || detail.live != null));
+
+  if (!isLive) {
+    return { isLive: false };
+  }
 
   return {
     isLive: true,
-    homeScore: homeScore ?? fields.homeScore,
-    awayScore: awayScore ?? fields.awayScore,
+    homeScore,
+    awayScore,
     liveMatchTime: fields.liveMatchTime ?? (detail.live?.textInfo?.trim() || undefined),
   };
 }
