@@ -1044,6 +1044,15 @@ a.b365-btn-header-login {
   margin: 0 0 14px;
 }
 
+.b365-recaptcha-container {
+  margin: 0.75rem 0 1rem;
+  min-height: 78px;
+}
+
+.b365-phone-back-btn {
+  margin-top: 0.5rem;
+}
+
 .b365-profile-balance {
   font-size: 1.35rem;
   font-weight: 700;

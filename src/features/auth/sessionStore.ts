@@ -11,6 +11,14 @@ type SessionState = {
   hydrate: () => Promise<void>;
   register: (username: string, phone: string, password: string) => Promise<void>;
   login: (username: string, password: string) => Promise<void>;
+  loginWithFirebase: (
+    idToken: string,
+    opts?: { username?: string; password?: string }
+  ) => Promise<{ needsRegistration: true; phone: string } | { needsRegistration: false }>;
+  phoneVerify: (
+    fpnvToken: string,
+    opts?: { username?: string; password?: string }
+  ) => Promise<{ needsRegistration: true; phone: string } | { needsRegistration: false }>;
   getAuthHeader: () => Record<string, string>;
 };
 
@@ -131,6 +139,82 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       username: data.user.username,
       phone: data.user.phone || null,
     });
+  },
+
+  loginWithFirebase: async (idToken, opts) => {
+    const base = getApiBaseUrl();
+    const res = await fetch(`${base}/v1/auth/firebase-phone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        idToken: idToken.trim(),
+        username: opts?.username?.trim(),
+        password: opts?.password,
+      }),
+    });
+    const data = (await parseAuthResponse(res)) as {
+      error?: string;
+      token?: string;
+      user?: { id: string; username: string; phone: string };
+      needsRegistration?: boolean;
+      phone?: string;
+    };
+    if (!res.ok) {
+      throw new Error(data.error || 'Phone sign-in failed.');
+    }
+    if (data.needsRegistration) {
+      return { needsRegistration: true, phone: data.phone || '' };
+    }
+    if (!data.token || !data.user) {
+      throw new Error('Invalid server response.');
+    }
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem('username', data.user.username);
+    localStorage.setItem('phone', data.user.phone || '');
+    set({
+      token: data.token,
+      username: data.user.username,
+      phone: data.user.phone || null,
+    });
+    return { needsRegistration: false };
+  },
+
+  phoneVerify: async (fpnvToken, opts) => {
+    const base = getApiBaseUrl();
+    const res = await fetch(`${base}/v1/auth/phone-verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fpnvToken: fpnvToken.trim(),
+        username: opts?.username?.trim(),
+        password: opts?.password,
+      }),
+    });
+    const data = (await parseAuthResponse(res)) as {
+      error?: string;
+      token?: string;
+      user?: { id: string; username: string; phone: string };
+      needsRegistration?: boolean;
+      phone?: string;
+    };
+    if (!res.ok) {
+      throw new Error(data.error || 'Phone verification failed.');
+    }
+    if (data.needsRegistration) {
+      return { needsRegistration: true, phone: data.phone || '' };
+    }
+    if (!data.token || !data.user) {
+      throw new Error('Invalid server response.');
+    }
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem('username', data.user.username);
+    localStorage.setItem('phone', data.user.phone || '');
+    set({
+      token: data.token,
+      username: data.user.username,
+      phone: data.user.phone || null,
+    });
+    return { needsRegistration: false };
   },
 
   getAuthHeader: (): Record<string, string> => {

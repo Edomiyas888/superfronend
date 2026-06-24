@@ -71,7 +71,14 @@ export type DepositRequestsPage = {
 export type TelebirrDepositResult = TelebirrDepositSubmitResult;
 
 type BalanceJson = { balance?: number; currency?: string; error?: string };
-type TxJson = { balance?: number; currency?: string; withdrawn?: number; error?: string };
+type TxJson = {
+  balance?: number;
+  currency?: string;
+  withdrawn?: number;
+  message?: string;
+  status?: string;
+  error?: string;
+};
 type TelebirrInfoJson = Partial<TelebirrDepositInfo> & { error?: string };
 type TelebirrDepositJson = Partial<TelebirrDepositSubmitResult> & { error?: string };
 type DepositRequestsJson = Partial<DepositRequestsPage> & { error?: string };
@@ -272,18 +279,25 @@ export async function fetchWalletTransactions(
 }
 
 /**
- * POST `/v1/wallet/withdraw` — body `{ amount }`.
+ * POST `/v1/wallet/withdraw` — body `{ amount, telebirrPhone? }`.
  */
-export async function withdrawWallet(authHeaders: Record<string, string>, amount: number): Promise<{
+export async function withdrawWallet(
+  authHeaders: Record<string, string>,
+  params: { amount: number; telebirrPhone?: string }
+): Promise<{
   balance: number;
   currency: string;
-  withdrawn: number;
+  status: string;
+  message: string;
 }> {
   const base = getApiBaseUrl();
   const res = await fetch(`${base}/v1/wallet/withdraw`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders },
-    body: JSON.stringify({ amount }),
+    body: JSON.stringify({
+      amount: params.amount,
+      telebirrPhone: params.telebirrPhone?.trim() || undefined,
+    }),
   });
   const data = (await parseJson<TxJson>(res)) ?? {};
   if (!res.ok) {
@@ -291,6 +305,10 @@ export async function withdrawWallet(authHeaders: Record<string, string>, amount
   }
   const balance = typeof data.balance === 'number' ? data.balance : 0;
   const currency = typeof data.currency === 'string' ? data.currency : 'ETB';
-  const withdrawn = typeof data.withdrawn === 'number' ? data.withdrawn : amount;
-  return { balance, currency, withdrawn };
+  const status = typeof data.status === 'string' ? data.status : 'pending';
+  const message =
+    typeof data.message === 'string'
+      ? data.message
+      : 'Withdrawal submitted for review. Your balance has been reserved until approved.';
+  return { balance, currency, status, message };
 }

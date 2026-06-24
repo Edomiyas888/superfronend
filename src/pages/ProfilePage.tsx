@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useSessionStore } from '../features/auth/sessionStore';
+import PhoneAuthPanel from '../features/auth/PhoneAuthPanel';
+import { isFirebaseConfigured } from '../lib/firebase';
 
-type Tab = 'login' | 'signup';
+type Tab = 'login' | 'signup' | 'phone';
 
 function friendlyAuthError(err: unknown, fallback: string): string {
   if (err instanceof TypeError && /fetch|network/i.test(String(err.message))) {
@@ -16,7 +18,13 @@ function friendlyAuthError(err: unknown, fallback: string): string {
 
 export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = (searchParams.get('tab') === 'signup' ? 'signup' : 'login') as Tab;
+  const tab = (
+    searchParams.get('tab') === 'signup'
+      ? 'signup'
+      : searchParams.get('tab') === 'phone'
+        ? 'phone'
+        : 'login'
+  ) as Tab;
 
   const { username, phone, hydrate, clearSession, register, login } = useSessionStore();
   const [suUser, setSuUser] = useState('');
@@ -35,7 +43,10 @@ export default function ProfilePage() {
   }, [hydrate]);
 
   const setTab = (t: Tab) => {
-    setSearchParams(t === 'login' ? {} : { tab: 'signup' });
+    const params: Record<string, string> = {};
+    if (t === 'signup') params.tab = 'signup';
+    if (t === 'phone') params.tab = 'phone';
+    setSearchParams(params);
     setMessage(null);
     setError(null);
   };
@@ -127,6 +138,11 @@ export default function ProfilePage() {
             <button type="button" className={tab === 'signup' ? 'active' : ''} onClick={() => setTab('signup')}>
               Sign up
             </button>
+            {isFirebaseConfigured() && (
+              <button type="button" className={tab === 'phone' ? 'active' : ''} onClick={() => setTab('phone')}>
+                Phone
+              </button>
+            )}
           </div>
 
           {tab === 'login' && (
@@ -161,6 +177,23 @@ export default function ProfilePage() {
                 Log in
               </button>
             </form>
+          )}
+
+          {tab === 'phone' && isFirebaseConfigured() && (
+            <>
+              {error && <p className="b365-error">{error}</p>}
+              {message && <p className="b365-success">{message}</p>}
+              <PhoneAuthPanel
+                onSuccess={(msg) => {
+                  setMessage(msg);
+                  setError(null);
+                }}
+                onError={(msg) => {
+                  setError(msg);
+                  setMessage(null);
+                }}
+              />
+            </>
           )}
 
           {tab === 'signup' && (

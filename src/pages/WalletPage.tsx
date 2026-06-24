@@ -47,8 +47,10 @@ export default function WalletPage() {
   const loggedIn = !!username;
 
   const [walletAmount, setWalletAmount] = useState('');
+  const [telebirrPhone, setTelebirrPhone] = useState('');
   const [walletBusy, setWalletBusy] = useState(false);
   const [walletErr, setWalletErr] = useState<string | null>(null);
+  const [walletSuccess, setWalletSuccess] = useState<string | null>(null);
   const [historyType, setHistoryType] = useState<WalletHistoryFilter>('all');
   const [historyPage, setHistoryPage] = useState(1);
 
@@ -81,6 +83,7 @@ export default function WalletPage() {
   const setTab = (next: WalletTab) => {
     setSearchParams(next === 'deposit' ? {} : { tab: next });
     setWalletErr(null);
+    setWalletSuccess(null);
   };
 
   const parseWalletAmount = (): number | null => {
@@ -98,6 +101,7 @@ export default function WalletPage() {
 
   const onWithdraw = async () => {
     setWalletErr(null);
+    setWalletSuccess(null);
     const amt = parseWalletAmount();
     if (amt == null) {
       setWalletErr('Enter a positive amount.');
@@ -109,8 +113,12 @@ export default function WalletPage() {
     }
     setWalletBusy(true);
     try {
-      await withdrawWallet(getAuthHeader(), amt);
+      const result = await withdrawWallet(getAuthHeader(), {
+        amount: amt,
+        telebirrPhone: telebirrPhone.trim() || undefined,
+      });
       setWalletAmount('');
+      setWalletSuccess(result.message);
       await invalidateWallet();
     } catch (err) {
       setWalletErr(err instanceof Error ? err.message : 'Withdraw failed.');
@@ -198,8 +206,19 @@ export default function WalletPage() {
             <section className="card b365-card b365-wallet-panel">
               <header className="b365-wallet-panel__head">
                 <h2>Withdraw</h2>
-                <p>Move funds out of your betting wallet.</p>
+                <p>Request a withdrawal to your Telebirr account. Balance is reserved until approved.</p>
               </header>
+              <label className="b365-field-label">
+                Telebirr phone number
+                <input
+                  type="tel"
+                  className="b365-input b365-wallet-input"
+                  value={telebirrPhone}
+                  onChange={(e) => setTelebirrPhone(e.target.value)}
+                  disabled={walletBusy}
+                  placeholder="09xxxxxxxx"
+                />
+              </label>
               <label className="b365-field-label">
                 Amount ({currency})
                 <input
@@ -231,9 +250,10 @@ export default function WalletPage() {
                   disabled={walletBusy}
                   onClick={() => void onWithdraw()}
                 >
-                  {walletBusy ? 'Withdrawing…' : 'Withdraw'}
+                  {walletBusy ? 'Submitting…' : 'Request withdrawal'}
                 </button>
               </div>
+              {walletSuccess ? <p className="b365-success">{walletSuccess}</p> : null}
               {walletErr ? <p className="b365-error">{walletErr}</p> : null}
             </section>
           ) : null}
