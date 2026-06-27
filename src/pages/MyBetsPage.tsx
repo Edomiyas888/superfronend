@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import BetSlipAccordion from '../components/BetSlipAccordion';
 import { useSessionStore } from '../features/auth/sessionStore';
-import { fetchMyBets } from '../features/bets/betsApi';
-
-type MyBetsFilter = 'open' | 'lost' | 'won';
+import {
+  invalidateMyBetsQueries,
+  type MyBetsFilter,
+  useMyBetsQuery,
+} from '../features/bets/useMyBetsQuery';
 
 const FILTERS: { id: MyBetsFilter; label: string }[] = [
   { id: 'open', label: 'Open' },
@@ -17,21 +19,22 @@ export default function MyBetsPage() {
   const { username, getAuthHeader } = useSessionStore();
   const loggedIn = !!username;
   const [filter, setFilter] = useState<MyBetsFilter>('open');
+  const queryClient = useQueryClient();
 
-  const q = useQuery({
-    queryKey: ['my-bets', 'page', filter],
-    queryFn: () => fetchMyBets(getAuthHeader(), { limit: 50, settlementStatus: filter }),
+  const q = useMyBetsQuery({
+    scope: 'page',
+    filter,
+    authHeaders: getAuthHeader(),
     enabled: loggedIn,
-    staleTime: 20_000,
   });
 
   useEffect(() => {
     const refresh = () => {
-      void q.refetch();
+      invalidateMyBetsQueries(queryClient);
     };
     window.addEventListener('superbet:my-bets-changed', refresh);
     return () => window.removeEventListener('superbet:my-bets-changed', refresh);
-  }, [q]);
+  }, [queryClient]);
 
   return (
     <div className="b365-my-bets-page">
@@ -59,7 +62,10 @@ export default function MyBetsPage() {
                 role="tab"
                 aria-selected={filter === item.id}
                 className={`b365-betslip-subtab${filter === item.id ? ' active' : ''}`}
-                onClick={() => setFilter(item.id)}
+                onClick={() => {
+                  setFilter(item.id);
+                  invalidateMyBetsQueries(queryClient);
+                }}
               >
                 {item.label}
               </button>

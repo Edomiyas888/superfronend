@@ -2535,6 +2535,12 @@ a.b365-btn-header-login {
   border-color: rgba(100, 210, 255, 0.28);
 }
 
+.b365-my-bets-status--settling {
+  color: #fcd34d;
+  background: rgba(255, 193, 7, 0.12);
+  border-color: rgba(255, 193, 7, 0.35);
+}
+
 .b365-my-bets-status--won {
   color: #6ee7b7;
   background: rgba(20, 128, 94, 0.22);

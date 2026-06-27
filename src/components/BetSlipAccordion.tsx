@@ -28,11 +28,17 @@ function formatDate(iso: string) {
   }
 }
 
-function slipStatusLabel(s: PlacedBetRow['settlementStatus']) {
+function slipStatusLabel(s: PlacedBetRow['settlementStatus'], settling: boolean) {
+  if (settling) return 'Settling';
   if (s === 'won') return 'Won';
   if (s === 'lost') return 'Lost';
   if (s === 'void') return 'Void';
   return 'Open';
+}
+
+function slipStatusClassName(s: PlacedBetRow['settlementStatus'], settling: boolean) {
+  if (settling) return 'b365-my-bets-status--settling';
+  return slipStatusClass(s);
 }
 
 function selectionStatusText(status: SelectionStatus) {
@@ -59,6 +65,10 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
 
   const legResolves = statusQ.data;
 
+  const isSettling =
+    bet.settlementStatus === 'open' &&
+    selections.some((s) => s.legStatus === 'won' || s.legStatus === 'lost');
+
   const preview = selections[0];
   const previewTitle = preview?.matchTitle || 'Selection';
   const previewDetail = preview ? formatBetSelectionText(preview) : '';
@@ -75,8 +85,8 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
         <div className="b365-my-bets-acc__summary-main">
           <div className="b365-my-bets-acc__title-row">
             <span className="b365-my-bets-acc__title">Bet Slip {bet.coupon}</span>
-            <span className={`b365-my-bets-status ${slipStatusClass(bet.settlementStatus)}`}>
-              {slipStatusLabel(bet.settlementStatus)}
+            <span className={`b365-my-bets-status ${slipStatusClassName(bet.settlementStatus, isSettling)}`}>
+              {slipStatusLabel(bet.settlementStatus, isSettling)}
             </span>
           </div>
 

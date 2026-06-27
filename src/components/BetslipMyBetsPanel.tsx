@@ -1,10 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import BetSlipAccordion from './BetSlipAccordion';
-import { fetchMyBets, type PlacedBetRow } from '../features/bets/betsApi';
-
-type MyBetsFilter = 'open' | 'lost' | 'won';
+import {
+  invalidateMyBetsQueries,
+  type MyBetsFilter,
+  useMyBetsQuery,
+} from '../features/bets/useMyBetsQuery';
 
 const FILTERS: { id: MyBetsFilter; label: string }[] = [
   { id: 'open', label: 'Open' },
@@ -19,21 +21,22 @@ type Props = {
 
 export default function BetslipMyBetsPanel({ authHeaders, loggedIn }: Props) {
   const [filter, setFilter] = useState<MyBetsFilter>('open');
+  const queryClient = useQueryClient();
 
-  const q = useQuery({
-    queryKey: ['my-bets', 'betslip', filter],
-    queryFn: () => fetchMyBets(authHeaders, { limit: 30, settlementStatus: filter }),
+  const q = useMyBetsQuery({
+    scope: 'betslip',
+    filter,
+    authHeaders,
     enabled: loggedIn,
-    staleTime: 20_000,
   });
 
   useEffect(() => {
     const refresh = () => {
-      void q.refetch();
+      invalidateMyBetsQueries(queryClient);
     };
     window.addEventListener('superbet:my-bets-changed', refresh);
     return () => window.removeEventListener('superbet:my-bets-changed', refresh);
-  }, [q]);
+  }, [queryClient]);
 
   return (
     <div className="b365-betslip-my-bets">
@@ -45,7 +48,10 @@ export default function BetslipMyBetsPanel({ authHeaders, loggedIn }: Props) {
             role="tab"
             aria-selected={filter === item.id}
             className={`b365-betslip-subtab${filter === item.id ? ' active' : ''}`}
-            onClick={() => setFilter(item.id)}
+            onClick={() => {
+              setFilter(item.id);
+              invalidateMyBetsQueries(queryClient);
+            }}
           >
             {item.label}
           </button>
@@ -64,7 +70,7 @@ export default function BetslipMyBetsPanel({ authHeaders, loggedIn }: Props) {
         <p className="b365-betslip-empty">No {filter} bets.</p>
       ) : (
         <div className="b365-betslip-my-bets-list">
-          {q.data!.items.map((bet: PlacedBetRow) => (
+          {q.data!.items.map((bet) => (
             <BetSlipAccordion key={bet.id} bet={bet} />
           ))}
         </div>
