@@ -11,8 +11,6 @@ const POLL_MS = 10_000;
  */
 export function useBetslipOddsSync() {
   const events = useBetslipStore((s) => s.events);
-  const updateSelectionPrice = useBetslipStore((s) => s.updateSelectionPrice);
-  const setLiveDisplay = useBetslipStore((s) => s.setLiveDisplay);
   const ids = Object.keys(events);
   const queryClient = useQueryClient();
 
@@ -30,6 +28,11 @@ export function useBetslipOddsSync() {
     const gameIds = [...new Set(ids.map((id) => Number(events[id]?.gameId)).filter(Number.isFinite))];
 
     const sync = async () => {
+      const { events: currentEvents, updateSelectionPrice, setLiveDisplay } =
+        useBetslipStore.getState();
+      const currentIds = Object.keys(currentEvents);
+      if (currentIds.length === 0) return;
+
       for (const gameId of gameIds) {
         let detail;
         try {
@@ -42,23 +45,25 @@ export function useBetslipOddsSync() {
         const liveDisplay = liveDisplayFromMatchDetail(detail);
         setLiveDisplay(gameId, liveDisplay.isLive ? liveDisplay : null);
 
-        for (const id of ids) {
-          const ev = events[id];
+        for (const id of currentIds) {
+          const ev = currentEvents[id];
           if (!ev || Number(ev.gameId) !== gameId) continue;
 
           const market = detail.markets.find((m) => Number(m.id) === Number(ev.marketId));
           if (!market) {
-            updateSelectionPrice(id, ev.price, true);
+            if (!ev.suspended) updateSelectionPrice(id, ev.price, true);
             continue;
           }
 
           const event = market.events.find((e) => Number(e.id) === Number(ev.eventId));
           if (!event || !Number.isFinite(event.price) || event.price <= 1) {
-            updateSelectionPrice(id, ev.price, true);
+            if (!ev.suspended) updateSelectionPrice(id, ev.price, true);
             continue;
           }
 
-          if (Math.abs(event.price - ev.price) > 0.001) {
+          if (ev.suspended) {
+            updateSelectionPrice(id, event.price, false);
+          } else if (Math.abs(event.price - ev.price) > 0.001) {
             updateSelectionPrice(id, event.price, false);
           }
         }
@@ -68,5 +73,5 @@ export function useBetslipOddsSync() {
     void sync();
     const t = setInterval(() => void sync(), POLL_MS);
     return () => clearInterval(t);
-  }, [ids.join('|'), events, updateSelectionPrice, setLiveDisplay]);
+  }, [ids.join('|')]);
 }

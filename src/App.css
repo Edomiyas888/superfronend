@@ -731,17 +731,169 @@ a.b365-btn-header-login {
   border-radius: 4px;
   padding: 10px;
   margin-bottom: 8px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.b365-betslip-selection--updated {
+  border-color: rgba(255, 193, 7, 0.45);
+  box-shadow: inset 3px 0 0 rgba(255, 193, 7, 0.75);
+}
+
+.b365-betslip-selection-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.b365-betslip-selection-badge {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.14);
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  border-radius: 3px;
+  padding: 2px 5px;
+  line-height: 1.2;
 }
 
 .b365-betslip-pick-title {
   font-size: 13px;
   font-weight: 600;
+  flex: 1;
+  min-width: 0;
 }
 
 .b365-betslip-pick-meta {
   font-size: 11px;
   color: var(--b365-text-muted);
   margin: 4px 0 8px;
+}
+
+.b365-betslip-odds {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: center;
+  margin: 6px 0 8px;
+  min-height: 36px;
+}
+
+.b365-betslip-odds-label {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 11px;
+  color: var(--b365-text-muted);
+  line-height: 1.3;
+}
+
+.b365-betslip-odds-value-wrap {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 56px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  align-self: center;
+}
+
+.b365-betslip-odds-value-wrap--up {
+  border-color: rgba(76, 175, 80, 0.35);
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.b365-betslip-odds-value-wrap--down {
+  border-color: rgba(229, 57, 53, 0.35);
+  background: rgba(229, 57, 53, 0.1);
+}
+
+.b365-betslip-odds-value-wrap--flash.b365-betslip-odds-value-wrap--up {
+  animation: b365-odds-flash-up 1.4s ease-out;
+}
+
+.b365-betslip-odds-value-wrap--flash.b365-betslip-odds-value-wrap--down {
+  animation: b365-odds-flash-down 1.4s ease-out;
+}
+
+@keyframes b365-odds-flash-up {
+  0% {
+    background: rgba(76, 175, 80, 0.35);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+  }
+  40% {
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0);
+  }
+  100% {
+    background: rgba(76, 175, 80, 0.1);
+  }
+}
+
+@keyframes b365-odds-flash-down {
+  0% {
+    background: rgba(229, 57, 53, 0.35);
+    box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4);
+  }
+  40% {
+    box-shadow: 0 0 0 4px rgba(229, 57, 53, 0);
+  }
+  100% {
+    background: rgba(229, 57, 53, 0.1);
+  }
+}
+
+.b365-betslip-odds-arrow {
+  font-size: 8px;
+  line-height: 1;
+}
+
+.b365-betslip-odds-arrow--up {
+  color: #66bb6a;
+}
+
+.b365-betslip-odds-arrow--down {
+  color: #ef5350;
+}
+
+.b365-betslip-odds-value {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--b365-text);
+  min-width: 2.5ch;
+  text-align: right;
+}
+
+.b365-betslip-odds-prev {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 10px;
+  color: var(--b365-text-muted);
+  opacity: 0;
+  min-height: 14px;
+  line-height: 14px;
+  transition: opacity 0.2s ease;
+}
+
+.b365-betslip-odds-prev--visible {
+  opacity: 0.85;
+}
+
+.b365-betslip-odds-suspended {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--b365-live, #e53935);
+  margin-top: 2px;
 }
 
 .b365-betslip-live-line {
@@ -817,8 +969,52 @@ a.b365-btn-header-login {
 
 .b365-betslip-actions {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.b365-betslip-actions-row {
+  display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.b365-betslip-actions-row .b365-btn-primary,
+.b365-betslip-actions-row .b365-btn-secondary {
+  flex: 1;
+  min-width: 0;
+}
+
+.b365-betslip-accept-odds {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.28);
+  font-size: 11px;
+  color: var(--b365-text-muted);
+  animation: b365-accept-odds-in 0.2s ease-out;
+}
+
+.b365-betslip-accept-odds .b365-btn-secondary {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+@keyframes b365-accept-odds-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ——— Buttons / inputs ——— */

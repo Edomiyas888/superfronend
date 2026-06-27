@@ -4,8 +4,9 @@ import { useBetslipStore } from '../features/betslip/betslipStore';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
 import BetslipMyBetsPanel from './BetslipMyBetsPanel';
-import BetslipLiveLine from './BetslipLiveLine';
+import BetslipSelectionCard from './BetslipSelectionCard';
 import WalletBalanceSummary from './WalletBalanceSummary';
+import { MAX_POSSIBLE_WIN, MIN_STAKE, formatLimit } from '../config/bettingLimits';
 
 type MainTab = 'slip' | 'my-bets';
 
@@ -75,13 +76,17 @@ export default function BetslipContent() {
       }, 0);
 
   const hasPendingCorrection = (correctionPending?.length ?? 0) > 0 && !correctionsAccepted;
+  const pendingCorrectionCount = correctionPending?.length ?? 0;
+  const stakeTooLow = stake > 0 && stake < MIN_STAKE;
+  const returnTooHigh = possibleWin > MAX_POSSIBLE_WIN;
   const stakeTooHigh = balance != null && totalStake > balance;
   const canPlace =
     placeStatus !== 'loading' &&
-    stake > 0 &&
+    stake >= MIN_STAKE &&
     loggedIn &&
     !hasPendingCorrection &&
     !stakeTooHigh &&
+    !returnTooHigh &&
     !ids.some((id) => events[id]?.suspended);
 
   return (
@@ -132,60 +137,62 @@ export default function BetslipContent() {
         <p className="b365-betslip-empty">Click odds to add selections to your bet slip.</p>
       ) : (
         <>
-          {hasPendingCorrection ? (
-            <div className="b365-betslip-correction" role="alert">
-              <p>Odds have changed. Review updated prices before placing.</p>
-              <button type="button" className="b365-btn-secondary" onClick={() => acceptCorrections()}>
-                Accept new odds
-              </button>
-            </div>
-          ) : null}
           {ids.map((id) => {
             const ev = events[id];
             if (!ev) return null;
-            const initial = ev.initialPrice ?? ev.price;
-            const changed = ev.priceChanged && Math.abs(ev.price - initial) > 0.001;
-            const liveInfo = liveByGameId[String(ev.gameId)];
-            const showLive = ev.isLive || liveInfo?.isLive;
             return (
-              <div key={id} className={`b365-betslip-selection${ev.suspended ? ' b365-betslip-selection--suspended' : ''}`}>
-                <div className="b365-betslip-pick-title">{ev.title}</div>
-                {showLive ? <BetslipLiveLine live={liveInfo} /> : null}
-                <div className="b365-betslip-pick-meta">
-                  {ev.marketName} · {ev.pick} @ {ev.price}
-                  {changed ? (
-                    <span className="b365-betslip-price-changed"> (was {initial.toFixed(2)})</span>
-                  ) : null}
-                  {ev.suspended ? <span className="b365-error"> · Suspended</span> : null}
-                </div>
-                <button type="button" className="b365-btn-ghost" onClick={() => removeSelection(id)}>
-                  Remove
-                </button>
-              </div>
+              <BetslipSelectionCard
+                key={id}
+                selectionKey={id}
+                event={ev}
+                liveInfo={liveByGameId[String(ev.gameId)]}
+                onRemove={removeSelection}
+              />
             );
           })}
           <label className="b365-field-label">
             Stake
             <input
               type="number"
-              min={0}
+              min={MIN_STAKE}
               step={0.01}
               className="b365-input"
               value={stake}
               onChange={(e) => setStake(parseFloat(e.target.value) || 0)}
             />
           </label>
+          {stakeTooLow ? (
+            <p className="b365-error">Minimum stake is {MIN_STAKE}.</p>
+          ) : null}
           {isAccumulator ? (
             <p className="b365-muted b365-betslip-hint">
               Accumulator · {ids.length} selections · combined odds {combinedOdds.toFixed(2)}
             </p>
           ) : null}
           <p className="b365-betslip-return">Est. return: {possibleWin.toFixed(2)}</p>
+          {returnTooHigh ? (
+            <p className="b365-error">
+              Maximum return is {formatLimit(MAX_POSSIBLE_WIN)}. Reduce stake or remove selections.
+            </p>
+          ) : null}
           {!loggedIn ? <p className="b365-muted">Sign in to place bets.</p> : null}
           {stakeTooHigh ? (
             <p className="b365-error">Insufficient balance ({balance?.toFixed(2)} available).</p>
           ) : null}
           <div className="b365-betslip-actions">
+            {hasPendingCorrection ? (
+              <div className="b365-betslip-accept-odds" role="status">
+                <span>
+                  {pendingCorrectionCount === 1
+                    ? '1 selection updated'
+                    : `${pendingCorrectionCount} selections updated`}
+                </span>
+                <button type="button" className="b365-btn-secondary" onClick={() => acceptCorrections()}>
+                  Accept odds
+                </button>
+              </div>
+            ) : null}
+            <div className="b365-betslip-actions-row">
             <button
               type="button"
               className="b365-btn-primary"
@@ -197,6 +204,7 @@ export default function BetslipContent() {
             <button type="button" className="b365-btn-secondary" onClick={() => clear()}>
               Clear
             </button>
+            </div>
           </div>
           {placeMessage && (
             <p className={placeStatus === 'error' ? 'b365-error' : 'b365-muted'}>{placeMessage}</p>

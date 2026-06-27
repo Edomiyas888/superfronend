@@ -8,6 +8,7 @@ import {
   type TelebirrDepositInfo,
   type TelebirrDepositSubmitResult,
 } from './walletApi';
+import { MIN_DEPOSIT } from '../../config/bettingLimits';
 
 type Step = 1 | 2 | 3;
 type ProofTab = 'screenshot' | 'ref';
@@ -123,6 +124,10 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
       setError('Enter a positive amount.');
       return;
     }
+    if (amount < MIN_DEPOSIT) {
+      setError(`Minimum deposit is ${MIN_DEPOSIT}.`);
+      return;
+    }
     setStep(2);
   };
 
@@ -135,6 +140,10 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
     setError(null);
     if (amount == null) {
       setError('Enter a positive amount.');
+      return;
+    }
+    if (amount < MIN_DEPOSIT) {
+      setError(`Minimum deposit is ${MIN_DEPOSIT}.`);
       return;
     }
 
@@ -239,14 +248,15 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
             <input
               type="number"
               className="b365-input"
-              min={0}
+              min={MIN_DEPOSIT}
               step={0.01}
               value={amountInput}
               onChange={(e) => setAmountInput(e.target.value)}
               disabled={busy}
-              placeholder="e.g. 100"
+              placeholder={`e.g. ${MIN_DEPOSIT}`}
             />
           </label>
+          <p className="b365-muted b365-telebirr-upload-hint">Minimum deposit is {MIN_DEPOSIT} {currency}.</p>
           <button type="button" className="b365-btn-primary" disabled={busy} onClick={goToPayStep}>
             Continue
           </button>

@@ -9,6 +9,7 @@ import {
 import { placeBetSlip } from '../bets/betsApi';
 import { useSessionStore } from '../auth/sessionStore';
 import type { LiveGameDisplay } from '../../utils/matchLiveDisplay';
+import { MAX_POSSIBLE_WIN, MIN_STAKE } from '../../config/bettingLimits';
 
 export type SelectionKey = string;
 
@@ -21,16 +22,19 @@ type PersistedBetslip = {
 
 function loadPersistedBetslip(): PersistedBetslip {
   if (typeof localStorage === 'undefined') {
-    return { stake: 1, events: {} };
+    return { stake: MIN_STAKE, events: {} };
   }
   try {
     const raw = localStorage.getItem(BETSLIP_STORAGE_KEY);
-    if (!raw) return { stake: 1, events: {} };
+    if (!raw) return { stake: MIN_STAKE, events: {} };
     const parsed = JSON.parse(raw) as Partial<PersistedBetslip>;
     const stake = Number(parsed.stake);
     const events = parsed.events;
     if (!events || typeof events !== 'object' || Array.isArray(events)) {
-      return { stake: Number.isFinite(stake) && stake >= 0 ? stake : 1, events: {} };
+      return {
+        stake: Number.isFinite(stake) && stake >= MIN_STAKE ? stake : MIN_STAKE,
+        events: {},
+      };
     }
     const cleaned: Record<string, BetslipEventLike> = {};
     for (const [key, ev] of Object.entries(events)) {
@@ -52,11 +56,11 @@ function loadPersistedBetslip(): PersistedBetslip {
       };
     }
     return {
-      stake: Number.isFinite(stake) && stake >= 0 ? stake : 1,
+      stake: Number.isFinite(stake) && stake >= MIN_STAKE ? stake : MIN_STAKE,
       events: cleaned,
     };
   } catch {
-    return { stake: 1, events: {} };
+    return { stake: MIN_STAKE, events: {} };
   }
 }
 
@@ -216,20 +220,33 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     set((s) => {
       const ev = s.events[key];
       if (!ev) return s;
+      if (!suspended && Math.abs(price - ev.price) <= 0.001) return s;
+
       const initial = ev.initialPrice ?? ev.price;
-      const priceChanged = Math.abs(price - initial) > 0.001;
-      return {
-        events: {
-          ...s.events,
-          [key]: {
-            ...ev,
-            price,
-            priceChanged,
-            suspended,
-          },
+      const nextPrice = suspended ? ev.price : price;
+
+      const nextEvents = {
+        ...s.events,
+        [key]: {
+          ...ev,
+          price: nextPrice,
+          priceChanged: !suspended && Math.abs(nextPrice - initial) > 0.001,
+          suspended,
         },
-        correctionPending: priceChanged ? [{ selectionKey: key, oldPrice: initial, newPrice: price }] : null,
-        correctionsAccepted: !priceChanged,
+      };
+
+      const correctionPending = Object.entries(nextEvents)
+        .filter(([, e]) => e.priceChanged && Math.abs(e.price - (e.initialPrice ?? e.price)) > 0.001)
+        .map(([selectionKey, e]) => ({
+          selectionKey,
+          oldPrice: e.initialPrice ?? e.price,
+          newPrice: e.price,
+        }));
+
+      return {
+        events: nextEvents,
+        correctionPending: correctionPending.length > 0 ? correctionPending : null,
+        correctionsAccepted: correctionPending.length === 0,
       };
     });
   },
@@ -237,11 +254,20 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
   setLiveDisplay: (gameId, display) => {
     const key = String(gameId);
     set((s) => {
+      const current = s.liveByGameId[key] ?? null;
       if (!display?.isLive) {
-        if (!s.liveByGameId[key]) return s;
+        if (!current) return s;
         const next = { ...s.liveByGameId };
         delete next[key];
         return { liveByGameId: next };
+      }
+      if (
+        current?.isLive === display.isLive &&
+        current?.homeScore === display.homeScore &&
+        current?.awayScore === display.awayScore &&
+        current?.liveMatchTime === display.liveMatchTime
+      ) {
+        return s;
       }
       return { liveByGameId: { ...s.liveByGameId, [key]: display } };
     });
@@ -296,6 +322,33 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     const { correctionsAccepted, correctionPending } = get();
     if (correctionPending?.length && !correctionsAccepted) {
       set({ placeStatus: 'error', placeMessage: 'Accept updated odds before placing.' });
+      return;
+    }
+
+    if (slip.stake < MIN_STAKE) {
+      set({ placeStatus: 'error', placeMessage: `Minimum stake is ${MIN_STAKE}.` });
+      return;
+    }
+
+    const ids = Object.keys(slip.events);
+    const isAcca = ids.length > 1;
+    const combinedOdds = ids.reduce((acc, id) => acc * (slip.events[id]?.price || 1), 1);
+    const possibleWin = isAcca
+      ? slip.stake * combinedOdds
+      : ids.reduce((acc, id) => {
+          const ev = slip.events[id];
+          if (!ev) return acc;
+          const s =
+            Number.isFinite(Number(ev.singleStake)) && Number(ev.singleStake) > 0
+              ? Number(ev.singleStake)
+              : slip.stake;
+          return acc + s * (ev.price || 1);
+        }, 0);
+    if (possibleWin > MAX_POSSIBLE_WIN) {
+      set({
+        placeStatus: 'error',
+        placeMessage: `Maximum return is ${MAX_POSSIBLE_WIN.toLocaleString('en-US')}. Reduce stake or remove selections.`,
+      });
       return;
     }
 

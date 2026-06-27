@@ -75,6 +75,20 @@ export function formatLiveScoreTimeLine(display: LiveGameDisplay | undefined | n
   return parts.join(' · ');
 }
 
+export function liveDisplayEqual(
+  a: LiveGameDisplay | null | undefined,
+  b: LiveGameDisplay | null | undefined
+): boolean {
+  if (!a && !b) return true;
+  if (!a || !b) return false;
+  return (
+    a.isLive === b.isLive &&
+    a.homeScore === b.homeScore &&
+    a.awayScore === b.awayScore &&
+    a.liveMatchTime === b.liveMatchTime
+  );
+}
+
 /** Build live line from a raw Swarm game node (my-bets score fetch). */
 export function liveDisplayFromSwarmGame(g: Record<string, unknown>, isLive: boolean): LiveGameDisplay {
   if (!isLive) return { isLive: false };
