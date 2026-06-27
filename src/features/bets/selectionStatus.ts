@@ -139,10 +139,32 @@ export async function resolveSelectionStatuses(
   selections: PlacedBetRow['selections'],
   slipStatus: PlacedBetRow['settlementStatus']
 ): Promise<SelectionResolve[]> {
-  if (slipStatus === 'void') return selections.map(() => ({ status: 'void' }));
-  if (slipStatus === 'won') return selections.map(() => ({ status: 'won' }));
-  if (slipStatus === 'lost') {
-    return selections.map(() => ({ status: 'lost' }));
+  const persisted = selections.some((s) => s.legStatus);
+  if (persisted) {
+    const liveGameIds = selections
+      .filter((s) => s.legStatus === 'live')
+      .map((s) => Number(s.gameId))
+      .filter(Boolean);
+    const scoreMap =
+      liveGameIds.length > 0 ? await fetchGameScores(liveGameIds) : new Map<number, GameScoreInfo>();
+
+    return selections.map((sel) => {
+      const status = (sel.legStatus ?? 'pending') as SelectionStatus;
+      const gameId = Number(sel.gameId);
+      const info = scoreMap.get(gameId);
+      return {
+        status,
+        live: status === 'live' ? liveDisplayForInfo(info) : undefined,
+      };
+    });
+  }
+
+  if (slipStatus !== 'open') {
+    if (selections.length === 1) {
+      const legStatus = slipStatus === 'void' ? 'void' : slipStatus;
+      return [{ status: legStatus as SelectionStatus }];
+    }
+    return selections.map(() => ({ status: 'pending' as SelectionStatus }));
   }
 
   const gameIds = selections.map((s) => Number(s.gameId)).filter(Boolean);

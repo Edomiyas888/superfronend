@@ -29,6 +29,7 @@ export type PlacedBetRow = {
     pick?: string;
     odds?: number;
     matchTitle?: string;
+    legStatus?: 'won' | 'lost' | 'live' | 'pending' | 'void';
   }[];
   createdAt: string;
 };

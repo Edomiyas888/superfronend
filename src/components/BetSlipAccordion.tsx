@@ -52,7 +52,7 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
   const statusQ = useQuery({
     queryKey: ['bet-leg-status', bet.id, bet.settlementStatus],
     queryFn: () => resolveSelectionStatuses(selections, bet.settlementStatus),
-    enabled: legCount > 0 && (open || bet.settlementStatus === 'open'),
+    enabled: legCount > 0,
     staleTime: 5_000,
     refetchInterval: bet.settlementStatus === 'open' ? 5_000 : false,
   });
@@ -153,11 +153,14 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
                 const resolve = legResolves?.[i];
                 const legStatus: SelectionStatus =
                   resolve?.status ??
+                  (sel.legStatus as SelectionStatus | undefined) ??
                   (bet.settlementStatus === 'void'
                     ? 'void'
                     : bet.settlementStatus === 'won'
                       ? 'won'
-                      : 'pending');
+                      : bet.settlementStatus === 'lost'
+                        ? 'lost'
+                        : 'pending');
                 const { market, pick } = formatBetSelectionParts(sel);
                 return (
                   <li key={`${sel.gameId}-${sel.eventId}-${i}`} className="b365-my-bets-leg">
