@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getApiBaseUrl } from '../../api/config';
+import { isTelegramMiniApp } from '../../lib/telegram/webApp';
 
 const TOKEN_KEY = 'superbet_token';
 
@@ -7,10 +8,14 @@ type SessionState = {
   token: string | null;
   username: string | null;
   phone: string | null;
+  telegramUserId: number | null;
+  telegramUsername: string | null;
+  isTelegramApp: boolean;
   clearSession: () => void;
   hydrate: () => Promise<void>;
   register: (username: string, phone: string, password: string) => Promise<void>;
   login: (username: string, password: string) => Promise<void>;
+  loginWithTelegram: (initData: string) => Promise<{ startParam: string | null; isNew: boolean }>;
   loginWithFirebase: (
     idToken: string,
     opts?: { username?: string; password?: string }
@@ -25,14 +30,30 @@ type SessionState = {
 async function parseAuthResponse(res: Response): Promise<{
   error?: string;
   token?: string;
-  user?: { id: string; username: string; phone: string };
+  user?: {
+    id: string;
+    username: string;
+    phone: string;
+    telegramUserId?: number | null;
+    telegramUsername?: string;
+  };
+  startParam?: string | null;
+  isNew?: boolean;
 }> {
   const text = await res.text();
   try {
     return JSON.parse(text) as {
       error?: string;
       token?: string;
-      user?: { id: string; username: string; phone: string };
+      user?: {
+        id: string;
+        username: string;
+        phone: string;
+        telegramUserId?: number | null;
+        telegramUsername?: string;
+      };
+      startParam?: string | null;
+      isNew?: boolean;
     };
   } catch {
     return {};
@@ -43,12 +64,21 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   token: null,
   username: null,
   phone: null,
+  telegramUserId: null,
+  telegramUsername: null,
+  isTelegramApp: isTelegramMiniApp(),
 
   clearSession: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('username');
     localStorage.removeItem('phone');
-    set({ token: null, username: null, phone: null });
+    set({
+      token: null,
+      username: null,
+      phone: null,
+      telegramUserId: null,
+      telegramUsername: null,
+    });
   },
 
   hydrate: async () => {
@@ -56,7 +86,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     if (!token) {
       localStorage.removeItem('username');
       localStorage.removeItem('phone');
-      set({ token: null, username: null, phone: null });
+      set({ token: null, username: null, phone: null, telegramUserId: null, telegramUsername: null });
       return;
     }
 
@@ -83,6 +113,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         token,
         username: data.user.username,
         phone: data.user.phone || null,
+        telegramUserId: data.user.telegramUserId ?? null,
+        telegramUsername: data.user.telegramUsername ?? null,
       });
     } catch {
       get().clearSession();
@@ -138,7 +170,39 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       token: data.token,
       username: data.user.username,
       phone: data.user.phone || null,
+      telegramUserId: data.user.telegramUserId ?? null,
+      telegramUsername: data.user.telegramUsername ?? null,
     });
+  },
+
+  loginWithTelegram: async (initData) => {
+    const base = getApiBaseUrl();
+    const res = await fetch(`${base}/v1/auth/telegram`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: initData.trim() }),
+    });
+    const data = await parseAuthResponse(res);
+    if (!res.ok) {
+      throw new Error(data.error || 'Telegram sign-in failed.');
+    }
+    if (!data.token || !data.user) {
+      throw new Error('Invalid server response.');
+    }
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem('username', data.user.username);
+    localStorage.setItem('phone', data.user.phone || '');
+    set({
+      token: data.token,
+      username: data.user.username,
+      phone: data.user.phone || null,
+      telegramUserId: data.user.telegramUserId ?? null,
+      telegramUsername: data.user.telegramUsername ?? null,
+    });
+    return {
+      startParam: data.startParam ?? null,
+      isNew: Boolean(data.isNew),
+    };
   },
 
   loginWithFirebase: async (idToken, opts) => {

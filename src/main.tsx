@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { SportsProvider } from './contexts/SportsContext';
+import TelegramProvider from './providers/TelegramProvider';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -20,7 +21,9 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <SportsProvider>
-          <App />
+          <TelegramProvider>
+            <App />
+          </TelegramProvider>
         </SportsProvider>
       </BrowserRouter>
     </QueryClientProvider>

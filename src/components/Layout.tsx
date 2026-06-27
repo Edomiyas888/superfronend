@@ -20,7 +20,7 @@ function isHomeRoute(pathname: string): boolean {
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { username, hydrate } = useSessionStore();
+  const { username, hydrate, isTelegramApp } = useSessionStore();
   const loggedIn = !!(username && username.length > 0);
   const showHeaderBack = !isHomeRoute(location.pathname);
   const openNavDrawer = useNavDrawerStore((s) => s.open);
@@ -34,8 +34,10 @@ export default function Layout() {
   });
 
   useEffect(() => {
-    void hydrate();
-  }, [hydrate]);
+    if (!isTelegramApp) {
+      void hydrate();
+    }
+  }, [hydrate, isTelegramApp]);
 
   useBetslipOddsSync();
 
@@ -72,7 +74,7 @@ export default function Layout() {
           : `— ${balanceCurrency}`;
 
   return (
-    <div className="app-shell b365">
+    <div className={`app-shell b365${isTelegramApp ? ' tma' : ''}`}>
       <header className="b365-header">
         <div className="b365-header-inner">
           <div className="b365-header-start">
@@ -109,7 +111,7 @@ export default function Layout() {
                   Deposit
                 </Link>
               </>
-            ) : (
+            ) : isTelegramApp ? null : (
               <>
                 <NavLink to="/profile?tab=signup" className="b365-btn-outline b365-header-auth-btn">
                   Join
