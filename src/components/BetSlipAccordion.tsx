@@ -67,7 +67,8 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
 
   const isSettling =
     bet.settlementStatus === 'open' &&
-    selections.some((s) => s.legStatus === 'won' || s.legStatus === 'lost');
+    (selections.some((s) => s.legStatus === 'won' || s.legStatus === 'lost') ||
+      (legResolves?.some((r) => r.status === 'won' || r.status === 'lost') ?? false));
 
   const preview = selections[0];
   const previewTitle = preview?.matchTitle || 'Selection';

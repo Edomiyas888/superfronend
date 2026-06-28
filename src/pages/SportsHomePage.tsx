@@ -42,14 +42,14 @@ export default function SportsHomePage() {
         <h2 className="b365-page-title">Popular</h2>
         <PopularLeagueChips leagues={POPULAR_LEAGUE_KEYS} value={popularLeague} onChange={setPopularLeague} />
         <div className="b365-league-header">
-          {popularLeague} · next 48h
+          {popularLeague} · upcoming
         </div>
         <MatchListByDate
           games={popularGames}
           isPending={popularQ.isPending}
           isError={popularQ.isError}
           error={popularQ.error}
-          emptyMessage="No fixtures for this league in the next 48 hours."
+          emptyMessage="No upcoming fixtures for this league."
           maxGames={16}
         />
       </section>

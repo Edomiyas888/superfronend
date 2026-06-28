@@ -193,6 +193,8 @@ export async function restGetMatchesForSport(
   const gameAnd: Array<Record<string, unknown>> = [{ type: { '@in': [0, 2] } }];
   if (lt != null && lt > 0) {
     gameAnd.push({ start_ts: { '@now': { '@gte': 0, '@lt': lt } } });
+  } else if (lt === null) {
+    gameAnd.push({ start_ts: { '@now': { '@gte': 0 } } });
   }
 
   const res = await swarmPost({
@@ -245,6 +247,8 @@ export async function restGetUpcomingMatches(opts?: {
   const gameAnd: Array<Record<string, unknown>> = [{ type: { '@in': [0, 2] } }];
   if (lt != null && lt > 0) {
     gameAnd.push({ start_ts: { '@now': { '@gte': 0, '@lt': lt } } });
+  } else if (lt === null) {
+    gameAnd.push({ start_ts: { '@now': { '@gte': 0 } } });
   }
 
   const params = {
@@ -297,11 +301,11 @@ export async function restGetUpcomingMatches(opts?: {
 }
 
 /**
- * Finix `PopularMatchesTable`: Soccer prematch fixtures in the next 48h with match-result markets,
- * excluding promoted games (those surface in “Top” / Featured instead).
+ * Finix `PopularMatchesTable`: Soccer prematch fixtures (no kickoff upper bound) with match-result
+ * markets, excluding promoted games (those surface in “Top” / Featured instead).
  */
 export async function restGetPopularSoccerMatches(): Promise<GameView[]> {
-  const games = await restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours: 48 });
+  const games = await restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours: 'all' });
   return games.filter((g) => !g.promoted);
 }
 

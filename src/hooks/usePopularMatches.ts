@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { restGetPopularSoccerMatches } from '../api/restSports';
 
-/** Soccer prematch ~48h, excluding promoted fixtures (Finix PopularMatchesTable). */
+/** Soccer prematch (all future kickoffs), excluding promoted fixtures (Finix PopularMatchesTable). */
 export function usePopularMatches() {
   return useQuery({
     queryKey: ['popular-soccer-matches'],
