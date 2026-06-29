@@ -8,6 +8,7 @@ import DateFilterChips from '../components/DateFilterChips';
 import MatchListByDate from '../components/MatchListByDate';
 import MatchOfTheDay from '../components/MatchOfTheDay';
 import PromoBannerCarousel from '../components/PromoBannerCarousel';
+import GuessAndWinSection from '../features/guessWin/GuessAndWinSection';
 import PopularLeagueChips from '../components/PopularLeagueChips';
 import { POPULAR_LEAGUE_KEYS } from '../constants/popularLeagues';
 import type { DateFilterKey } from '../constants/dateFilters';
@@ -28,6 +29,7 @@ export default function SportsHomePage() {
 
   return (
     <div>
+      <GuessAndWinSection />
       <PromoBannerCarousel />
 
       <MatchOfTheDay />

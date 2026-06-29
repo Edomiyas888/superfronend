@@ -8,8 +8,8 @@ const PROMO_BANNERS = [
     alt: 'FIFA World Cup 2026 — Bet on Super Bet',
   },
   {
-    src: '/match-day-banner.png',
-    alt: 'Match Day — Bet on Super Bet',
+    src: '/guess-win-50000-banner.png',
+    alt: 'ይገምቱ ይሸለሙ — Win 50,000 ETB on Super Sport Bet',
   },
 ] as const;
 
