@@ -140,7 +140,7 @@ export async function resolveSelectionStatuses(
   slipStatus: PlacedBetRow['settlementStatus']
 ): Promise<SelectionResolve[]> {
   const persisted = selections.some((s) => s.legStatus);
-  if (persisted || slipStatus === 'open') {
+  if (persisted) {
     const liveGameIds = selections
       .filter((s) => s.legStatus === 'live')
       .map((s) => Number(s.gameId))
