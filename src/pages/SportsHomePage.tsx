@@ -13,6 +13,7 @@ import PopularLeagueChips from '../components/PopularLeagueChips';
 import { POPULAR_LEAGUE_KEYS } from '../constants/popularLeagues';
 import type { DateFilterKey } from '../constants/dateFilters';
 import { competitionMatchesLeague } from '../utils/competitionFilter';
+import { curatePopularGames } from '../utils/popularGames';
 
 export default function SportsHomePage() {
   const { loading, error } = useSports();
@@ -24,7 +25,8 @@ export default function SportsHomePage() {
 
   const popularGames = useMemo(() => {
     const raw = popularQ.data ?? [];
-    return raw.filter((g) => competitionMatchesLeague(g.competitionName, popularLeague));
+    const leagueFiltered = raw.filter((g) => competitionMatchesLeague(g.competitionName, popularLeague));
+    return curatePopularGames(leagueFiltered, 16);
   }, [popularQ.data, popularLeague]);
 
   return (

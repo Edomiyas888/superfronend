@@ -2390,6 +2390,52 @@ a.b365-btn-header-login {
   padding-bottom: 8px;
 }
 
+.b365-my-bets-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.b365-my-bets-head .b365-page-title {
+  margin: 0;
+}
+
+.b365-my-bets-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--b365-border);
+  background: var(--b365-bg);
+  color: var(--b365-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.b365-my-bets-refresh:hover:not(:disabled) {
+  border-color: var(--b365-border-light);
+  color: var(--b365-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.b365-my-bets-refresh:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.b365-my-bets-refresh--busy svg {
+  animation: b365-spin 0.65s linear infinite;
+}
+
 .b365-my-bets-subtabs {
   margin-bottom: 16px;
 }

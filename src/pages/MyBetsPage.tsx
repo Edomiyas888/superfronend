@@ -15,6 +15,26 @@ const FILTERS: { id: MyBetsFilter; label: string }[] = [
   { id: 'won', label: 'Won' },
 ];
 
+function RefreshIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v6h-6" />
+    </svg>
+  );
+}
+
 export default function MyBetsPage() {
   const { username, getAuthHeader } = useSessionStore();
   const loggedIn = !!username;
@@ -44,7 +64,21 @@ export default function MyBetsPage() {
         <span>My bets</span>
       </div>
 
-      <h1 className="b365-page-title">My bets</h1>
+      <div className="b365-my-bets-head">
+        <h1 className="b365-page-title">My bets</h1>
+        {loggedIn ? (
+          <button
+            type="button"
+            className={`b365-my-bets-refresh${q.isFetching ? ' b365-my-bets-refresh--busy' : ''}`}
+            onClick={() => invalidateMyBetsQueries(queryClient)}
+            disabled={q.isFetching}
+            aria-label="Refresh bet history"
+          >
+            <RefreshIcon />
+            <span>Refresh</span>
+          </button>
+        ) : null}
+      </div>
 
       {!loggedIn ? (
         <div className="card b365-card">
