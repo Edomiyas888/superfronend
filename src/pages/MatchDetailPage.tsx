@@ -14,6 +14,7 @@ import {
   marketCategory,
   type MarketCategoryId,
 } from '../features/matchDetail/marketCategory';
+import { pickTopMarkets } from '../features/matchDetail/topMarkets';
 
 function DetailOddButton({
   name,
@@ -71,11 +72,19 @@ export default function MatchDetailPage() {
     return MARKET_FILTER_ORDER.filter((c) => c === 'all' || categoriesPresent.has(c));
   }, [categoriesPresent]);
 
+  const topMarkets = useMemo(() => (detail ? pickTopMarkets(detail.markets) : []), [detail]);
+
+  const topMarketIds = useMemo(() => new Set(topMarkets.map((m) => m.id)), [topMarkets]);
+
   const filteredMarkets = useMemo(() => {
     if (!detail) return [];
-    if (filter === 'all') return detail.markets;
-    return detail.markets.filter((m) => marketCategory(m) === filter);
-  }, [detail, filter]);
+    const list =
+      filter === 'all' ? detail.markets : detail.markets.filter((m) => marketCategory(m) === filter);
+    if (filter === 'all') {
+      return list.filter((m) => !topMarketIds.has(m.id));
+    }
+    return list;
+  }, [detail, filter, topMarketIds]);
 
   useEffect(() => {
     setExpanded({});
@@ -192,6 +201,37 @@ export default function MatchDetailPage() {
               homeScore={detail.markets.find((m) => m.homeScore != null && m.awayScore != null)?.homeScore}
               awayScore={detail.markets.find((m) => m.homeScore != null && m.awayScore != null)?.awayScore}
             />
+          ) : null}
+
+          {topMarkets.length > 0 ? (
+            <section className="b365-md-top-markets" aria-label="Top markets">
+              <h2 className="b365-md-top-markets__title">Top Markets</h2>
+              <div className="b365-md-top-markets__list">
+                {topMarkets.map((m) => (
+                  <div key={m.id} className="b365-md-top-market">
+                    <h3 className="b365-md-top-market__name">{m.name}</h3>
+                    <div className="b365-md-odds-grid">
+                      {m.events.map((e) => {
+                        const k = keyFor(detail.gameId, m.id, e.id);
+                        const sel = !!events[k];
+                        const price = Number(e.price);
+                        return (
+                          <DetailOddButton
+                            key={e.id}
+                            name={e.name}
+                            price={price}
+                            selected={sel}
+                            onToggle={() =>
+                              toggleOdd(m.id, m.type, e.id, e.name, price, m.name, e.type ? String(e.type) : undefined)
+                            }
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
           ) : null}
 
           <section className="b365-md-markets" aria-label="Betting markets">
