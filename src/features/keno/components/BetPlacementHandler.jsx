@@ -24,8 +24,8 @@ export const useBetPlacement = () => {
       throw new Error('Maximum 10 numbers allowed');
     }
 
-    if (betAmount < 1 || betAmount > 100000) {
-      throw new Error('Bet amount must be between 1 and 100,000 Birr');
+    if (betAmount < 2 || betAmount > 100000) {
+      throw new Error('Bet amount must be between 2 and 100,000 Birr');
     }
 
     try {

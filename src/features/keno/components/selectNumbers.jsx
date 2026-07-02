@@ -4,7 +4,7 @@ import ChooseNumbersCard from './chooseNumbers';
 import './keno-bet-bar.css';
 import './keno-grid.css';
 import TicketCheckerDialog from './TicketCheckerDialog';
-import { kenoPayouts, getMaxMultiplierForPicks } from '../utils/kenoPayouts';
+import { KENO_MIN_BET, kenoPayouts, getMaxMultiplierForPicks } from '../utils/kenoPayouts';
 import { normalizeNumbers } from '../utils/ticketCode';
 import { useAuth } from '../contexts/AuthContext';
 import { useSessionStore } from '@/features/auth/sessionStore';
@@ -31,7 +31,7 @@ const KenoGrid = ({
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const [betAmount, setBetAmount] = useState(() => {
     const cachedBet = localStorage.getItem('betAmount');
-    return cachedBet ? parseFloat(cachedBet) : '1';
+    return cachedBet ? parseFloat(cachedBet) : String(KENO_MIN_BET);
   });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -80,7 +80,7 @@ const KenoGrid = ({
   const handleBlur = () => {
     let newValue = Number(betAmount);
     if (newValue > 30000) newValue = 30000;
-    if (newValue < 2 || Number.isNaN(newValue)) newValue = 2;
+    if (newValue < KENO_MIN_BET || Number.isNaN(newValue)) newValue = KENO_MIN_BET;
     setBetAmount(String(newValue));
   };
 
@@ -89,7 +89,7 @@ const KenoGrid = ({
   };
 
   const decreaseBet = () => {
-    setBetAmount(String(Math.max(Number(betAmount) - 1, 2)));
+    setBetAmount(String(Math.max(Number(betAmount) - 1, KENO_MIN_BET)));
   };
 
   const toggleNumber = (num) => {
@@ -174,6 +174,12 @@ const KenoGrid = ({
 
     if (!currentUser) {
       setSnackbarMessage('Please login to place a bet');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (Number(amountToBet) < KENO_MIN_BET) {
+      setSnackbarMessage(`Minimum bet is ${KENO_MIN_BET} ETB`);
       setSnackbarOpen(true);
       return;
     }

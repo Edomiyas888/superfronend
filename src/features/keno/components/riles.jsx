@@ -115,7 +115,7 @@ const RulesOverlay = ({ open, handleClose }) => {
           {t('GAME RULES & SECURITY')}
         </Typography>
         <Typography fontSize={'14px'} gutterBottom>
-          {t('Min Bet:')} 1 ETB | {t('Max Bet:')} 30000
+          {t('Min Bet:')} 2 ETB | {t('Max Bet:')} 30000
           {"\n"}Max Payout per Bet: 300,000 ETB
           {"\n"}Fairness: Outcomes are pre-generated and provable using the Hash system.
           {"\n"}Real-time Play: Winning numbers are broadcasted instantly.
