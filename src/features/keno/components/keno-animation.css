@@ -57,7 +57,7 @@
   z-index: 4;
   text-align: center;
   font-family: 'Roboto Condensed', sans-serif;
-  font-size: 1.8rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #5fdb94;
   margin: 0 0 4px;
@@ -316,14 +316,14 @@
   position: relative;
   z-index: 3;
   margin: 0 auto;
-  padding: 4px 10px;
-  width: min(330px, 96%);
-  min-height: 30px;
+  padding: 1px 10px;
+  width: min(280px, 86%);
+  min-height: 20px;
   color: #fff;
   font-family: 'DS-Digital', 'MyCustomFont', sans-serif;
   font-weight: bold;
-  font-size: 2.15em;
-  line-height: 30px;
+  font-size: 1.55em;
+  line-height: 20px;
   background-image: url(https://cdn-atlas-v.com/games/keno/img/timer_bg.svg);
   background-size: contain;
   background-repeat: no-repeat;
@@ -428,10 +428,10 @@
   }
 
   .keno-play-column .game_timer {
-    font-size: 3em;
+    font-size: 2.2em;
     line-height: 1.15;
-    padding: 9px 0;
-    width: min(360px, 82%);
+    padding: 4px 0;
+    width: min(300px, 72%);
   }
 
   .keno-shell #game_animation {
@@ -440,6 +440,10 @@
 
   .keno-shell .anim_ball span {
     font-size: 5.6rem;
+  }
+
+  .keno-shell .top_message {
+    font-size: 1.7rem;
   }
 
   .keno-shell .balls_counter {

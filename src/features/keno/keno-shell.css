@@ -27,11 +27,11 @@
 
 /* Atlas mobile game column — html{font-size:10px} scoped here only */
 .keno-play-column {
-  font-size: 11px;
+  font-size: 10px;
   line-height: normal;
   width: 100%;
   max-width: 100%;
-  padding: 0 10px;
+  padding: 0 6px;
   box-sizing: border-box;
 }
 
@@ -58,14 +58,14 @@
 
 @media (min-width: 900px) {
   .keno-play-column {
-    font-size: 12px;
-    max-width: 520px;
+    font-size: 11px;
+    max-width: 500px;
     margin: 0 auto;
-    padding: 0 12px;
+    padding: 0 8px;
   }
 
   .keno-game-display {
-    max-width: 560px;
+    max-width: 540px;
     margin: 0 auto;
   }
 }

@@ -2,13 +2,17 @@
   padding: 0 0 10px;
 }
 
+.keno-ticket-section {
+  width: 100%;
+}
+
 .keno-ticket-card {
   position: relative;
   background: #283134;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 6px;
-  padding: 9px 8px 8px;
-  margin-bottom: 7px;
+  padding: 7px 7px 7px;
+  margin-bottom: 6px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 4px 10px rgba(0, 0, 0, 0.18);
@@ -19,9 +23,9 @@
 }
 
 .keno-ticket-card__title {
-  margin: 0 0 7px;
+  margin: 0 0 6px;
   font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 1.28rem;
+  font-size: 1.08rem;
   font-weight: 700;
   line-height: 1.2;
   color: #71cd95;
@@ -29,7 +33,7 @@
 
 .keno-ticket-card__title .MuiTypography-root {
   font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 1.28rem;
+  font-size: 1.08rem;
   font-weight: 700;
   line-height: 1.2;
   color: #71cd95;
@@ -42,14 +46,14 @@
 .keno-ticket-card__numbers {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  gap: 3px;
+  gap: 2px;
   width: 100%;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 }
 
 .keno-ticket-card__number {
   aspect-ratio: 1 / 1;
-  min-height: 26px;
+  min-height: 22px;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -67,7 +71,7 @@
 
 .keno-ticket-card__number-text {
   font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 1.12rem;
+  font-size: 0.96rem;
   font-weight: 700;
   color: #ffffff;
   line-height: 1;
@@ -77,7 +81,7 @@
   display: flex;
   align-items: stretch;
   width: 100%;
-  min-height: 32px;
+  min-height: 28px;
   border-radius: 3px;
   overflow: hidden;
   background: #1f2729;
@@ -88,9 +92,9 @@
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 6px 7px;
+  padding: 5px 6px;
   font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 1.22rem;
+  font-size: 1.02rem;
   font-weight: 700;
   line-height: 1.2;
 }

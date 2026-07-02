@@ -1,6 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
 import { CircularProgress } from '@mui/material';
-import { FixedSizeList as List } from 'react-window';
 import PlayerUsername from '../components/fragments/maskPlayerName';
 import FairnessLogo from '../assets/fairnesslogo.jpg';
 import { kenoPayouts } from '../utils/kenoPayouts';
@@ -12,8 +11,6 @@ const maskName = (name) => {
   if (name.length <= 2) return name;
   return `${name.charAt(0)}${'*'.repeat(name.length - 2)}${name.charAt(name.length - 1)}`;
 };
-
-const TICKET_ROW_HEIGHT = 132;
 
 function KenoTicketCard({
   title,
@@ -103,27 +100,23 @@ const GameTabContent = React.memo(({
     [visiblePendingBets, selfBets],
   );
 
-  const renderSelfBet = ({ index, style }) => {
-    const bet = [...allSelfBets].reverse()[index];
+  const renderSelfBet = (bet, index) => {
     const ticketNumber = allSelfBets.length - index;
 
     return (
-      <div style={style} key={bet.betId || bet.timestamp || index}>
-        <div className="keno-ticket-card-wrap">
-          <KenoTicketCard
-            title={`${ticketNumber} My Ticket`}
-            bet={bet}
-            calledNumbers={calledNumbers}
-            calculatePayout={calculatePayout}
-            isPending={bet.status === 'pending'}
-          />
-        </div>
+      <div className="keno-ticket-card-wrap" key={bet.betId || bet.timestamp || index}>
+        <KenoTicketCard
+          title={`${ticketNumber} My Ticket`}
+          bet={bet}
+          calledNumbers={calledNumbers}
+          calculatePayout={calculatePayout}
+          isPending={bet.status === 'pending'}
+        />
       </div>
     );
   };
 
-  const renderOtherBet = ({ index, style }) => {
-    const bet = topOtherBets[index];
+  const renderOtherBet = (bet, index) => {
     const playerLabel =
       bet.userId && !bet.userId.startsWith('fake_') ? (
         <PlayerUsername clientExternalKey={bet.userId} />
@@ -132,14 +125,13 @@ const GameTabContent = React.memo(({
       );
 
     return (
-      <div style={style} key={bet.betId || bet.userId || index}>
-        <KenoTicketCard
-          title={playerLabel}
-          bet={bet}
-          calledNumbers={calledNumbers}
-          calculatePayout={calculatePayout}
-        />
-      </div>
+      <KenoTicketCard
+        key={bet.betId || bet.userId || index}
+        title={playerLabel}
+        bet={bet}
+        calledNumbers={calledNumbers}
+        calculatePayout={calculatePayout}
+      />
     );
   };
 
@@ -163,25 +155,15 @@ const GameTabContent = React.memo(({
       ) : null}
 
       {allSelfBets.length > 0 ? (
-        <List
-          height={Math.min(allSelfBets.length, 5) * TICKET_ROW_HEIGHT}
-          itemCount={allSelfBets.length}
-          itemSize={TICKET_ROW_HEIGHT}
-          width="100%"
-        >
-          {renderSelfBet}
-        </List>
+        <div className="keno-ticket-section">
+          {[...allSelfBets].reverse().map(renderSelfBet)}
+        </div>
       ) : null}
 
       {topOtherBets.length > 0 ? (
-        <List
-          height={Math.min(topOtherBets.length, 5) * TICKET_ROW_HEIGHT}
-          itemCount={topOtherBets.length}
-          itemSize={TICKET_ROW_HEIGHT}
-          width="100%"
-        >
-          {renderOtherBet}
-        </List>
+        <div className="keno-ticket-section">
+          {topOtherBets.map(renderOtherBet)}
+        </div>
       ) : null}
 
       <div className="keno-atlas-footer">

@@ -3,7 +3,7 @@
   z-index: 1;
   width: 100%;
   max-width: 100%;
-  margin: 0;
+  margin: -2px 0 0;
   padding: 0 0 12px;
   box-sizing: border-box;
   background: rgba(27, 30, 31, 0.94);
@@ -13,7 +13,7 @@
 .keno-game-stage {
   position: relative;
   width: 100%;
-  padding: 4px 0 0;
+  padding: 0;
   background:
     radial-gradient(circle at 50% -14%, rgba(95, 219, 148, 0.14), transparent 34%),
     linear-gradient(180deg, rgba(30, 36, 38, 0.96) 0%, rgba(27, 30, 31, 0.98) 100%);
@@ -32,7 +32,7 @@
   justify-content: center;
   align-items: center;
   padding: 0;
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   position: relative;
   z-index: 2;
 }
@@ -90,13 +90,13 @@
 
 @media (min-width: 900px) {
   .keno-game-display {
-    margin-top: 6px;
+    margin-top: 2px;
     border-radius: 0 0 10px 10px;
     overflow: hidden;
   }
 
   .keno-game-stage {
-    padding-top: 8px;
+    padding-top: 2px;
   }
 
   .keno-tab-panel-wrap {
