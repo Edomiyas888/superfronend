@@ -13,8 +13,8 @@ type SessionState = {
   isTelegramApp: boolean;
   clearSession: () => void;
   hydrate: () => Promise<void>;
-  register: (username: string, phone: string, password: string) => Promise<void>;
   login: (username: string, password: string) => Promise<void>;
+  register: (username: string, phone: string, password: string) => Promise<void>;
   loginWithTelegram: (initData: string) => Promise<{ startParam: string | null; isNew: boolean }>;
   loginWithFirebase: (
     idToken: string,
@@ -58,6 +58,30 @@ async function parseAuthResponse(res: Response): Promise<{
   } catch {
     return {};
   }
+}
+
+function persistSession(
+  set: (partial: Partial<SessionState>) => void,
+  data: {
+    token: string;
+    user: {
+      username: string;
+      phone: string;
+      telegramUserId?: number | null;
+      telegramUsername?: string;
+    };
+  }
+) {
+  localStorage.setItem(TOKEN_KEY, data.token);
+  localStorage.setItem('username', data.user.username);
+  localStorage.setItem('phone', data.user.phone || '');
+  set({
+    token: data.token,
+    username: data.user.username,
+    phone: data.user.phone || null,
+    telegramUserId: data.user.telegramUserId ?? null,
+    telegramUsername: data.user.telegramUsername ?? null,
+  });
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -139,14 +163,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     if (!data.token || !data.user) {
       throw new Error('Invalid server response.');
     }
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem('username', data.user.username);
-    localStorage.setItem('phone', data.user.phone || '');
-    set({
-      token: data.token,
-      username: data.user.username,
-      phone: data.user.phone || null,
-    });
+    persistSession(set, { token: data.token, user: data.user });
   },
 
   login: async (username, password) => {
@@ -154,7 +171,10 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const res = await fetch(`${base}/v1/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: username.trim(), password }),
+      body: JSON.stringify({
+        username: username.trim(),
+        password,
+      }),
     });
     const data = await parseAuthResponse(res);
     if (!res.ok) {
@@ -163,16 +183,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     if (!data.token || !data.user) {
       throw new Error('Invalid server response.');
     }
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem('username', data.user.username);
-    localStorage.setItem('phone', data.user.phone || '');
-    set({
-      token: data.token,
-      username: data.user.username,
-      phone: data.user.phone || null,
-      telegramUserId: data.user.telegramUserId ?? null,
-      telegramUsername: data.user.telegramUsername ?? null,
-    });
+    persistSession(set, { token: data.token, user: data.user });
   },
 
   loginWithTelegram: async (initData) => {
@@ -189,16 +200,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     if (!data.token || !data.user) {
       throw new Error('Invalid server response.');
     }
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem('username', data.user.username);
-    localStorage.setItem('phone', data.user.phone || '');
-    set({
-      token: data.token,
-      username: data.user.username,
-      phone: data.user.phone || null,
-      telegramUserId: data.user.telegramUserId ?? null,
-      telegramUsername: data.user.telegramUsername ?? null,
-    });
+    persistSession(set, { token: data.token, user: data.user });
     return {
       startParam: data.startParam ?? null,
       isNew: Boolean(data.isNew),
@@ -232,14 +234,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     if (!data.token || !data.user) {
       throw new Error('Invalid server response.');
     }
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem('username', data.user.username);
-    localStorage.setItem('phone', data.user.phone || '');
-    set({
-      token: data.token,
-      username: data.user.username,
-      phone: data.user.phone || null,
-    });
+    persistSession(set, { token: data.token, user: data.user });
     return { needsRegistration: false };
   },
 
@@ -270,14 +265,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     if (!data.token || !data.user) {
       throw new Error('Invalid server response.');
     }
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem('username', data.user.username);
-    localStorage.setItem('phone', data.user.phone || '');
-    set({
-      token: data.token,
-      username: data.user.username,
-      phone: data.user.phone || null,
-    });
+    persistSession(set, { token: data.token, user: data.user });
     return { needsRegistration: false };
   },
 

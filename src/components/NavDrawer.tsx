@@ -24,6 +24,21 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    to: '/keno',
+    label: 'Fast Keno',
+    match: (p) => p === '/keno' || p.startsWith('/keno/'),
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="16" cy="11" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="10" cy="15" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="16" r="1.5" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
     to: '/sports',
     label: 'Sports',
     match: (p) => p === '/sports' || p.startsWith('/sport/'),

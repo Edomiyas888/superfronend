@@ -1,0 +1,278 @@
+/* Atlas choose-numbers card — em values relative to .keno-play-column (10px) */
+
+.keno-play-column .bet_selections {
+  width: calc(100% - 32px);
+  margin: 2px auto 6px;
+  padding: 10px 14px 10px 12px;
+  height: 88px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: visible;
+  border-radius: 6px;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+
+.keno-play-column .bet_selections::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 6px;
+  background-color: #283134;
+  background-image: url(https://cdn-atlas-v.com/games/keno/img/ticket_bg.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.keno-play-column .ticket_balls_art {
+  flex: 0 0 74px;
+  width: 74px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+  margin-bottom: -2px;
+}
+
+.keno-play-column .ticket_balls_art img {
+  display: block;
+  width: 72px;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateY(-1px);
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.55)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
+.keno-play-column .bet_selections.selected {
+  display: block;
+  height: auto;
+  min-height: 0;
+  margin: 2px auto 2px;
+  padding: 8px 12px 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.keno-play-column .bet_selections.selected::before {
+  background-color: #2b3336;
+  background-image: none;
+  box-shadow: none;
+}
+
+.keno-play-column .bet_selections.selected .ticket_balls_art,
+.keno-play-column .bet_selections.selected .ticket_helptext {
+  display: none;
+}
+
+.keno-play-column .ticket_helptext {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+  padding: 0 34px 0 8px;
+  pointer-events: none;
+}
+
+.keno-play-column .ticket_helptext1 {
+  margin: 0;
+  color: #fff;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.55em;
+  line-height: 2.2em;
+  text-align: left;
+}
+
+.keno-play-column .ticket_helptext2 {
+  margin: 0;
+  color: #5fdb94;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.25em;
+  line-height: 1.55em;
+  text-align: left;
+}
+
+.keno-play-column .ticket_help {
+  z-index: 3;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  width: 2.2em;
+  height: 2.2em;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  color: #8a9699;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.35em;
+  line-height: 2.2em;
+  text-align: center;
+  background: #3a4549;
+}
+
+.keno-play-column .ticket_help--selected {
+  top: 7px;
+  right: 10px;
+  width: 2em;
+  height: 2em;
+  font-size: 1.2em;
+  line-height: 2em;
+  color: #9aa8ab;
+  background: #3d484c;
+}
+
+.keno-play-column .ticket_sel_cont {
+  position: relative;
+  width: 100%;
+  z-index: 2;
+  padding-right: 2.4em;
+}
+
+.keno-play-column .ticket_sel_tbl_itm {
+  background: #232b2e;
+  border-radius: 4px;
+  display: table-cell;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  font-size: 1.15em;
+  text-align: center;
+  vertical-align: middle;
+  padding: 2px 0;
+  height: 2.4em;
+}
+
+.keno-play-column .ticket_sel_tbl_itm.selected {
+  background: #3a4549;
+  color: #fff;
+}
+
+.keno-play-column .ticket_sel_tbl {
+  display: table;
+  width: 100%;
+  border-spacing: 2px;
+  table-layout: fixed;
+  margin-top: 5px;
+}
+
+.keno-play-column .ticket_match_wrap {
+  margin-top: 2px;
+}
+
+.keno-play-column .ticket_match_tbl_itm {
+  display: table-cell;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  color: #7a8689;
+  font-size: 1.05em;
+  text-align: center;
+  vertical-align: middle;
+  padding: 1px 0;
+}
+
+.keno-play-column .ticket_match_tbl_itm--label {
+  width: 4.2em;
+  text-align: left;
+  color: #7a8689;
+  opacity: 1;
+  padding-right: 6px;
+}
+
+.keno-play-column .ticket_match_tbl_itm.mtbl.selected,
+.keno-play-column .ticket_match_tbl2 .ticket_match_tbl_itm.ombl.selected {
+  color: #5fdb94;
+  opacity: 1;
+}
+
+.keno-play-column .ticket_match_tbl2 .ticket_match_tbl_itm.ombl:not(.selected) {
+  color: #7a8689;
+  opacity: 1;
+}
+
+.keno-play-column .ticket_sel_cont_ttl {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 0;
+  padding-right: 0;
+}
+
+.keno-play-column .ticket_curr_number {
+  color: #fff;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.45em;
+  line-height: 1;
+}
+
+.keno-play-column .ticket_sel_cont_ttl_txt {
+  color: #fff;
+  opacity: 1;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.keno-play-column .ticket_sel_cont_posible_win {
+  color: #5fdb94;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.2em;
+  line-height: 1;
+  margin-left: 0;
+}
+
+.keno-play-column .ticket_match_tbl1,
+.keno-play-column .ticket_match_tbl2 {
+  display: table;
+  width: 100%;
+  margin-bottom: 0;
+  table-layout: fixed;
+}
+
+.keno-play-column .ticket_match_tbl1 {
+  margin-bottom: 1px;
+}
+
+@media (min-width: 900px) {
+  .keno-play-column .bet_selections {
+    height: 118px;
+    margin-top: 24px;
+  }
+
+  .keno-play-column .ticket_balls_art {
+    flex-basis: 96px;
+    width: 96px;
+  }
+
+  .keno-play-column .ticket_balls_art img {
+    width: 90px;
+    transform: translateY(-20px);
+  }
+
+  .keno-play-column .ticket_helptext1 {
+    font-size: 1.9em;
+    line-height: 2.8em;
+  }
+
+  .keno-play-column .ticket_helptext2 {
+    font-size: 1.45em;
+  }
+}

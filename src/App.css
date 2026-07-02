@@ -1707,11 +1707,6 @@ a.b365-btn-header-login {
   margin: 0 0 14px;
 }
 
-.b365-recaptcha-container {
-  margin: 0.75rem 0 1rem;
-  min-height: 78px;
-}
-
 .b365-phone-back-btn {
   margin-top: 0.5rem;
 }
@@ -6815,3 +6810,10 @@ html.tma body {
     border-radius: 20px;
   }
 }
+
+@media (max-width: 767px) {
+  .b365-bottom-nav-label {
+    font-size: 0.62rem;
+  }
+}
+

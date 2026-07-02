@@ -1,0 +1,140 @@
+.keno-ticket-list {
+  padding: 0 4px 8px;
+}
+
+.keno-ticket-card {
+  position: relative;
+  background: #262d33;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 7px 7px 6px;
+  margin-bottom: 5px;
+}
+
+.keno-ticket-card--won {
+  border-color: rgba(113, 205, 149, 0.45);
+}
+
+.keno-ticket-card__title {
+  margin: 0 0 5px;
+  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #71cd95;
+}
+
+.keno-ticket-card__title .MuiTypography-root {
+  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #71cd95;
+}
+
+.keno-ticket-card__title--player {
+  color: #71cd95;
+}
+
+.keno-ticket-card__numbers {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.keno-ticket-card__number {
+  aspect-ratio: 1 / 1;
+  min-height: 22px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1f2729;
+}
+
+.keno-ticket-card__number--filled {
+  background: #3c454d;
+}
+
+.keno-ticket-card__number--matched {
+  background: #4caf50;
+}
+
+.keno-ticket-card__number-text {
+  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.keno-ticket-card__footer {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-height: 26px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #1f2729;
+}
+
+.keno-ticket-card__footer-bet,
+.keno-ticket-card__footer-status {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.keno-ticket-card__footer-bet {
+  color: #ffffff;
+}
+
+.keno-ticket-card__footer-status {
+  justify-content: flex-end;
+  color: #f1c40f;
+}
+
+.keno-ticket-card__footer-status--won {
+  color: #f1c40f;
+}
+
+.keno-ticket-fairness {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 10px 12px;
+}
+
+.keno-ticket-fairness__icon {
+  width: 44px;
+  height: auto;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.keno-ticket-fairness__label {
+  margin: 0;
+  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.keno-ticket-card__pending {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+.keno-ticket-card-wrap {
+  position: relative;
+}

@@ -9,6 +9,7 @@ import WalletPage from './pages/WalletPage';
 import AllSportsPage from './pages/AllSportsPage';
 import MyBetsPage from './pages/MyBetsPage';
 import WorldCup2026Page from './pages/WorldCup2026Page';
+import KenoPage from './features/keno/KenoPage';
 import './App.css';
 import './styles/motd-overrides.css';
 
@@ -16,6 +17,7 @@ export default function App() {
   return (
     <>
       <Routes>
+        <Route path="/keno" element={<KenoPage />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<SportsHomePage />} />
           <Route path="sport-new" element={<SportsHomePage />} />

@@ -1,0 +1,230 @@
+.keno-tab-content {
+  padding: 4px 4px 12px;
+}
+
+.keno-tab-content__empty {
+  color: #789588;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.keno-tab-content__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 6px;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-size: 1.1rem;
+  color: #789588;
+}
+
+.keno-tab-content__header span {
+  flex: 1;
+}
+
+.keno-tab-content__header span:last-child {
+  text-align: right;
+}
+
+.keno-results-row {
+  background: #283134;
+  border-radius: 5px;
+  margin-bottom: 3px;
+  padding: 5px 4px;
+}
+
+.keno-results-row__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  padding: 0 2px;
+}
+
+.keno-results-row__id {
+  color: #51b579;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.keno-results-row__date {
+  color: #fff;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.keno-results-balls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.keno-results-ball {
+  flex: 0 0 calc(10% - 2px);
+  max-width: calc(10% - 2px);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: #35434b;
+  color: #d7d9db;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.keno-stats-table-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 4px;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-size: 1.1rem;
+  color: #789588;
+}
+
+.keno-stats-table-header__num {
+  width: 12%;
+  text-align: center;
+}
+
+.keno-stats-table-header__bar {
+  flex: 1;
+  padding: 0 6px;
+}
+
+.keno-stats-table-header__val {
+  width: 10%;
+  text-align: right;
+  padding-right: 4px;
+}
+
+.keno-stats-row {
+  display: flex;
+  align-items: center;
+  padding: 3px 4px;
+  margin-bottom: 2px;
+}
+
+.keno-stats-row__num {
+  width: 12%;
+  text-align: center;
+}
+
+.keno-stats-row__num-badge {
+  display: inline-block;
+  width: 100%;
+  padding: 42% 0;
+  border-radius: 3px;
+  background: #475259;
+  color: #d7d9db;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-size: 1rem;
+  line-height: 0;
+  font-weight: 400;
+}
+
+.keno-stats-row__bar-wrap {
+  flex: 1;
+  padding: 0 6px;
+  position: relative;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.keno-stats-row__bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  background: #51b579;
+}
+
+.keno-stats-row__val {
+  width: 10%;
+  text-align: right;
+  padding-right: 4px;
+  color: #fff;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-size: 1rem;
+}
+
+.keno-history-row {
+  background: #283134;
+  border-radius: 5px;
+  margin-bottom: 3px;
+  padding: 5px 4px;
+}
+
+.keno-history-row--won {
+  background: rgba(60, 162, 102, 0.35);
+}
+
+.keno-history-row__title {
+  color: #51b579;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.keno-history-row__balls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.keno-history-row__ball {
+  flex: 1;
+  padding: 0.55em 0;
+  border-radius: 3px;
+  background: #35434b;
+  color: #d7d9db;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 0;
+  text-align: center;
+}
+
+.keno-history-row__ball--matched {
+  background: #51b579;
+  color: #fff;
+}
+
+.keno-history-row__footer {
+  display: flex;
+  gap: 3px;
+}
+
+.keno-history-row__bet,
+.keno-history-row__status {
+  flex: 1;
+  padding: 3px 4px;
+  border-radius: 3px;
+  background: rgba(20, 25, 26, 0.43);
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.keno-history-row__bet {
+  color: #d7d9db;
+  text-align: left;
+}
+
+.keno-history-row__status {
+  text-align: right;
+  color: #ffde39;
+}
+
+.keno-history-row__status--won {
+  color: #51b579;
+}

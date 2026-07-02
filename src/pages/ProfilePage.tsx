@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import AuthAlert from '../components/auth/AuthAlert';
 import AuthSubmitButton from '../components/auth/AuthSubmitButton';
 import PhoneAuthPanel from '../features/auth/PhoneAuthPanel';
@@ -25,7 +25,9 @@ const TAB_LABELS: Record<Tab, string> = {
 };
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const returnTo = searchParams.get('return');
   const tab = (
     searchParams.get('tab') === 'signup'
       ? 'signup'
@@ -54,11 +56,18 @@ export default function ProfilePage() {
     void hydrate().finally(() => setHydrating(false));
   }, [hydrate]);
 
+  useEffect(() => {
+    if (!hydrating && loggedIn && returnTo && returnTo.startsWith('/')) {
+      navigate(returnTo, { replace: true });
+    }
+  }, [hydrating, loggedIn, returnTo, navigate]);
+
   const setTab = (t: Tab) => {
     if (authBusy) return;
     const params: Record<string, string> = {};
     if (t === 'signup') params.tab = 'signup';
     if (t === 'phone') params.tab = 'phone';
+    if (returnTo) params.return = returnTo;
     setSearchParams(params);
     setMessage(null);
     setError(null);
@@ -82,6 +91,9 @@ export default function ProfilePage() {
       setMessage('Account created. You are signed in.');
       setSuPass('');
       setSuPass2('');
+      if (returnTo && returnTo.startsWith('/')) {
+        navigate(returnTo, { replace: true });
+      }
     } catch (err) {
       setError(friendlyAuthError(err, 'Could not sign up.'));
     } finally {
@@ -98,6 +110,9 @@ export default function ProfilePage() {
       await login(liUser, liPass);
       setMessage('Signed in successfully.');
       setLiPass('');
+      if (returnTo && returnTo.startsWith('/')) {
+        navigate(returnTo, { replace: true });
+      }
     } catch (err) {
       setError(friendlyAuthError(err, 'Could not sign in.'));
     } finally {

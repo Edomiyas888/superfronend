@@ -1,0 +1,212 @@
+/* Container for the entire Keno game; ensures top ball is visible and center-aligned */
+.keno-container {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    padding-top:80px; /* Ensure there's enough space for the top ball */
+ 
+  }
+  /* Green glowing hole */
+.keno-hole {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 255, 128, 0.4) 0%, rgba(0, 0, 0, 1) 80%);
+  box-shadow: 0 0 30px rgba(0, 255, 128, 0.6), inset 0 0 15px rgba(0, 255, 128, 0.2);
+  filter: blur(10px);
+}
+
+  /* Top bouncing ball container */
+  .keno-top-number {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .keno-ball {
+    width: clamp(35px, 4vw, 55px);
+    height: clamp(35px, 4vw, 55px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #12003c, #0D001A 80%);
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.8),
+        inset 0 0 15px rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    font-size: 1.2em;
+    font-weight: bold;
+    user-select: none;
+    position: relative;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.15); /* Slight border to define edges */
+
+}
+
+/* Reflective highlight for realism */
+.keno-ball::after {
+    content: "";
+    position: absolute;
+    top: 12%;
+    left: 20%;
+    width: 60%;
+    height: 20%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.05) 80%);
+    border-radius: 50%;
+    filter: blur(3px);
+    transform: rotate(-25deg);
+    pointer-events: none;
+}
+.keno-ball::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.583); /* Subtle glow around edges */
+  pointer-events: none;
+}
+  .keno-ball.top-ball {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+  }
+  
+  /* 2-row layout with no wrap. We'll center the items horizontally. */
+  .keno-row {
+    padding-top: 10px;
+    display: flex;
+    flex-wrap: nowrap; /* ensures only 2 rows total (one row per .keno-row) */
+    justify-content: center;
+    gap: 2px;
+  }
+  .keno-background {
+    position: absolute;
+    width: 100%;
+    height: 30%;
+    background: radial-gradient(circle at center, rgba(0, 80, 40, 0.6) 10%, rgba(0, 0, 0, 1) 80%);
+    overflow: hidden;
+}
+
+/* Circular Radiating Patterns */
+.keno-background::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, 
+        rgba(0, 255, 128, 0.1) 5%, 
+        rgba(0, 255, 128, 0.05) 20%, 
+        transparent 40%),
+        radial-gradient(circle, 
+        rgba(255, 255, 255, 0.05) 10%, 
+        transparent 30%);
+    mask-image: radial-gradient(circle, rgba(0, 255, 128, 0.2) 10%, transparent 80%);
+    opacity: 0.4;
+    animation: rotateBackground 10s linear infinite;
+}
+
+/* Rotating Animation for Background */
+@keyframes rotateBackground {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes rotateRings {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(360deg) scale(1.1); }
+}
+
+@keyframes rotateRingsReverse {
+  0% { transform: rotate(360deg) scale(1); }
+  100% { transform: rotate(0deg) scale(0.9); }
+}
+/* Transparent Center with White Circular Edge */
+/* Rotating Circle with a Broken Arc */
+/* Rotating Circle with a Broken Arc using Conic Gradient */
+.keno-rotating-circle1 {
+  position: absolute;
+  top: 10%;
+  left: 25%;
+  transform: translate(-50%, -50%); /* Ensures the circle is always centered */
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: conic-gradient(
+    rgba(255, 255, 255, 0.192) 0deg,
+    rgba(255, 255, 255, 0.288) 250deg,
+    transparent 250deg,
+    transparent 360deg
+  ); /* Creates a circular border with a missing 20% */
+  opacity: 0.7;
+  animation: rotateCircle 10s linear infinite;
+  mask: radial-gradient(
+    circle,
+    transparent 65%, /* Increase this value to make the border thinner */
+    black 65%
+  ); /* Makes the center transparent */
+}
+.keno-rotating-circle {
+  position: absolute;
+  top: 10%;
+  left: 25%;
+  transform: translate(-50%, -50%); /* Ensures the circle is always centered */
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: conic-gradient(
+    rgba(255, 255, 255, 0.192) 0deg,
+    rgba(255, 255, 255, 0.288) 250deg,
+    transparent 250deg,
+    transparent 360deg
+  ); /* Creates a circular border with a missing 20% */
+  opacity: 0.7;
+  animation: rotateCircle 10s linear infinite;
+  mask: radial-gradient(
+    circle,
+    transparent 65%, /* Increase this value to make the border thinner */
+    black 65%
+  ); /* Makes the center transparent */
+}
+
+.keno-rotating-circle::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 25%;
+  transform: translate(-50%, -50%); /* Ensures the inner circle is centered */
+  width: 150px; /* Smaller width for the inner circle */
+  height: 150px; /* Smaller height for the inner circle */
+  border-radius: 50%;
+  background: conic-gradient(
+    rgba(255, 255, 255, 0.245) 0deg,
+    rgba(255, 255, 255, 0.307) 250deg,
+    transparent 250deg,
+    transparent 360deg
+  ); /* Same gradient for the inner circle */
+  opacity: 0.7;
+  animation: rotateCircle 10s linear infinite reverse; /* Reverse animation for contrast */
+  mask: radial-gradient(
+    circle,
+    transparent 65%, /* Increase this value to make the border thinner */
+    black 65%
+  ); /* Makes the center transparent */
+}
+
+@keyframes rotateCircle {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Rotation Animation */
+@keyframes rotateCircle {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

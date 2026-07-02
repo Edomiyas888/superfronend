@@ -1,0 +1,229 @@
+/* New Keno Play Component Styles */
+
+.new-keno-container {
+  min-height: 100vh;
+  background: #1b1e1f;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #1b1e1f;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Balance Display */
+.balance-display {
+  background: #fff;
+  color: #000;
+  padding: 8px 16px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}
+
+/* Game Area with Red Background */
+.game-area {
+  background: #d32f2f;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Keno Ball Machine */
+.keno-machine {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 20px 0;
+  z-index: 2;
+}
+
+.keno-machine-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+}
+
+.keno-ball {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff9800 0%, #f57c00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.keno-ball-number {
+  font-size: 48px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* Number Grid */
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 20px;
+}
+
+.number-button {
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.number-button.selected {
+  background: #ffeb3b;
+  color: #000;
+  border: 2px solid #fbc02d;
+}
+
+.number-button.drawn {
+  background: #4caf50;
+  color: #000;
+  border: 2px solid #388e3c;
+}
+
+.number-button.default {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* KENO Logo */
+.keno-logo {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-size: 48px;
+  font-weight: bold;
+  color: #ffeb3b;
+  font-family: Arial, sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Betslip Styles */
+.betslip-container {
+  width: 350px;
+  background: #2a2d2e;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.betslip-tabs {
+  padding: 10px;
+}
+
+.betslip-tab {
+  flex: 1;
+  text-transform: none;
+  font-weight: bold;
+}
+
+.betslip-content {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Action Buttons */
+.action-button {
+  width: 100%;
+  text-transform: none;
+  font-weight: bold;
+  padding: 12px;
+}
+
+.clear-button {
+  background: #d32f2f;
+  color: #fff;
+}
+
+.clear-button:hover {
+  background: #b71c1c;
+}
+
+.place-bet-button {
+  background: #4caf50;
+  color: #fff;
+}
+
+.place-bet-button:hover {
+  background: #388e3c;
+}
+
+.place-bet-button:disabled {
+  background: #666;
+  color: #999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .number-grid {
+    max-width: 500px;
+  }
+  
+  .betslip-container {
+    width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-area {
+    min-height: 400px;
+  }
+  
+  .keno-machine {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .keno-ball {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .keno-ball-number {
+    font-size: 36px;
+  }
+  
+  .number-button {
+    min-width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+}
+

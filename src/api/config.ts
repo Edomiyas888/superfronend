@@ -93,3 +93,23 @@ export function getFallbackUrls(): string[] {
 export function useRestSportListOnly(): boolean {
   return import.meta.env.VITE_USE_REST_SPORT_LIST === 'true';
 }
+
+export function getKenoWsUrl(): string {
+  const explicit = import.meta.env.VITE_KENO_WS_URL?.trim();
+  if (explicit) {
+    return explicit;
+  }
+  const base = getApiBaseUrl();
+  if (base.startsWith('https://')) {
+    return `${base.replace(/^https:/, 'wss:')}/v1/keno/ws`;
+  }
+  if (base.startsWith('http://')) {
+    return `${base.replace(/^http:/, 'ws:')}/v1/keno/ws`;
+  }
+  return '';
+}
+
+/** Keno live updates default to WebSocket; set VITE_KENO_WS=0 to poll HTTP only. */
+export function useKenoWebSocket(): boolean {
+  return import.meta.env.VITE_KENO_WS !== '0';
+}

@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_heavyitalic.woff2') format('woff2'),
+    url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_heavyitalic.woff') format('woff');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_bold.woff2') format('woff2'),
+    url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_regular.woff2') format('woff2'),
+    url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_medium.woff2') format('woff2'),
+    url('https://cdn-atlas-v.com/games/keno/css/fonts/sfprodisplay_medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DS-Digital';
+  src: url('https://cdn-atlas-v.com/games/keno/css/fonts/ds_digital_bold.woff2') format('woff2'),
+    url('https://cdn-atlas-v.com/games/keno/css/fonts/ds_digital_bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}

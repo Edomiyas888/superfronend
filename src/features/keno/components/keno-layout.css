@@ -1,0 +1,83 @@
+.keno-game-display {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  margin: -8px 0 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.keno-game-stage {
+  position: relative;
+  width: 100%;
+}
+
+.keno-game-stage--drawing .keno-timer-row {
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.keno-timer-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.keno-draw-id {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  z-index: 4;
+  cursor: pointer;
+  padding: 2px 22px 2px 0;
+  border: none;
+  background: transparent;
+  background-image: url(https://cdn-atlas-v.com/games/keno/img/fairness4.svg);
+  background-repeat: no-repeat;
+  background-size: 16px;
+  background-position: 100% 50%;
+  color: #fff;
+  font-family: 'SF Pro Display', 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 1.1rem;
+  line-height: 1.6rem;
+  text-align: right;
+}
+
+.keno-shell .keno-game-stage--drawing {
+  padding-bottom: 22px;
+}
+
+.keno-shell .keno-game-stage--drawing .keno-play-column {
+  margin-top: -2px;
+}
+
+.keno-shell .keno-game-stage--drawing .keno-draw-id {
+  bottom: 4px;
+}
+
+.keno-error-banner {
+  margin: 8px 4px 0;
+  padding: 10px 8px;
+  border-radius: 6px;
+  background: rgba(180, 60, 40, 0.25);
+  border: 1px solid rgba(255, 120, 80, 0.35);
+  color: #ffb4a0;
+  font-size: 13px;
+  text-align: center;
+}
+
+.keno-tab-panel-wrap {
+  min-height: 120px;
+  padding-bottom: 16px;
+  font-size: 10px;
+  line-height: normal;
+}

@@ -46,7 +46,7 @@ export default function SportsHomePage() {
         <h2 className="b365-page-title">Popular</h2>
         <PopularLeagueChips leagues={POPULAR_LEAGUE_KEYS} value={popularLeague} onChange={setPopularLeague} />
         <div className="b365-league-header">
-          {popularLeague} · upcoming
+          {popularLeague} · next 3 days
         </div>
         <MatchListByDate
           games={popularGames}
