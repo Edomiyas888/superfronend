@@ -48,6 +48,7 @@
   position: relative;
   display: inline-flex;
   align-items: stretch;
+  flex-shrink: 0;
   padding: 2px;
   border-radius: 999px;
   text-decoration: none !important;
@@ -295,35 +296,136 @@
   transform: translateY(0);
 }
 
-.b365-motd-quick-icons {
+/* ——— Fast Keno promo (replaces quick icon row) ——— */
+.b365-motd-keno-btn {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  padding: 2px;
+  border-radius: 999px;
+  text-decoration: none !important;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(120deg, #39ff14 0%, #00c853 40%, #71cd95 70%, #39ff14 100%);
+  background-size: 220% 100%;
+  animation: b365-keno-btn-gradient 5s ease infinite;
+  box-shadow:
+    0 0 22px rgba(57, 255, 20, 0.28),
+    0 6px 18px rgba(0, 0, 0, 0.42);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.b365-motd-keno-btn__grid {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.28;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.b365-motd-keno-btn__glow {
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 20% 50%, rgba(113, 205, 149, 0.45) 0%, transparent 62%);
+  animation: b365-keno-btn-pulse 2.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.b365-motd-keno-btn__inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgba(8, 18, 12, 0.96) 0%, rgba(10, 10, 11, 0.98) 55%, rgba(12, 24, 16, 0.96) 100%);
+  color: #fff !important;
 }
 
-.b365-motd-quick-icon {
-  width: 38px;
-  height: 38px;
+.b365-motd-keno-btn__logo-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  border-radius: 8px;
+  background: rgba(57, 255, 20, 0.08);
+  border: 1px solid rgba(113, 205, 149, 0.35);
+}
+
+.b365-motd-keno-btn__logo {
+  width: 52px;
+  height: 16px;
+}
+
+.b365-motd-keno-btn__label {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1px solid var(--b365-border);
-  color: var(--b365-text-muted) !important;
-  background: rgba(255, 255, 255, 0.04);
-  text-decoration: none !important;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  white-space: nowrap;
 }
 
-.b365-motd-quick-icon:hover {
-  color: var(--b365-neon) !important;
-  border-color: var(--b365-neon-soft);
-  background: rgba(57, 255, 20, 0.08);
+.b365-motd-keno-btn__label svg {
+  color: var(--b365-neon);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.b365-motd-keno-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 32px rgba(57, 255, 20, 0.42),
+    0 10px 24px rgba(0, 0, 0, 0.48);
   text-decoration: none !important;
+}
+
+.b365-motd-keno-btn:hover .b365-motd-keno-btn__label svg {
+  transform: translateX(3px);
+}
+
+.b365-motd-keno-btn:active {
+  transform: translateY(0);
+}
+
+.b365-motd-skel--keno-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 999px;
+}
+
+@keyframes b365-keno-btn-gradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes b365-keno-btn-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.75;
+  }
 }
 
 .b365-motd-carousel {
@@ -614,11 +716,6 @@
   .b365-motd-live-btn {
     padding: 9px 14px;
     font-size: 0.82rem;
-  }
-
-  .b365-motd-quick-icon {
-    width: 36px;
-    height: 36px;
   }
 
   .b365-motd-logo-wrap {

@@ -10,6 +10,7 @@ import OddsFlashArrow from './OddsFlashArrow';
 import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
 import WorldCup2026Button from './WorldCup2026Button';
+import FastKenoPromoButton from './FastKenoPromoButton';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { GameView } from '../api/types';
 
@@ -40,7 +41,7 @@ function MotdSkeleton() {
     <div className="b365-motd">
       <div className="b365-motd-toolbar">
         <div className="b365-motd-skel b365-motd-skel--wc-btn" />
-        <div className="b365-motd-skel b365-motd-skel--icon-row" />
+        <div className="b365-motd-skel b365-motd-skel--keno-btn" />
       </div>
       <div className="b365-motd-card b365-motd-card--skeleton">
         <div className="b365-motd-teams">
@@ -67,31 +68,6 @@ function MotdSkeleton() {
         <span className="b365-motd-dot active" />
         <span className="b365-motd-dot" />
       </div>
-    </div>
-  );
-}
-
-function MotdQuickIcons() {
-  return (
-    <div className="b365-motd-quick-icons" aria-label="Quick links">
-      <Link to="/sports" className="b365-motd-quick-icon" aria-label="Sports">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 3v4M12 17v4M3 12h4M17 12h4" strokeLinecap="round" />
-        </svg>
-      </Link>
-      <Link to="/my-bets" className="b365-motd-quick-icon" aria-label="My bets">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" strokeLinecap="round" />
-          <path d="M9 12h6M9 16h4" strokeLinecap="round" />
-        </svg>
-      </Link>
-      <Link to="/profile" className="b365-motd-quick-icon" aria-label="Wallet">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-          <path d="M3 7h18v12H3z" strokeLinejoin="round" />
-          <path d="M3 11h18M16 15h2" strokeLinecap="round" />
-        </svg>
-      </Link>
     </div>
   );
 }
@@ -179,7 +155,7 @@ export default function MatchOfTheDay() {
     <div className="b365-motd">
       <div className="b365-motd-toolbar">
         <WorldCup2026Button />
-        <MotdQuickIcons />
+        <FastKenoPromoButton />
       </div>
 
       <div

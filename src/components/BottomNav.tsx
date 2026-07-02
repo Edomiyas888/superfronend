@@ -5,8 +5,14 @@ function useSportsNavActive(): boolean {
   return pathname === '/sports' || pathname.startsWith('/sport/');
 }
 
+function useKenoNavActive(): boolean {
+  const { pathname } = useLocation();
+  return pathname === '/keno' || pathname.startsWith('/keno/');
+}
+
 export default function BottomNav() {
   const sportsActive = useSportsNavActive();
+  const kenoActive = useKenoNavActive();
 
   return (
     <nav className="b365-bottom-nav" aria-label="Main">
@@ -55,14 +61,21 @@ export default function BottomNav() {
         <span className="b365-bottom-nav-label">My bets</span>
       </NavLink>
 
-      <NavLink to="/profile" className={({ isActive }) => `b365-bottom-nav-item ${isActive ? 'active' : ''}`}>
+      <NavLink
+        to="/keno"
+        className={({ isActive }) => `b365-bottom-nav-item ${isActive || kenoActive ? 'active' : ''}`}
+      >
         <span className="b365-bottom-nav-icon" aria-hidden>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 21a8 8 0 1 0-16 0" strokeLinecap="round" />
-            <circle cx="12" cy="8" r="4" />
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="16" cy="11" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="10" cy="15" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="15" cy="16" r="1.5" fill="currentColor" stroke="none" />
           </svg>
         </span>
-        <span className="b365-bottom-nav-label">Profile</span>
+        <span className="b365-bottom-nav-label">Fast Keno</span>
       </NavLink>
     </nav>
   );

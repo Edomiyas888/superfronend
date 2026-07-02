@@ -1174,6 +1174,40 @@ a.b365-btn-header-login {
   color: var(--b365-neon);
 }
 
+.b365-keno-logo {
+  display: block;
+  width: 58px;
+  height: 18px;
+  background-repeat: no-repeat;
+  background-size: 300% 200%;
+  background-position: 0% 0%;
+}
+
+.b365-keno-logo--animated {
+  animation: b365-keno-logo-sprite 1.8s steps(1) infinite;
+}
+
+@keyframes b365-keno-logo-sprite {
+  0% {
+    background-position: 0% 0%;
+  }
+  16.666% {
+    background-position: 50% 0%;
+  }
+  33.333% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 0% 100%;
+  }
+  66.666% {
+    background-position: 50% 100%;
+  }
+  83.333% {
+    background-position: 100% 100%;
+  }
+}
+
 /* ——— Global footer (all pages using Layout) ——— */
 .b365-app-footer {
   flex-shrink: 0;
