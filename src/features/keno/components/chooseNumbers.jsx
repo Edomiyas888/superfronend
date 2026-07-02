@@ -52,25 +52,9 @@ const ChooseNumbersCard = ({
             <p className="ticket_helptext1">Choose 10 numbers</p>
             <p className="ticket_helptext2">From 1 to 80</p>
           </div>
-          <button
-            type="button"
-            className="ticket_help"
-            aria-label="Help"
-            onClick={() => onHelpClick?.()}
-          >
-            ?
-          </button>
         </>
       ) : (
         <>
-          <button
-            type="button"
-            className="ticket_help ticket_help--selected"
-            aria-label="Help"
-            onClick={() => onHelpClick?.()}
-          >
-            ?
-          </button>
           <div className="ticket_sel_cont">
             <div className="ticket_sel_cont_ttl">
               <span className="ticket_curr_number">{betAmount}</span>

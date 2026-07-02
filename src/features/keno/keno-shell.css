@@ -16,25 +16,56 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #191b31;
+  background-color: #1b1e1f;
   background-repeat: no-repeat;
   background-position: 50% 50%;
   background-size: cover;
   background-image: url(https://cdn-atlas-v.com/games/keno/img/bg.jpg);
   pointer-events: none;
+  opacity: 0.9;
 }
 
 /* Atlas mobile game column — html{font-size:10px} scoped here only */
 .keno-play-column {
-  font-size: 10px;
+  font-size: 11px;
   line-height: normal;
   width: 100%;
   max-width: 100%;
-  padding: 0;
+  padding: 0 10px;
   box-sizing: border-box;
 }
 
 .keno-game-display {
   width: 100%;
   max-width: 100%;
+}
+
+.keno-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(113, 205, 149, 0.1), transparent 32%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.6));
+}
+
+.keno-shell > *:not(.desktop_background) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 900px) {
+  .keno-play-column {
+    font-size: 12px;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 12px;
+  }
+
+  .keno-game-display {
+    max-width: 560px;
+    margin: 0 auto;
+  }
 }

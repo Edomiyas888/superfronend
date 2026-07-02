@@ -33,7 +33,6 @@ const KenoGrid = ({
     const cachedBet = localStorage.getItem('betAmount');
     return cachedBet ? parseFloat(cachedBet) : '1';
   });
-  const [buttonStatus, setButtonStatus] = useState('bet');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [ticketCheckOpen, setTicketCheckOpen] = useState(false);
@@ -166,18 +165,27 @@ const KenoGrid = ({
 
     const numbersToBet = [...selectedNumbers];
     const amountToBet = betAmount;
-    setSelectedNumbers([]);
-    setButtonStatus('wait');
 
-    void placeBet(numbersToBet, amountToBet).then((ok) => {
-      if (ok) {
-        setTimeout(() => setButtonStatus('success'), 400);
-        setTimeout(() => setButtonStatus('bet'), 1400);
-      } else {
-        setSelectedNumbers(numbersToBet);
-        setButtonStatus('bet');
-      }
-    });
+    if (!numbersToBet.length) {
+      setSnackbarMessage('Please select at least one number');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!currentUser) {
+      setSnackbarMessage('Please login to place a bet');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (Number(amountToBet) > balance) {
+      setSnackbarMessage(`Insufficient balance. You have ${balance.toFixed(2)} ETB`);
+      setSnackbarOpen(true);
+      return;
+    }
+
+    setSelectedNumbers([]);
+    void placeBet(numbersToBet, amountToBet);
   };
 
   const numberOfPicks = selectedNumbers.length;
@@ -198,12 +206,6 @@ const KenoGrid = ({
     if (topThree.includes(number)) classes.push('hot');
     else if (coldThree.includes(number)) classes.push('cold');
     return classes.join(' ');
-  };
-
-  const submitLabel = () => {
-    if (buttonStatus === 'wait') return 'WAIT...';
-    if (buttonStatus === 'success') return 'BET ACCEPTED';
-    return 'BET';
   };
 
   return (
@@ -280,19 +282,14 @@ const KenoGrid = ({
 
           <button
             type="button"
-            className={[
-              'keno-bet-submit',
-              buttonStatus === 'wait' ? 'keno-bet-submit--wait' : '',
-              buttonStatus === 'success' ? 'keno-bet-submit--accepted' : '',
-            ].filter(Boolean).join(' ')}
+            className="keno-bet-submit"
             onClick={handleBet}
             disabled={
-              buttonStatus !== 'bet' ||
               selectedNumbers.length === 0 ||
               ticketCount >= 18
             }
           >
-            {submitLabel()}
+            BET
           </button>
         </div>
 
