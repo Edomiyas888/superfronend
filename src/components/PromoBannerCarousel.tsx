@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroBannerArt, FooterIcon } from './HeroBannerArt';
 import fastKenoBannerArt from '../assets/fast-keno-banner.png';
 import fastSportsBannerArt from '../assets/fast-sports-banner.png';
+import mcgregorHollowayBannerArt from '../assets/mcgregor-holloway-banner.png';
+import worldCupBannerArt from '../assets/world-cup-banner.png';
+import { useSportLink } from '../hooks/useSportLink';
 
 const AUTO_INTERVAL_MS = 6000;
 
@@ -22,7 +25,8 @@ type HeroSlide = {
   footer: FooterItem[];
 };
 
-const HERO_SLIDES: HeroSlide[] = [
+function buildHeroSlides(mmaLink: string): HeroSlide[] {
+  return [
   {
     id: 'main',
     to: '/',
@@ -38,12 +42,27 @@ const HERO_SLIDES: HeroSlide[] = [
     ],
   },
   {
+    id: 'ufc329',
+    to: mmaLink,
+    badge: 'UFC 329 · Next week',
+    title: ['Bet on your', 'MMA match'],
+    subtitle: 'McGregor vs Holloway II — Sat 11 July, Las Vegas.',
+    art: 'default',
+    artImage: mcgregorHollowayBannerArt,
+    footer: [
+      { icon: 'live', label: 'Live betting' },
+      { icon: 'odds', label: 'Main event' },
+      { icon: 'games', label: 'Full card' },
+    ],
+  },
+  {
     id: 'world-cup',
     to: '/world-cup-2026',
     badge: 'World Cup 2026',
     title: ['Bet the', 'World Cup!'],
     subtitle: 'Every match, every market — all in one app.',
     art: 'wc',
+    artImage: worldCupBannerArt,
     footer: [
       { icon: 'odds', label: 'Top odds' },
       { icon: 'groups', label: 'All groups' },
@@ -65,6 +84,7 @@ const HERO_SLIDES: HeroSlide[] = [
     ],
   },
 ];
+}
 
 function HeroBannerCard({ slide }: { slide: HeroSlide }) {
   return (
@@ -76,6 +96,7 @@ function HeroBannerCard({ slide }: { slide: HeroSlide }) {
         slide.id === 'main' ? 'b365-hero-banner--sports' : '',
         slide.id === 'keno' ? 'b365-hero-banner--keno' : '',
         slide.id === 'world-cup' ? 'b365-hero-banner--wc' : '',
+        slide.id === 'ufc329' ? 'b365-hero-banner--ufc' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -108,7 +129,8 @@ function HeroBannerCard({ slide }: { slide: HeroSlide }) {
 }
 
 export default function PromoBannerCarousel() {
-  const slides = HERO_SLIDES;
+  const mmaLink = useSportLink('Mma', 'all');
+  const slides = useMemo(() => buildHeroSlides(mmaLink), [mmaLink]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const swipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);

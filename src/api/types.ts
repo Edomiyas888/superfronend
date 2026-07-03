@@ -63,7 +63,7 @@ export type MatchResult1x2Odds = {
   marketName: string;
   marketType: string;
   home: { eventId: number; price: number; name: string; type?: string };
-  draw: { eventId: number; price: number; name: string; type?: string };
+  draw?: { eventId: number; price: number; name: string; type?: string };
   away: { eventId: number; price: number; name: string; type?: string };
 };
 

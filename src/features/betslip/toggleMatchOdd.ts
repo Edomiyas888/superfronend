@@ -11,6 +11,7 @@ export function toggleMatchOdd(
   events: Record<string, BetslipEventLike>
 ): void {
   const pick = leg === 'home' ? mr.home : leg === 'draw' ? mr.draw : mr.away;
+  if (!pick) return;
   const k = keyFor(g.id, mr.marketId, pick.eventId);
   if (events[k]) {
     removeSelection(k);

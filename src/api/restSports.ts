@@ -550,8 +550,41 @@ function pickThreeWay(events: ParsedEvent[]): { home: ParsedEvent; draw: ParsedE
   return null;
 }
 
+function pickTwoWay(events: ParsedEvent[]): { home: ParsedEvent; away: ParsedEvent } | null {
+  if (events.length < 2) return null;
+  const used = new Set<number>();
+  const take = (pred: (e: ParsedEvent) => boolean) => {
+    const e = events.find((x) => !used.has(x.id) && pred(x));
+    if (e) used.add(e.id);
+    return e;
+  };
+  const home =
+    take((e) => ['P1', 'W1', '1'].includes(e.type)) ||
+    take((e) => {
+      const n = e.name.toLowerCase().trim();
+      return n === '1' || n === 'home';
+    });
+  const away =
+    take((e) => ['P2', 'W2', '2'].includes(e.type)) ||
+    take((e) => {
+      const n = e.name.toLowerCase().trim();
+      return n === '2' || n === 'away';
+    });
+  if (home && away) {
+    return { home, away };
+  }
+  if (events.length === 2) {
+    const e0 = events[0];
+    const e1 = events[1];
+    if (e0 && e1) {
+      return { home: e0, away: e1 };
+    }
+  }
+  return null;
+}
+
 /**
- * Pick the first suitable 3-way market and map events to home / draw / away (P1/X/P2, 1/X/2, or order).
+ * Pick the first suitable match-winner market and map events to home / draw / away (or home / away for P1P2).
  */
 function extractMatchResult1x2FromGame(g: Record<string, unknown>): MatchResult1x2Odds | undefined {
   const marketObj = (g.market as Record<string, unknown>) ?? {};
@@ -566,18 +599,34 @@ function extractMatchResult1x2FromGame(g: Record<string, unknown>): MatchResult1
     const evObj = (mk.event as Record<string, unknown>) ?? {};
     const events = parseGameEvents(evObj);
     const triple = pickThreeWay(events);
-    if (!triple) continue;
-    const { home, draw, away } = triple;
-    if (![home, draw, away].every((e) => Number.isFinite(e.price) && e.price > 0 && Number.isFinite(e.id))) {
+    if (triple) {
+      const { home, draw, away } = triple;
+      if (![home, draw, away].every((e) => Number.isFinite(e.price) && e.price > 0 && Number.isFinite(e.id))) {
+        continue;
+      }
+
+      return {
+        marketId: Number(mk.id),
+        marketName: String(mk.name ?? 'Match Result'),
+        marketType: String(mk.type ?? 'P1XP2'),
+        home: { eventId: home.id, price: home.price, name: home.name, type: home.type },
+        draw: { eventId: draw.id, price: draw.price, name: draw.name, type: draw.type },
+        away: { eventId: away.id, price: away.price, name: away.name, type: away.type },
+      };
+    }
+
+    const pair = pickTwoWay(events);
+    if (!pair) continue;
+    const { home, away } = pair;
+    if (![home, away].every((e) => Number.isFinite(e.price) && e.price > 0 && Number.isFinite(e.id))) {
       continue;
     }
 
     return {
       marketId: Number(mk.id),
-      marketName: String(mk.name ?? 'Match Result'),
-      marketType: String(mk.type ?? 'P1XP2'),
+      marketName: String(mk.name ?? 'Match Winner'),
+      marketType: String(mk.type ?? 'P1P2'),
       home: { eventId: home.id, price: home.price, name: home.name, type: home.type },
-      draw: { eventId: draw.id, price: draw.price, name: draw.name, type: draw.type },
       away: { eventId: away.id, price: away.price, name: away.name, type: away.type },
     };
   }

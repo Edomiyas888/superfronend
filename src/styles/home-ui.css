@@ -442,8 +442,70 @@
 }
 
 .b365-hero-banner--photo.b365-hero-banner--keno,
-.b365-hero-banner--photo.b365-hero-banner--sports {
+.b365-hero-banner--photo.b365-hero-banner--sports,
+.b365-hero-banner--photo.b365-hero-banner--ufc,
+.b365-hero-banner--photo.b365-hero-banner--wc {
   background: #071008;
+}
+
+.b365-hero-banner--ufc {
+  background: #1a1208;
+}
+
+.b365-hero-banner--photo.b365-hero-banner--ufc .b365-hero-banner__overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(18, 10, 4, 0.96) 0%,
+    rgba(18, 10, 4, 0.82) 36%,
+    rgba(18, 10, 4, 0.45) 54%,
+    rgba(18, 10, 4, 0.14) 70%,
+    transparent 84%
+  );
+}
+
+.b365-hero-banner--ufc .b365-hero-banner__badge {
+  background: linear-gradient(180deg, #fde047 0%, #d4af37 100%);
+  color: #1a0f04;
+}
+
+.b365-hero-banner--ufc .b365-hero-banner__title {
+  color: #fff7ed;
+}
+
+.b365-hero-banner--ufc .b365-hero-banner__sub {
+  color: rgba(255, 237, 213, 0.88);
+}
+
+.b365-hero-banner--photo.b365-hero-banner--ufc .b365-hero-banner__bg-img {
+  object-position: 72% center;
+}
+
+.b365-hero-banner--photo.b365-hero-banner--wc .b365-hero-banner__overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(8, 14, 28, 0.96) 0%,
+    rgba(8, 14, 28, 0.84) 34%,
+    rgba(8, 14, 28, 0.48) 52%,
+    rgba(8, 14, 28, 0.12) 68%,
+    transparent 84%
+  );
+}
+
+.b365-hero-banner--photo.b365-hero-banner--wc .b365-hero-banner__bg-img {
+  object-position: 78% center;
+}
+
+.b365-hero-banner--wc .b365-hero-banner__badge {
+  background: linear-gradient(180deg, #fde047 0%, #d4af37 100%);
+  color: #0a1020;
+}
+
+.b365-hero-banner--wc .b365-hero-banner__title {
+  color: #f0f7ff;
+}
+
+.b365-hero-banner--wc .b365-hero-banner__sub {
+  color: rgba(224, 236, 255, 0.9);
 }
 
 .b365-hero-banner--photo .b365-hero-banner__title {

@@ -143,27 +143,39 @@ export default function MatchListByDate({
                   <div className="b365-mm-cell b365-mm-odds" role="group" aria-label="Match result odds">
                     {mr ? (
                       <>
-                        {(
-                          [
-                            ['home', mr.home] as const,
-                            ['draw', mr.draw] as const,
-                            ['away', mr.away] as const,
-                          ] as const
-                        ).map(([leg, cell]) => {
-                          const sel = !!slipEvents[keyFor(g.id, mr.marketId, cell.eventId)];
-                          return (
-                            <MmOddButton
-                              key={leg}
-                              price={cell.price}
-                              selected={sel}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleMatchOdd(g, mr, leg, addSelection, removeSelection, slipEvents);
-                              }}
-                            />
-                          );
-                        })}
+                        <MmOddButton
+                          price={mr.home.price}
+                          selected={!!slipEvents[keyFor(g.id, mr.marketId, mr.home.eventId)]}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleMatchOdd(g, mr, 'home', addSelection, removeSelection, slipEvents);
+                          }}
+                        />
+                        {mr.draw ? (
+                          <MmOddButton
+                            price={mr.draw.price}
+                            selected={!!slipEvents[keyFor(g.id, mr.marketId, mr.draw.eventId)]}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleMatchOdd(g, mr, 'draw', addSelection, removeSelection, slipEvents);
+                            }}
+                          />
+                        ) : (
+                          <button type="button" className="b365-mm-odd muted" disabled aria-hidden>
+                            —
+                          </button>
+                        )}
+                        <MmOddButton
+                          price={mr.away.price}
+                          selected={!!slipEvents[keyFor(g.id, mr.marketId, mr.away.eventId)]}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleMatchOdd(g, mr, 'away', addSelection, removeSelection, slipEvents);
+                          }}
+                        />
                       </>
                     ) : isLiveRow ? (
                       <>

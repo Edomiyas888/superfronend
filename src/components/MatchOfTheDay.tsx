@@ -339,10 +339,12 @@ function MotdOddsRow({
     );
   }
 
-  const cells = [
-    ['home', 'W1', mr.home] as const,
-    ['draw', 'X', mr.draw] as const,
-    ['away', 'W2', mr.away] as const,
+  const cells: Array<
+    readonly ['home' | 'draw' | 'away', string, { eventId: number; price: number; name: string; type?: string }]
+  > = [
+    ['home', 'W1', mr.home],
+    ...(mr.draw ? [['draw', 'X', mr.draw] as const] : []),
+    ['away', 'W2', mr.away],
   ];
 
   return (
