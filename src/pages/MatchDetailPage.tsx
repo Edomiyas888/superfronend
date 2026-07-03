@@ -7,6 +7,8 @@ import TeamLogo from '../components/TeamLogo';
 import LiveMatchAnimation from '../components/LiveMatchAnimation';
 import OddsFlashArrow from '../components/OddsFlashArrow';
 import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
+import { useOddSelectPulse } from '../hooks/useOddSelectPulse';
+import OddSelectTick from '../components/OddSelectTick';
 import type { BetslipEventLike } from '../api/placeBet';
 import {
   MARKET_FILTER_LABELS,
@@ -28,8 +30,14 @@ function DetailOddButton({
   onToggle: () => void;
 }) {
   const flash = useOddPriceFlash(price);
+  const { pulseKey, pulsing, tickVisible } = useOddSelectPulse(selected);
   return (
-    <button type="button" className={`b365-detail-odd ${selected ? 'b365-detail-odd--selected' : ''}`} onClick={onToggle}>
+    <button
+      type="button"
+      className={`b365-detail-odd ${selected ? 'b365-detail-odd--selected' : ''}${pulsing ? ' b365-odd-pulsing' : ''}`}
+      onClick={onToggle}
+    >
+      <OddSelectTick pulseKey={pulseKey} visible={tickVisible} />
       <span className="b365-detail-odd__label">{name}</span>
       <span className="b365-odd-price-with-flash b365-detail-odd__value">
         <OddsFlashArrow flash={flash} />

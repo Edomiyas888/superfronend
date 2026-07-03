@@ -5,7 +5,9 @@ import type { GameView } from '../api/types';
 import { groupGamesByDay } from '../utils/matchDayGrouping';
 import { formatMatchListClock } from '../utils/matchListClock';
 import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
+import { useOddSelectPulse } from '../hooks/useOddSelectPulse';
 import OddsFlashArrow from './OddsFlashArrow';
+import OddSelectTick from './OddSelectTick';
 import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
 
@@ -19,12 +21,14 @@ function MmOddButton({
   onClick: (e: React.MouseEvent) => void;
 }) {
   const flash = useOddPriceFlash(price);
+  const { pulseKey, pulsing, tickVisible } = useOddSelectPulse(selected);
   return (
     <button
       type="button"
-      className={`b365-mm-odd ${selected ? 'selected' : ''}`}
+      className={`b365-mm-odd ${selected ? 'selected' : ''}${pulsing ? ' b365-odd-pulsing' : ''}`}
       onClick={onClick}
     >
+      <OddSelectTick pulseKey={pulseKey} visible={tickVisible} />
       <span className="b365-odd-price-with-flash">
         <OddsFlashArrow flash={flash} />
         <span>{price.toFixed(2)}</span>

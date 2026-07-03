@@ -6,7 +6,9 @@ import { useMatchOfTheDay } from '../hooks/useMatchOfTheDay';
 import { selectMatchOfTheDayGames } from '../utils/matchOfDaySelect';
 import { formatMotdLiveDisplay } from '../utils/matchListClock';
 import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
+import { useOddSelectPulse } from '../hooks/useOddSelectPulse';
 import OddsFlashArrow from './OddsFlashArrow';
+import OddSelectTick from './OddSelectTick';
 import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
 import type { BetslipEventLike } from '../api/placeBet';
@@ -294,8 +296,14 @@ function MotdOddButton({
   onClick: (e: React.MouseEvent) => void;
 }) {
   const flash = useOddPriceFlash(price);
+  const { pulseKey, pulsing, tickVisible } = useOddSelectPulse(selected);
   return (
-    <button type="button" className={`b365-motd-odd ${selected ? 'selected' : ''}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`b365-motd-odd ${selected ? 'selected' : ''}${pulsing ? ' b365-odd-pulsing' : ''}`}
+      onClick={onClick}
+    >
+      <OddSelectTick pulseKey={pulseKey} visible={tickVisible} />
       <span className="b365-motd-odd-label">{label}</span>
       <span className="b365-odd-price-with-flash b365-motd-odd-val">
         <OddsFlashArrow flash={flash} />
