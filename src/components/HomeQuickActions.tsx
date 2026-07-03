@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import WorldCupTrophyIcon from './WorldCupTrophyIcon';
 import fastKenoLogo from '../assets/fast-keno-logo-user.png';
-import rocketIcon from '../assets/home-rocket.webp';
-import giftIcon from '../assets/home-gift.webp';
+import liveIcon from '../assets/home-live.png';
+import betSlipsIcon from '../assets/home-bet-slips.png';
 
 const actions = [
   {
@@ -24,16 +24,16 @@ const actions = [
     label: 'Live',
     className: 'b365-home-action--live',
     kind: 'image' as const,
-    icon: rocketIcon,
-    alt: '',
+    icon: liveIcon,
+    alt: 'Live betting',
   },
   {
     to: '/my-bets',
     label: 'My bets',
     className: 'b365-home-action--bets',
     kind: 'image' as const,
-    icon: giftIcon,
-    alt: '',
+    icon: betSlipsIcon,
+    alt: 'My bet slips',
   },
 ] as const;
 

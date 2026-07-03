@@ -158,11 +158,21 @@
 }
 
 .b365-home-action--live .b365-home-action__glow {
-  background: radial-gradient(circle, rgba(255, 193, 7, 0.55) 0%, rgba(255, 120, 40, 0.22) 55%, transparent 72%);
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.42) 0%, rgba(30, 120, 60, 0.2) 55%, transparent 72%);
+}
+
+.b365-home-action--live .b365-home-action__asset {
+  height: 50px;
+  max-width: 88%;
 }
 
 .b365-home-action--bets .b365-home-action__glow {
-  background: radial-gradient(circle, rgba(180, 120, 255, 0.45) 0%, rgba(255, 100, 180, 0.18) 55%, transparent 72%);
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.38) 0%, rgba(180, 120, 255, 0.16) 55%, transparent 72%);
+}
+
+.b365-home-action--bets .b365-home-action__asset {
+  height: 48px;
+  max-width: 86%;
 }
 
 .b365-home-action__asset {

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useSports } from '../contexts/SportsContext';
 import { useUpcomingMatches } from '../hooks/useUpcomingMatches';
 import { usePopularMatches } from '../hooks/usePopularMatches';
+import { useWorldCupMatches } from '../hooks/useWorldCupMatches';
 import DateFilterChips from '../components/DateFilterChips';
 import MatchListByDate from '../components/MatchListByDate';
 import MatchOfTheDay from '../components/MatchOfTheDay';
@@ -14,7 +15,7 @@ import PopularLeagueChips from '../components/PopularLeagueChips';
 import { POPULAR_LEAGUE_KEYS } from '../constants/popularLeagues';
 import type { DateFilterKey } from '../constants/dateFilters';
 import { competitionMatchesLeague } from '../utils/competitionFilter';
-import { curatePopularGames } from '../utils/popularGames';
+import { curatePopularGames, POPULAR_DAY_WINDOW } from '../utils/popularGames';
 
 export default function SportsHomePage() {
   const { loading, error } = useSports();
@@ -22,13 +23,21 @@ export default function SportsHomePage() {
   const [featuredDate, setFeaturedDate] = useState<DateFilterKey>('week');
 
   const popularQ = usePopularMatches();
+  const worldCupQ = useWorldCupMatches('week');
   const upcomingQ = useUpcomingMatches('Soccer', featuredDate);
 
+  const popularSource = popularLeague === 'World Cup' ? worldCupQ : popularQ;
+
   const popularGames = useMemo(() => {
+    if (popularLeague === 'World Cup') {
+      return curatePopularGames(worldCupQ.data ?? [], 16, 7);
+    }
     const raw = popularQ.data ?? [];
     const leagueFiltered = raw.filter((g) => competitionMatchesLeague(g.competitionName, popularLeague));
     return curatePopularGames(leagueFiltered, 16);
-  }, [popularQ.data, popularLeague]);
+  }, [popularQ.data, worldCupQ.data, popularLeague]);
+
+  const popularDayWindow = popularLeague === 'World Cup' ? 7 : POPULAR_DAY_WINDOW;
 
   return (
     <div className="b365-home">
@@ -55,13 +64,13 @@ export default function SportsHomePage() {
         </div>
         <PopularLeagueChips leagues={POPULAR_LEAGUE_KEYS} value={popularLeague} onChange={setPopularLeague} />
         <div className="b365-league-header">
-          {popularLeague} · next 3 days
+          {popularLeague} · next {popularDayWindow} days
         </div>
         <MatchListByDate
           games={popularGames}
-          isPending={popularQ.isPending}
-          isError={popularQ.isError}
-          error={popularQ.error}
+          isPending={popularSource.isPending}
+          isError={popularSource.isError}
+          error={popularSource.error}
           emptyMessage="No upcoming fixtures for this league."
           maxGames={16}
         />

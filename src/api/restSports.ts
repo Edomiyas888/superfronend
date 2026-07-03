@@ -306,7 +306,8 @@ export async function restGetUpcomingMatches(opts?: {
  */
 export async function restGetPopularSoccerMatches(): Promise<GameView[]> {
   const games = await restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours: 'all' });
-  return games.filter((g) => !g.promoted);
+  // World Cup fixtures are usually promoted — keep them in Popular so the WC chip is not empty.
+  return games.filter((g) => !g.promoted || isWorldCupCompetition(g.competitionName));
 }
 
 /** FIFA World Cup fixtures (prematch + live), optional kickoff window via `timeHours`. */

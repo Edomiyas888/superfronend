@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import appLogo from '../assets/app-logo.png';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
 import SportsSidebar from './SportsSidebar';
@@ -97,29 +98,41 @@ export default function Layout() {
               </button>
             )}
             <NavLink to="/" className="b365-brand" end title="S Bet">
-              <img src="/sblogo.png" alt="S Bet" className="b365-brand-logo" />
+              <img src={appLogo} alt="S Bet" className="b365-brand-logo" />
             </NavLink>
           </div>
 
           <div className="b365-header-actions">
             {loggedIn ? (
-              <>
+              <div className="b365-header-wallet">
                 <Link to="/wallet" className="b365-header-balance" title="Wallet">
-                  {balanceLabel}
+                  <span className="b365-header-balance__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M4 8.5A2.5 2.5 0 016.5 6H18a2 2 0 012 2v1.2M4 8.5V16a2 2 0 002 2h12a2 2 0 002-2v-1.2M4 8.5h16"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <circle cx="17" cy="13" r="1.25" fill="currentColor" />
+                    </svg>
+                  </span>
+                  <span className="b365-header-balance__text">{balanceLabel}</span>
                 </Link>
                 <Link to="/wallet?tab=deposit" className="b365-header-deposit-btn">
                   Deposit
                 </Link>
-              </>
+              </div>
             ) : isTelegramApp ? null : (
-              <>
+              <div className="b365-header-auth">
                 <NavLink to="/profile?tab=signup" className="b365-btn-outline b365-header-auth-btn">
                   Join
                 </NavLink>
                 <NavLink to="/profile" className="b365-btn-header-login b365-header-auth-btn">
                   Log In
                 </NavLink>
-              </>
+              </div>
             )}
 
             <button

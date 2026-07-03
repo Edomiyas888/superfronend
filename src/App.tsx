@@ -14,6 +14,7 @@ import './App.css';
 import './styles/motd-overrides.css';
 import './styles/home-ui.css';
 import './styles/bottom-nav.css';
+import './styles/app-header.css';
 
 export default function App() {
   return (

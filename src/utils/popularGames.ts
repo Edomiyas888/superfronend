@@ -26,10 +26,14 @@ export const POPULAR_DAY_WINDOW = 3;
  * Popular home list: one real fixture from today (if any), then upcoming real matches
  * within the next 3 days. Excludes Swarm stats / mythical / aggregate markets.
  */
-export function curatePopularGames(games: GameView[], maxGames = 16): GameView[] {
+export function curatePopularGames(
+  games: GameView[],
+  maxGames = 16,
+  dayWindow = POPULAR_DAY_WINDOW
+): GameView[] {
   const actual = games.filter((g) => !isSpecialOrVirtualFixture(g)).sort((a, b) => a.startTs - b.startTs);
   const todayKey = dayKeyLocal(Math.floor(Date.now() / 1000));
-  const maxDayKey = addDaysToDayKey(todayKey, POPULAR_DAY_WINDOW - 1);
+  const maxDayKey = addDaysToDayKey(todayKey, dayWindow - 1);
 
   let todayPick: GameView | undefined;
   const upcoming: GameView[] = [];
