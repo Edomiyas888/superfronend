@@ -9,8 +9,6 @@ import { useOddPriceFlash } from '../hooks/useOddPriceFlash';
 import OddsFlashArrow from './OddsFlashArrow';
 import LockGlyph from './LockGlyph';
 import TeamLogo from './TeamLogo';
-import WorldCup2026Button from './WorldCup2026Button';
-import FastKenoPromoButton from './FastKenoPromoButton';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { GameView } from '../api/types';
 
@@ -39,10 +37,6 @@ function formatMotdKickoff(ts: number): string {
 function MotdSkeleton() {
   return (
     <div className="b365-motd">
-      <div className="b365-motd-toolbar">
-        <div className="b365-motd-skel b365-motd-skel--wc-btn" />
-        <div className="b365-motd-skel b365-motd-skel--keno-btn" />
-      </div>
       <div className="b365-motd-card b365-motd-card--skeleton">
         <div className="b365-motd-teams">
           <div className="b365-motd-team">
@@ -153,11 +147,6 @@ export default function MatchOfTheDay() {
 
   return (
     <div className="b365-motd">
-      <div className="b365-motd-toolbar">
-        <WorldCup2026Button />
-        <FastKenoPromoButton />
-      </div>
-
       <div
         className="b365-motd-carousel"
         role="region"

@@ -47,7 +47,7 @@
   --b365-radius-sm: 6px;
   --b365-radius: 10px;
   --b365-radius-lg: 14px;
-  --b365-nav-h: 60px;
+  --b365-nav-h: 64px;
   /** Mobile sports strip total height (heading + horizontal scroller); fixed to avoid layout jump */
   --b365-sports-rail-total: 76px;
   --font-ui: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;

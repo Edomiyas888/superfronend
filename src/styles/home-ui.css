@@ -1,0 +1,702 @@
+/* ——— Home page layout ——— */
+.b365-home {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.b365-home-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.b365-home-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.b365-home-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.b365-home-section__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--b365-text);
+}
+
+.b365-home-section__link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--b365-text-muted);
+  text-decoration: none !important;
+}
+
+.b365-home-section__link:hover {
+  color: var(--b365-neon);
+}
+
+.b365-home-block {
+  padding: 14px 12px;
+  border-radius: var(--b365-radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(34, 34, 36, 0.92) 0%, rgba(20, 20, 22, 0.96) 100%);
+}
+
+.b365-home-block--spaced {
+  margin-top: 4px;
+}
+
+.b365-home-block .b365-page-title {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--b365-text);
+  text-transform: none;
+}
+
+.b365-home-block .b365-league-header {
+  margin: 8px 0 10px;
+  font-size: 0.75rem;
+  color: var(--b365-text-dim);
+}
+
+/* ——— Quick action tiles (Safari-style) ——— */
+.b365-home-actions {
+  margin: 0;
+  width: 100%;
+}
+
+.b365-home-actions__list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  align-items: stretch;
+}
+
+.b365-home-actions__item {
+  min-width: 0;
+  display: flex;
+}
+
+.b365-home-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 96px;
+  padding: 10px 4px 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(36, 42, 52, 0.95) 0%, rgba(18, 22, 28, 0.98) 100%);
+  color: var(--b365-text);
+  text-decoration: none !important;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.b365-home-action:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.b365-home-action:active {
+  transform: translateY(0);
+}
+
+.b365-home-action__visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex: 1 1 auto;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+}
+
+.b365-home-action__glow {
+  position: absolute;
+  width: 68%;
+  height: 68%;
+  border-radius: 50%;
+  filter: blur(10px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.b365-home-action--wc .b365-home-action__glow {
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.55) 0%, rgba(57, 255, 20, 0.25) 55%, transparent 72%);
+  animation: b365-safari-trophy-glow 2.4s ease-in-out infinite;
+}
+
+.b365-home-action--keno .b365-home-action__glow {
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.5) 0%, rgba(30, 120, 60, 0.2) 55%, transparent 72%);
+}
+
+.b365-home-action--live .b365-home-action__glow {
+  background: radial-gradient(circle, rgba(255, 193, 7, 0.55) 0%, rgba(255, 120, 40, 0.22) 55%, transparent 72%);
+}
+
+.b365-home-action--bets .b365-home-action__glow {
+  background: radial-gradient(circle, rgba(180, 120, 255, 0.45) 0%, rgba(255, 100, 180, 0.18) 55%, transparent 72%);
+}
+
+.b365-home-action__asset {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: auto;
+  height: 46px;
+  max-width: 84%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.b365-home-action__asset--keno-logo {
+  height: 34px;
+  max-width: 92%;
+}
+
+.b365-home-action__wc-trophy {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: auto;
+  height: 46px;
+  max-width: 84%;
+}
+
+.b365-home-action__label {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 1.1em;
+  padding: 0 2px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  color: #fff;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.b365-wc-trophy-icon {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: center 82%;
+  filter: blur(4px);
+  transform: scale(1.1);
+  opacity: 0.55;
+  transition:
+    filter 0.3s ease-out,
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+.b365-wc-trophy-icon--loading {
+  animation: b365-safari-trophy-skeleton 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.b365-wc-trophy-icon--loaded {
+  filter: blur(0);
+  transform: scale(1);
+  opacity: 1;
+}
+
+.b365-wc-trophy-icon--safari.b365-wc-trophy-icon--loaded {
+  animation: b365-safari-trophy-bounce 2.4s ease-in-out infinite;
+}
+
+.b365-motd-wc-btn__trophy {
+  width: auto;
+  height: 24px;
+}
+
+@keyframes b365-safari-trophy-skeleton {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes b365-safari-trophy-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1) rotate(0deg);
+  }
+  18% {
+    transform: translateY(-4px) scale(1.05, 0.96) rotate(-3deg);
+  }
+  36% {
+    transform: translateY(1px) scale(0.97, 1.04) rotate(2deg);
+  }
+  54% {
+    transform: translateY(-2px) scale(1.03, 0.98) rotate(-1.5deg);
+  }
+  72% {
+    transform: translateY(0) scale(1.01, 1) rotate(1deg);
+  }
+}
+
+@keyframes b365-safari-trophy-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-wc-trophy-icon--safari.b365-wc-trophy-icon--loaded,
+  .b365-wc-trophy-icon--loading,
+  .b365-home-action--wc .b365-home-action__glow {
+    animation: none;
+  }
+
+  .b365-wc-trophy-icon--loading {
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 380px) {
+  .b365-home-action {
+    min-height: 88px;
+    padding: 8px 2px 8px;
+    border-radius: 14px;
+  }
+
+  .b365-home-action__visual {
+    height: 46px;
+    min-height: 46px;
+    max-height: 46px;
+  }
+
+  .b365-home-action__asset,
+  .b365-home-action__wc-trophy {
+    height: 40px;
+    max-width: 82%;
+  }
+
+  .b365-home-action__asset--keno-logo {
+    height: 30px;
+    max-width: 94%;
+  }
+
+  .b365-home-action__label {
+    font-size: 0.62rem;
+  }
+}
+
+/* ——— Safari-style hero banner ——— */
+.b365-hero-carousel {
+  margin: 0;
+}
+
+.b365-hero-carousel__viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.b365-hero-carousel__viewport:active {
+  cursor: grabbing;
+}
+
+.b365-hero-carousel__track {
+  display: flex;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.b365-hero-carousel__slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+.b365-hero-banner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 176px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background:
+    radial-gradient(ellipse 90% 80% at 100% 40%, rgba(255, 193, 7, 0.14) 0%, transparent 58%),
+    linear-gradient(145deg, #101820 0%, #0b1016 48%, #121820 100%);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+  color: inherit;
+  text-decoration: none !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.b365-hero-banner:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.48);
+}
+
+.b365-hero-banner:active {
+  transform: translateY(0);
+}
+
+.b365-hero-banner__body {
+  position: relative;
+  flex: 1;
+  padding: 16px 14px 14px;
+  min-height: 132px;
+  overflow: hidden;
+}
+
+.b365-hero-banner__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.b365-hero-banner__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.b365-hero-banner__bg-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.b365-hero-banner__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 10, 8, 0.94) 0%,
+    rgba(5, 10, 8, 0.78) 34%,
+    rgba(5, 10, 8, 0.42) 52%,
+    rgba(5, 10, 8, 0.12) 68%,
+    transparent 82%
+  );
+}
+
+.b365-hero-banner--photo {
+  background: #071008;
+}
+
+.b365-hero-banner--photo.b365-hero-banner--keno,
+.b365-hero-banner--photo.b365-hero-banner--sports {
+  background: #071008;
+}
+
+.b365-hero-banner--photo .b365-hero-banner__title {
+  max-width: 72%;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+.b365-hero-banner--photo .b365-hero-banner__sub {
+  max-width: 66%;
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.b365-hero-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #facc15;
+  color: #0a0a0b;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.b365-hero-banner__title {
+  position: relative;
+  z-index: 1;
+  margin: 12px 0 6px;
+  max-width: 62%;
+  font-size: clamp(1.2rem, 5.2vw, 1.45rem);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.b365-hero-banner__title span {
+  display: block;
+}
+
+.b365-hero-banner__sub {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: 56%;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.b365-hero-banner__art {
+  position: absolute;
+  right: -4px;
+  bottom: 0;
+  width: 150px;
+  height: 118px;
+  pointer-events: none;
+}
+
+.b365-hero-banner__art svg {
+  width: 100%;
+  height: 100%;
+}
+
+.b365-hero-banner__art--wc {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  right: 6px;
+  bottom: 2px;
+  width: 148px;
+  height: 120px;
+}
+
+.b365-hero-banner__art-glow {
+  position: absolute;
+  inset: 8% 10% 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.42) 0%, rgba(255, 193, 7, 0.12) 45%, transparent 72%);
+  animation: b365-safari-trophy-glow 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.b365-hero-banner__wc-trophy {
+  position: relative;
+  z-index: 1;
+  height: 92px;
+  width: auto;
+  max-width: 100%;
+  filter: drop-shadow(0 10px 24px rgba(255, 193, 7, 0.35));
+}
+
+.b365-hero-banner--wc {
+  background:
+    radial-gradient(ellipse 90% 80% at 100% 40%, rgba(255, 193, 7, 0.16) 0%, transparent 58%),
+    linear-gradient(145deg, #101820 0%, #0b1016 48%, #121820 100%);
+}
+
+.b365-hero-banner__footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.42);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.b365-hero-banner__footer-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.b365-hero-banner__footer-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.b365-hero-banner__footer-sep {
+  color: rgba(255, 255, 255, 0.28);
+  font-weight: 700;
+}
+
+.b365-hero-carousel__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.b365-hero-carousel__dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(80, 80, 84, 0.85);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    width 0.25s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.b365-hero-carousel__dot.active {
+  width: 24px;
+  border-color: rgba(250, 204, 21, 0.75);
+  background: rgba(40, 40, 44, 0.95);
+}
+
+.b365-hero-carousel__dot-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #facc15 0%, #fde047 100%);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.b365-hero-carousel__dot.active .b365-hero-carousel__dot-fill {
+  animation: b365-hero-dot-progress 6s linear forwards;
+}
+
+.b365-hero-carousel.is-paused .b365-hero-carousel__dot-fill {
+  animation-play-state: paused;
+}
+
+@keyframes b365-hero-dot-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-hero-carousel__track {
+    transition: none;
+  }
+
+  .b365-hero-carousel__dot-fill {
+    animation: none;
+    transform: scaleX(1);
+  }
+
+  .b365-hero-banner:hover {
+    transform: none;
+  }
+
+  .b365-hero-banner__art-glow {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+@media (min-width: 768px) {
+  .b365-hero-banner {
+    min-height: 188px;
+  }
+
+  .b365-hero-banner__body {
+    padding: 18px 18px 16px;
+  }
+
+  .b365-hero-banner__title {
+    max-width: 54%;
+  }
+
+  .b365-hero-banner--photo .b365-hero-banner__title {
+    max-width: 58%;
+  }
+
+  .b365-hero-banner__sub {
+    max-width: 48%;
+    font-size: 0.78rem;
+  }
+
+  .b365-hero-banner--photo .b365-hero-banner__sub {
+    max-width: 52%;
+  }
+
+  .b365-hero-banner__art {
+    width: 180px;
+    height: 132px;
+    right: 8px;
+  }
+
+  .b365-hero-banner__art--wc {
+    width: 168px;
+    height: 128px;
+    right: 12px;
+  }
+
+  .b365-hero-banner__wc-trophy {
+    height: 104px;
+  }
+
+  .b365-home-action {
+    min-height: 98px;
+  }
+
+  .b365-home-action__asset,
+  .b365-home-action__wc-trophy {
+    height: 50px;
+  }
+
+  .b365-home-action__asset--keno-logo {
+    height: 36px;
+  }
+}

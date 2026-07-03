@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import WorldCupTrophyIcon from './WorldCupTrophyIcon';
 
 export default function WorldCup2026Button() {
   return (
@@ -7,22 +8,7 @@ export default function WorldCup2026Button() {
       <span className="b365-motd-wc-btn__shimmer" aria-hidden />
       <span className="b365-motd-wc-btn__inner">
         <span className="b365-motd-wc-btn__icon" aria-hidden>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M8 21h8M12 17v4M7 4h10l1 4H6l1-4z"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M8 8c0 2.5 1.8 4.5 4 4.5s4-2 4-4.5M6 8h12"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-            />
-            <path d="M9 12.5h6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-          </svg>
+          <WorldCupTrophyIcon className="b365-motd-wc-btn__trophy" />
         </span>
         <span className="b365-motd-wc-btn__text">
           <span className="b365-motd-wc-btn__title">World Cup</span>

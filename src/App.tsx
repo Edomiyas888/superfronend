@@ -12,6 +12,8 @@ import WorldCup2026Page from './pages/WorldCup2026Page';
 import KenoPage from './features/keno/KenoPage';
 import './App.css';
 import './styles/motd-overrides.css';
+import './styles/home-ui.css';
+import './styles/bottom-nav.css';
 
 export default function App() {
   return (

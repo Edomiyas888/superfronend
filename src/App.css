@@ -1097,82 +1097,7 @@ a.b365-btn-header-login {
   margin: 0.5rem 0 0;
 }
 
-/* ——— Bottom navigation ——— */
-.b365-bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 40;
-  display: flex;
-  justify-content: space-around;
-  align-items: stretch;
-  min-height: var(--b365-nav-h);
-  padding: 6px 4px calc(8px + env(safe-area-inset-bottom, 0px));
-  padding-left: max(4px, env(safe-area-inset-left, 0px));
-  padding-right: max(4px, env(safe-area-inset-right, 0px));
-  background: rgba(36, 36, 38, 0.97);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--b365-radius-lg) var(--b365-radius-lg) 0 0;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
-}
-
-.b365-bottom-nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 8px 2px;
-  color: var(--b365-text-muted);
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: 0.01em;
-  max-width: none;
-  min-width: 0;
-  border-radius: var(--b365-radius-sm);
-  position: relative;
-  -webkit-tap-highlight-color: transparent;
-  transition: color 0.15s ease, background 0.15s ease;
-}
-
-.b365-bottom-nav-item .b365-bottom-nav-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: inherit;
-}
-
-.b365-bottom-nav-item .b365-bottom-nav-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.b365-bottom-nav-item.active {
-  color: #fff;
-  background: rgba(57, 255, 20, 0.15);
-}
-
-.b365-bottom-nav-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 26px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--b365-neon);
-}
-
-.b365-bottom-nav-item.active .b365-bottom-nav-icon {
-  color: var(--b365-neon);
-}
+/* ——— Bottom navigation (see styles/bottom-nav.css) ——— */
 
 .b365-keno-logo {
   display: block;
@@ -6844,10 +6769,3 @@ html.tma body {
     border-radius: 20px;
   }
 }
-
-@media (max-width: 767px) {
-  .b365-bottom-nav-label {
-    font-size: 0.62rem;
-  }
-}
-
