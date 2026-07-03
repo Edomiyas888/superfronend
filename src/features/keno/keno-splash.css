@@ -1,17 +1,19 @@
-.keno-shell--booting .keno-shell__game {
-  visibility: hidden;
-  pointer-events: none;
-}
-
 .keno-splash {
   position: fixed;
-  inset: 0;
-  z-index: 120;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  z-index: 1200;
   display: flex;
   flex-direction: column;
   background: #121615;
   opacity: 1;
   transition: opacity 0.48s ease;
+  overflow: hidden;
 }
 
 .keno-splash--exit {
@@ -49,13 +51,14 @@
 .keno-splash__content {
   position: relative;
   z-index: 1;
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 24px 20px 48px;
+  min-height: 0;
+  padding: 24px 20px max(48px, env(safe-area-inset-bottom, 0px));
   text-align: center;
 }
 

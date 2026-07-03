@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import fastKenoLogo from '../assets/fastloader.png';
 import KenoMiniAppBar from './KenoMiniAppBar';
 import '../keno-splash.css';
@@ -7,7 +8,7 @@ type Props = {
 };
 
 export default function KenoSplashScreen({ exiting = false }: Props) {
-  return (
+  return createPortal(
     <div
       className={`keno-splash${exiting ? ' keno-splash--exit' : ''}`}
       role="status"
@@ -24,6 +25,7 @@ export default function KenoSplashScreen({ exiting = false }: Props) {
           <span className="keno-splash__bar-fill" />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

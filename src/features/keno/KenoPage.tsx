@@ -24,7 +24,7 @@ function KenoPageContent() {
 
   return (
     <Stack
-      className={`keno-shell${showSplash ? ' keno-shell--booting' : ''}`}
+      className="keno-shell"
       sx={{ minHeight: '100vh', width: '100%', maxWidth: '100%', background: '#1b1e1f', position: 'relative' }}
     >
       <div className="desktop_background" aria-hidden="true" />

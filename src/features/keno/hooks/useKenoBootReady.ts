@@ -15,48 +15,51 @@ function delay(ms: number): Promise<void> {
 
 export function useKenoBootReady(authLoading: boolean, gameReady: boolean): KenoBootPhase {
   const [phase, setPhase] = useState<KenoBootPhase>('loading');
+  const bootFinished = useRef(false);
+  const booting = useRef(false);
   const startedAt = useRef(Date.now());
-  const exitStarted = useRef(false);
 
   useEffect(() => {
-    if (phase !== 'loading' || exitStarted.current) return;
+    if (bootFinished.current || booting.current) return;
+    if (authLoading || !gameReady) return;
 
-    let cancelled = false;
+    booting.current = true;
 
-    const finishBoot = async () => {
-      if (exitStarted.current || cancelled) return;
-      exitStarted.current = true;
-
+    const completeBoot = async () => {
       const elapsed = Date.now() - startedAt.current;
       const remainingMin = Math.max(0, MIN_SPLASH_MS - elapsed);
       if (remainingMin > 0) {
         await delay(remainingMin);
       }
-      if (cancelled) return;
+      if (bootFinished.current) return;
 
       setPhase('exiting');
       await delay(FADE_OUT_MS);
-      if (cancelled) return;
+      if (bootFinished.current) return;
+
+      bootFinished.current = true;
       setPhase('done');
     };
 
-    const maxTimer = window.setTimeout(() => {
-      void finishBoot();
+    void (async () => {
+      try {
+        await preloadKenoAssets();
+        await completeBoot();
+      } finally {
+        booting.current = false;
+      }
+    })();
+
+    const forceDoneTimer = window.setTimeout(() => {
+      if (bootFinished.current) return;
+      bootFinished.current = true;
+      setPhase('done');
     }, MAX_BOOT_MS);
 
-    const tryFinish = async () => {
-      if (authLoading || !gameReady) return;
-      await preloadKenoAssets();
-      await finishBoot();
-    };
-
-    void tryFinish();
-
     return () => {
-      cancelled = true;
-      window.clearTimeout(maxTimer);
+      window.clearTimeout(forceDoneTimer);
     };
-  }, [authLoading, gameReady, phase]);
+  }, [authLoading, gameReady]);
 
   return phase;
-}
+};
