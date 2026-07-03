@@ -6,7 +6,9 @@ import MatchListByDate from '../components/MatchListByDate';
 import MatchListFilters from '../components/MatchListFilters';
 import { isDateFilterKey, type DateFilterKey } from '../constants/dateFilters';
 import {
-  isSportQuickLeagueSlug,
+  getDefaultQuickLeagueSlug,
+  quickLeagueToParam,
+  resolveQuickLeagueSlug,
   sportQuickLeagueFromSlug,
   type SportQuickLeagueSlug,
 } from '../constants/sportQuickLeagues';
@@ -26,11 +28,10 @@ export default function SportMatchesPage() {
   const alias = searchParams.get('alias')?.trim() || undefined;
   const periodParam = searchParams.get('period');
   const dateFilter: DateFilterKey = isDateFilterKey(periodParam) ? periodParam : DEFAULT_DATE_FILTER;
-  const leagueParam = searchParams.get('league')?.trim() ?? '';
-  const quickLeague: SportQuickLeagueSlug = isSportQuickLeagueSlug(leagueParam)
-    ? (leagueParam as SportQuickLeagueSlug)
-    : '';
-  const quickLeagueKey = sportQuickLeagueFromSlug(quickLeague).leagueKey ?? '';
+  const leagueParam = searchParams.get('league');
+  const defaultQuickLeague = getDefaultQuickLeagueSlug(alias);
+  const quickLeague: SportQuickLeagueSlug = resolveQuickLeagueSlug(leagueParam, alias);
+  const quickLeagueKey = sportQuickLeagueFromSlug(quickLeague, alias).leagueKey ?? '';
   const region = searchParams.get('region')?.trim() ?? '';
   const competition = searchParams.get('competition')?.trim() ?? '';
   const search = searchParams.get('q')?.trim() ?? '';
@@ -76,16 +77,19 @@ export default function SportMatchesPage() {
     [q.data, region, competition, search, quickLeagueKey]
   );
 
-  const activeFilterCount = countActiveFilters({
-    region,
-    competition,
-    search,
-    quickLeague: quickLeague,
-  });
+  const activeFilterCount = countActiveFilters(
+    {
+      region,
+      competition,
+      search,
+      quickLeague: quickLeague,
+    },
+    defaultQuickLeague
+  );
   const totalCount = q.data?.length ?? 0;
 
   const title = alias ? decodeURIComponent(alias) : 'Sport';
-  const quickLabel = sportQuickLeagueFromSlug(quickLeague).label;
+  const quickLabel = sportQuickLeagueFromSlug(quickLeague, alias).label;
 
   return (
     <div className="b365-sport-page">
@@ -98,11 +102,12 @@ export default function SportMatchesPage() {
       <h1 className="b365-page-title">{title}</h1>
 
       <MatchListFilters
+        sportAlias={alias}
         dateFilter={dateFilter}
         onDateFilterChange={setDateFilter}
         quickLeague={quickLeague}
         onQuickLeagueChange={(slug) =>
-          patchParams({ league: slug || null, region: null, competition: null })
+          patchParams({ league: quickLeagueToParam(slug), region: null, competition: null })
         }
         regions={regions}
         region={region}
@@ -113,7 +118,12 @@ export default function SportMatchesPage() {
         search={search}
         onSearchChange={(next) => patchParams({ q: next || null })}
         onClearFilters={() =>
-          patchParams({ league: null, region: null, competition: null, q: null })
+          patchParams({
+            league: defaultQuickLeague ? quickLeagueToParam(defaultQuickLeague) : 'all',
+            region: null,
+            competition: null,
+            q: null,
+          })
         }
         activeFilterCount={activeFilterCount}
         resultCount={filteredGames.length}

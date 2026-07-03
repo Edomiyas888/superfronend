@@ -56,9 +56,10 @@ export function filterGames(games: GameView[] | undefined, filters: MatchListFil
   });
 }
 
-export function countActiveFilters(filters: MatchListFilterState): number {
+export function countActiveFilters(filters: MatchListFilterState, defaultQuickLeague = ''): number {
   let n = 0;
-  if (filters.quickLeague.trim()) n += 1;
+  const quick = filters.quickLeague.trim();
+  if (quick && quick !== defaultQuickLeague) n += 1;
   if (filters.region.trim()) n += 1;
   if (filters.competition.trim()) n += 1;
   if (filters.search.trim()) n += 1;

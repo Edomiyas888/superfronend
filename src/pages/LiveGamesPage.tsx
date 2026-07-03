@@ -7,7 +7,9 @@ import LiveMatchFilters from '../components/LiveMatchFilters';
 import MatchListByDate from '../components/MatchListByDate';
 import { resolveInPlaySportAlias } from '../constants/inPlayDefaults';
 import {
-  isSportQuickLeagueSlug,
+  getDefaultQuickLeagueSlug,
+  quickLeagueToParam,
+  resolveQuickLeagueSlug,
   sportQuickLeagueFromSlug,
   type SportQuickLeagueSlug,
 } from '../constants/sportQuickLeagues';
@@ -22,11 +24,10 @@ export default function LiveGamesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const sportParam = searchParams.get('sport');
   const sportAlias = resolveInPlaySportAlias(sportParam);
-  const leagueParam = searchParams.get('league')?.trim() ?? '';
-  const quickLeague: SportQuickLeagueSlug = isSportQuickLeagueSlug(leagueParam)
-    ? (leagueParam as SportQuickLeagueSlug)
-    : '';
-  const quickLeagueKey = sportQuickLeagueFromSlug(quickLeague).leagueKey ?? '';
+  const leagueParam = searchParams.get('league');
+  const defaultQuickLeague = getDefaultQuickLeagueSlug(sportAlias);
+  const quickLeague: SportQuickLeagueSlug = resolveQuickLeagueSlug(leagueParam, sportAlias);
+  const quickLeagueKey = sportQuickLeagueFromSlug(quickLeague, sportAlias).leagueKey ?? '';
   const region = searchParams.get('region')?.trim() ?? '';
   const competition = searchParams.get('competition')?.trim() ?? '';
   const search = searchParams.get('q')?.trim() ?? '';
@@ -75,10 +76,10 @@ export default function LiveGamesPage() {
   );
 
   const activeFilterCount =
-    countActiveFilters({ region, competition, search, quickLeague }) +
+    countActiveFilters({ region, competition, search, quickLeague }, defaultQuickLeague) +
     (sportParam === 'all' ? 1 : 0);
   const totalCount = q.data?.length ?? 0;
-  const quickLabel = sportQuickLeagueFromSlug(quickLeague).label;
+  const quickLabel = sportQuickLeagueFromSlug(quickLeague, sportAlias).label;
   const sportLabel =
     sportAlias === undefined
       ? 'All sports'
@@ -103,7 +104,7 @@ export default function LiveGamesPage() {
         }
         quickLeague={quickLeague}
         onQuickLeagueChange={(slug) =>
-          patchParams({ league: slug || null, region: null, competition: null })
+          patchParams({ league: quickLeagueToParam(slug), region: null, competition: null })
         }
         regions={regions}
         region={region}
@@ -114,7 +115,13 @@ export default function LiveGamesPage() {
         search={search}
         onSearchChange={(next) => patchParams({ q: next || null })}
         onClearFilters={() =>
-          patchParams({ sport: null, league: null, region: null, competition: null, q: null })
+          patchParams({
+            sport: null,
+            league: defaultQuickLeague ? quickLeagueToParam(defaultQuickLeague) : 'all',
+            region: null,
+            competition: null,
+            q: null,
+          })
         }
         activeFilterCount={activeFilterCount}
         resultCount={filteredGames.length}

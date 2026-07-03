@@ -108,6 +108,21 @@ function matchesDutchEredivisie(competitionName: string): boolean {
   return c.includes('netherlands') || c.includes('dutch') || c.includes('holland') || c === 'eredivisie';
 }
 
+function matchesUfc(competitionName: string): boolean {
+  const c = norm(competitionName);
+  return c.includes('ufc') || c.includes('ultimate fighting championship');
+}
+
+function matchesBellator(competitionName: string): boolean {
+  const c = norm(competitionName);
+  return c.includes('bellator');
+}
+
+function matchesPfl(competitionName: string): boolean {
+  const c = norm(competitionName);
+  return c.includes('pfl') || c.includes('professional fighters league');
+}
+
 function defaultSubstringMatch(competitionName: string, league: string): boolean {
   const c = norm(competitionName);
   const l = norm(league);
@@ -128,6 +143,9 @@ const LEAGUE_MATCHERS: Record<string, (competitionName: string) => boolean> = {
   'FA Cup': (c) => defaultSubstringMatch(c, 'FA Cup'),
   'Primeira Liga': matchesPortuguesePrimeiraLiga,
   Eredivisie: matchesDutchEredivisie,
+  UFC: matchesUfc,
+  Bellator: matchesBellator,
+  PFL: matchesPfl,
 };
 
 /** Match Swarm `competition.name` to a Popular-leagues filter chip. */

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useSports } from '../contexts/SportsContext';
+import { sportPageSearchParams } from '../constants/sportQuickLeagues';
 import { SportIcon } from './SportIcon';
 
 export default function SportsSidebar() {
@@ -14,7 +15,7 @@ export default function SportsSidebar() {
 
       <nav className="b365-sports-list" aria-label="Sports">
         {sports.map((s) => {
-          const to = `/sport/${s.id}?alias=${encodeURIComponent(s.alias)}`;
+          const to = `/sport/${s.id}?${sportPageSearchParams(s.alias)}`;
           const active = loc.pathname === `/sport/${s.id}`;
           return (
             <Link key={s.id} to={to} className={`b365-sport-tile ${active ? 'active' : ''}`} title={s.name}>

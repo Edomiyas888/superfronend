@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { NormalizedSport } from '../api/types';
 import { DEFAULT_INPLAY_SPORT_ALIAS } from '../constants/inPlayDefaults';
-import { SPORT_QUICK_LEAGUE_FILTERS, type SportQuickLeagueSlug } from '../constants/sportQuickLeagues';
+import { getSportQuickLeagueFilters, isMmaSportAlias, type SportQuickLeagueSlug } from '../constants/sportQuickLeagues';
 import { SportIcon } from './SportIcon';
 
 type Props = {
@@ -48,6 +48,8 @@ export default function LiveMatchFilters({
 }: Props) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const advancedActive = Boolean(region || competition || search);
+  const quickLeagueFilters = getSportQuickLeagueFilters(sportAlias);
+  const showWorldCupLink = !isMmaSportAlias(sportAlias);
   const allSports = sportAlias === undefined;
 
   const sportChips = sports.filter((s) => (s.gameCount ?? 0) > 0 || s.alias === DEFAULT_INPLAY_SPORT_ALIAS);
@@ -114,7 +116,7 @@ export default function LiveMatchFilters({
         <span className="b365-match-filters__label">Competition</span>
         <div className="b365-pop-leagues b365-pop-leagues--compact" role="tablist" aria-label="Quick league filter">
           <div className="b365-pop-leagues-scroll">
-            {SPORT_QUICK_LEAGUE_FILTERS.map(({ slug, label, featured }) => {
+            {quickLeagueFilters.map(({ slug, label, featured }) => {
               const active = quickLeague === slug;
               const isWc = slug === 'world-cup';
               return (
@@ -144,7 +146,7 @@ export default function LiveMatchFilters({
             })}
           </div>
         </div>
-        {quickLeague === 'world-cup' ? (
+        {showWorldCupLink && quickLeague === 'world-cup' ? (
           <Link to="/world-cup-2026" className="b365-match-filters-wc-link">
             Open full World Cup 2026 hub →
           </Link>

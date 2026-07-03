@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DateFilterChips from './DateFilterChips';
 import type { DateFilterKey } from '../constants/dateFilters';
-import { SPORT_QUICK_LEAGUE_FILTERS, type SportQuickLeagueSlug } from '../constants/sportQuickLeagues';
+import { getSportQuickLeagueFilters, isMmaSportAlias, type SportQuickLeagueSlug } from '../constants/sportQuickLeagues';
 
 type Props = {
+  sportAlias?: string;
   dateFilter: DateFilterKey;
   onDateFilterChange: (key: DateFilterKey) => void;
   quickLeague: SportQuickLeagueSlug;
@@ -24,6 +25,7 @@ type Props = {
 };
 
 export default function MatchListFilters({
+  sportAlias,
   dateFilter,
   onDateFilterChange,
   quickLeague,
@@ -43,6 +45,8 @@ export default function MatchListFilters({
 }: Props) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const advancedActive = Boolean(region || competition || search);
+  const quickLeagueFilters = getSportQuickLeagueFilters(sportAlias);
+  const showWorldCupLink = !isMmaSportAlias(sportAlias);
 
   return (
     <section className="b365-match-filters-panel" aria-label="Match filters">
@@ -63,7 +67,7 @@ export default function MatchListFilters({
         <span className="b365-match-filters__label">Competition</span>
         <div className="b365-pop-leagues b365-pop-leagues--compact" role="tablist" aria-label="Quick league filter">
           <div className="b365-pop-leagues-scroll">
-            {SPORT_QUICK_LEAGUE_FILTERS.map(({ slug, label, featured }) => {
+            {quickLeagueFilters.map(({ slug, label, featured }) => {
               const active = quickLeague === slug;
               const isWc = slug === 'world-cup';
               return (
@@ -93,7 +97,7 @@ export default function MatchListFilters({
             })}
           </div>
         </div>
-        {quickLeague === 'world-cup' ? (
+        {showWorldCupLink && quickLeague === 'world-cup' ? (
           <Link to="/world-cup-2026" className="b365-match-filters-wc-link">
             Open full World Cup 2026 hub →
           </Link>

@@ -96,9 +96,5 @@ export const AuthProvider = ({ children }) => {
     loading: !hydrated,
   };
 
-  if (!hydrated) {
-    return null;
-  }
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
