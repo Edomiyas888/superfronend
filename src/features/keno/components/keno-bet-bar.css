@@ -142,15 +142,17 @@
 
 /* Tabs — Atlas .left_side_tabs_top / .tab_itm */
 .keno-nav-tabs {
-  margin-top: 3px;
+  margin-top: 0;
   width: 100%;
   font-size: 10px;
   line-height: 10px;
   text-align: left;
-  padding: 6px 8px 6px;
+  padding: 8px 12px 3px;
   box-sizing: border-box;
   overflow: visible;
   touch-action: pan-y;
+  background: rgba(18, 20, 21, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .keno-nav-tabs .MuiTabs-root {
@@ -163,35 +165,59 @@
   overflow: visible !important;
 }
 
-.keno-nav-tabs .MuiTabs-flexContainer {
-  justify-content: space-between;
+.keno-nav-tabs .MuiTabs-flexContainer,
+.keno-nav-tabs .MuiTabs-list {
+  justify-content: flex-start;
+  gap: 10px;
   width: 100%;
 }
 
-.keno-nav-tabs .MuiTab-root {
-  flex: 1 1 0 !important;
+.keno-nav-tabs .MuiTab-root,
+.keno-nav-tabs .MuiTab-root.MuiTab-fullWidth {
+  flex: 0 0 auto !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  flex-basis: auto !important;
   min-width: 0 !important;
   max-width: none !important;
-  min-height: 16px !important;
+  min-height: 22px !important;
   height: auto;
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 0 3px 15px !important;
-  margin: 0 8px 0 0 !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 6px;
+  padding: 0 0 8px 0 !important;
+  margin: 0 !important;
   font-family: 'SF Pro Display', sans-serif !important;
-  font-size: 0.94rem !important;
+  font-size: 0.82rem !important;
   font-weight: 400 !important;
-  line-height: 16px !important;
+  line-height: 1 !important;
   letter-spacing: 0;
+  text-align: left;
   text-transform: uppercase;
   color: #71ce96 !important;
   opacity: 1;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: 0 50%;
-  background-size: 12px 12px;
+  background: transparent !important;
   white-space: nowrap;
+}
+
+.keno-nav-tabs .MuiTab-root::before {
+  content: '';
+  display: block;
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.keno-nav-tabs .MuiTab-root > * {
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
 }
 
 .keno-nav-tabs .MuiTab-root:last-of-type {
@@ -200,6 +226,7 @@
 
 .keno-nav-tabs .MuiTab-root.Mui-selected {
   color: #71ce96 !important;
+  opacity: 1;
 }
 
 .keno-nav-tabs .MuiTab-root.Mui-selected::after {
@@ -207,9 +234,10 @@
   display: block;
   position: absolute;
   width: 100%;
-  height: 1.5px;
+  height: 2px;
   left: 0;
-  bottom: -3px;
+  bottom: 0;
+  border-radius: 1px 1px 0 0;
   background: #71ce96;
 }
 
@@ -217,23 +245,23 @@
   display: none;
 }
 
-.keno-nav-tabs .keno-nav-tabs__item--game,
-.keno-nav-tabs .keno-nav-tabs__item--game.Mui-selected {
+.keno-nav-tabs .keno-nav-tabs__item--game::before,
+.keno-nav-tabs .keno-nav-tabs__item--game.Mui-selected::before {
   background-image: url(https://cdn-atlas-v.com/games/keno/img/tab1.svg?v=2);
 }
 
-.keno-nav-tabs .keno-nav-tabs__item--history,
-.keno-nav-tabs .keno-nav-tabs__item--history.Mui-selected {
+.keno-nav-tabs .keno-nav-tabs__item--history::before,
+.keno-nav-tabs .keno-nav-tabs__item--history.Mui-selected::before {
   background-image: url(https://cdn-atlas-v.com/games/keno/img/tab2.svg?v=2);
 }
 
-.keno-nav-tabs .keno-nav-tabs__item--results,
-.keno-nav-tabs .keno-nav-tabs__item--results.Mui-selected {
+.keno-nav-tabs .keno-nav-tabs__item--results::before,
+.keno-nav-tabs .keno-nav-tabs__item--results.Mui-selected::before {
   background-image: url(https://cdn-atlas-v.com/games/keno/img/tab3.svg?v=2);
 }
 
-.keno-nav-tabs .keno-nav-tabs__item--statistics,
-.keno-nav-tabs .keno-nav-tabs__item--statistics.Mui-selected {
+.keno-nav-tabs .keno-nav-tabs__item--statistics::before,
+.keno-nav-tabs .keno-nav-tabs__item--statistics.Mui-selected::before {
   background-image: url(https://cdn-atlas-v.com/games/keno/img/tab5.svg?v=2);
 }
 

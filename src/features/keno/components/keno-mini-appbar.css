@@ -56,6 +56,15 @@
   outline-offset: 2px;
 }
 
+.keno-mini-appbar__logo {
+  display: block;
+  height: 22px;
+  width: auto;
+  max-width: 108px;
+  object-fit: contain;
+  object-position: left center;
+}
+
 .keno-mini-appbar__title {
   font-size: 0.82rem;
   font-weight: 700;

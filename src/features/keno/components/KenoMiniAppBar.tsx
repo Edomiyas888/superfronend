@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import fastKenoLogo from '../../../../reference/safarigames-assets/images/image.png';
 import './keno-mini-appbar.css';
 
 export default function KenoMiniAppBar() {
@@ -31,7 +32,7 @@ export default function KenoMiniAppBar() {
             />
           </svg>
         </button>
-        <span className="keno-mini-appbar__title">Fast Keno</span>
+        <img src={fastKenoLogo} alt="Fast Keno" className="keno-mini-appbar__logo" draggable={false} />
       </div>
     </header>
   );

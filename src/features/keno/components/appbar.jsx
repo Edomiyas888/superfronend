@@ -5,7 +5,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import { IconButton } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import Logo from "../assets/fastloader.png";
+import Logo from '../../../../reference/safarigames-assets/images/image.png';
 import RulesOverlay from './riles';
 import MenuIcon from '@mui/icons-material/Menu';
 import LoginIcon from '@mui/icons-material/Login';

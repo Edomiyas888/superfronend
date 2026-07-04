@@ -24,6 +24,7 @@ declare module '@/features/keno/components/KenoGameDisplay' {
     state: KenoPublicState | null;
     error: string | null;
     roundNo: number | null;
+    phase: 'betting' | 'drawing' | 'settled';
     countdown: number;
     calledNumbers: number[];
     allBets: KenoPublicState['allBets'];

@@ -1,34 +1,54 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import '../components/keno-tabs-content.css';
 
 const StatsTabContent = ({ numberFrequencies }) => {
-  const freqValues = Object.values(numberFrequencies);
-  const maxFreq = freqValues.length > 0 ? Math.max(...freqValues) : 0;
+  const [sortByFrequency, setSortByFrequency] = useState(false);
+
+  const rows = useMemo(() => {
+    const items = Array.from({ length: 80 }, (_, index) => {
+      const num = index + 1;
+      return {
+        num,
+        freq: numberFrequencies[num] || 0,
+      };
+    });
+
+    if (sortByFrequency) {
+      return items.sort((a, b) => b.freq - a.freq || a.num - b.num);
+    }
+
+    return items;
+  }, [numberFrequencies, sortByFrequency]);
+
+  const maxFreq = useMemo(
+    () => Math.max(0, ...rows.map((row) => row.freq)),
+    [rows],
+  );
 
   return (
-    <div className="keno-tab-content">
-      <div className="keno-tab-content__header">
-        <span>Last 100 rounds</span>
-        <span>Sort</span>
+    <div className="keno-tab-content keno-tab-content--statistics">
+      <div className="keno-stats-toolbar">
+        <span className="keno-stats-toolbar__label">Last 100 rounds</span>
+        <button
+          type="button"
+          className="keno-stats-toolbar__sort"
+          onClick={() => setSortByFrequency((prev) => !prev)}
+        >
+          Sort
+          <span className="keno-stats-toolbar__sort-icon" aria-hidden="true" />
+        </button>
       </div>
-      <div className="keno-stats-table-header">
-        <span className="keno-stats-table-header__num">#</span>
-        <span className="keno-stats-table-header__bar" />
-        <span className="keno-stats-table-header__val">Cnt</span>
-      </div>
-      {Array.from({ length: 80 }, (_, i) => i + 1).map((num) => {
-        const freq = numberFrequencies[num] || 0;
-        const progressPercent = maxFreq ? (freq / maxFreq) * 100 : 0;
+
+      {rows.map((row) => {
+        const progressPercent = maxFreq ? (row.freq / maxFreq) * 100 : 0;
 
         return (
-          <div className="keno-stats-row" key={num}>
-            <div className="keno-stats-row__num">
-              <span className="keno-stats-row__num-badge">{num}</span>
-            </div>
+          <div className="keno-stats-row" key={row.num}>
+            <span className="keno-stats-row__num-badge">{row.num}</span>
             <div className="keno-stats-row__bar-wrap">
               <div className="keno-stats-row__bar" style={{ width: `${progressPercent}%` }} />
             </div>
-            <div className="keno-stats-row__val">{freq}</div>
+            <span className="keno-stats-row__val">{row.freq}</span>
           </div>
         );
       })}

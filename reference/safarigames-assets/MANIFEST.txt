@@ -1,0 +1,39 @@
+OK  200  15406B  /favicon.ico
+FAIL ERR  /images/default-promotion.jpg  (HTTP Error 404: Not Found)
+OK  200  6764B  /images/gift-box-tab.webp
+OK  200  3108B  /images/icon-trophy.webp
+OK  200  203424B  /images/iphone-popup4.webp
+OK  200  84420B  /images/maleda-popup.webp
+OK  200  7094B  /images/rocket.webp
+OK  200  8580B  /images/spin-tab.webp
+OK  200  9252B  /images/trophy-tab.webp
+OK  200  28718B  /lottie/Hulugram_Duck_Animation.lottie
+OK  200  22028B  /lottie/Hulugram_Logo_Animation.lottie
+OK  200  58579B  /lottie/Hulugram_Wallet_Animation.json
+OK  200  54913B  /lottie/battle.lottie
+OK  200  156131B  /lottie/calendar.json
+OK  200  1219B  /lottie/check.lottie
+OK  200  13274B  /lottie/confetti.lottie
+OK  200  5956B  /lottie/coupon.lottie
+OK  200  1392B  /lottie/failed.lottie
+OK  200  124375B  /lottie/gift.json
+OK  200  33166B  /lottie/invite.lottie
+OK  200  60592B  /lottie/rocket2.lottie
+OK  200  15331B  /lottie/soon.lottie
+OK  200  181813B  /lottie/star.json
+FAIL ERR  /lottie/stick_moneygun.json  (HTTP Error 404: Not Found)
+OK  200  69539B  /lottie/ticket.lottie
+OK  200  11910B  /lottie/trophy.lottie
+OK  200  3407B  /lottie/wheel.lottie
+OK  200  2871B  /payment-methods/cbe-birr.jpg
+OK  200  27222B  /payment-methods/m-pessa.png
+OK  200  3498B  /payment-methods/telebirr.jpg
+OK  200  21868B  /support-duck.jpg
+FAIL ERR  /assets/img/icon-256-back.png  (HTTP Error 404: Not Found)
+FAIL ERR  /assets/imgs/2411/8BE1A4A434D8F58A.png  (HTTP Error 404: Not Found)
+FAIL ERR  /assets/imgs/247/58E63FEA47A2B7D7.png  (HTTP Error 404: Not Found)
+FAIL ERR  /assets/tonconnect-icon.png  (HTTP Error 404: Not Found)
+FAIL ERR  /assets/ui/qr-logo.png  (HTTP Error 404: Not Found)
+OK  200  26588B  /_next/static/media/9dd75fadc5b3df29-s.p.woff2
+
+Downloaded: 30  Failed: 7

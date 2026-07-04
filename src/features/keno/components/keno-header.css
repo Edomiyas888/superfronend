@@ -46,9 +46,9 @@
 
 .keno-header__brand-img {
   display: block;
-  height: 20px;
+  height: 22px;
   width: auto;
-  max-width: 78px;
+  max-width: 108px;
   object-fit: contain;
   object-position: left center;
 }
@@ -229,8 +229,8 @@
   }
 
   .keno-header__brand-img {
-    height: 19px;
-    max-width: none;
+    height: 24px;
+    max-width: 120px;
   }
 
   .keno-header__status-pill {
@@ -258,8 +258,8 @@
   }
 
   .keno-header__brand-img {
-    height: 24px;
-    max-width: 84px;
+    height: 20px;
+    max-width: 96px;
   }
 
   .keno-header__status-pill {

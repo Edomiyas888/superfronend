@@ -29,6 +29,7 @@ const StatsTabContent = lazy(() => import('../tabs/NumbersFrequencyTab'));
 export default function KenoGameDisplay({ game }) {
   const {
     roundNo,
+    phase,
     countdown,
     calledNumbers,
     selfBets,
@@ -149,8 +150,8 @@ export default function KenoGameDisplay({ game }) {
         className="keno-nav-tabs"
         value={tabIndex}
         onChange={handleTabChange}
-        variant="fullWidth"
-        TabIndicatorProps={{ style: { display: 'none' } }}
+        variant="standard"
+        slotProps={{ indicator: { style: { display: 'none' } } }}
       >
         <Tab className="keno-nav-tabs__item keno-nav-tabs__item--game" label={t('Game')} id="tab-0" />
         <Tab className="keno-nav-tabs__item keno-nav-tabs__item--history" label={t('History')} id="tab-1" />
@@ -158,17 +159,19 @@ export default function KenoGameDisplay({ game }) {
         <Tab className="keno-nav-tabs__item keno-nav-tabs__item--statistics" label={t('Statistics')} id="tab-3" />
       </Tabs>
 
-      <div className="keno-stats-bar">
-        <span className="keno-stats-bar__item">
-          All<span className="keno-stats-bar__value">{displayedTotalPlayers}</span>
-        </span>
-        <span className="keno-stats-bar__item">
-          My tickets<span className="keno-stats-bar__value">{selfBets?.length ?? 0}</span>
-        </span>
-        <span className="keno-stats-bar__item">
-          My bets<span className="keno-stats-bar__value">{myTotalStake}</span>
-        </span>
-      </div>
+      {tabIndex === 0 ? (
+        <div className="keno-stats-bar">
+          <span className="keno-stats-bar__item">
+            All<span className="keno-stats-bar__value">{displayedTotalPlayers}</span>
+          </span>
+          <span className="keno-stats-bar__item">
+            My tickets<span className="keno-stats-bar__value">{selfBets?.length ?? 0}</span>
+          </span>
+          <span className="keno-stats-bar__item">
+            My bets<span className="keno-stats-bar__value">{myTotalStake}</span>
+          </span>
+        </div>
+      ) : null}
 
       <Suspense fallback={<div className="keno-tab-content__empty">Loading…</div>}>
         <TabPanel value={tabIndex} index={0}>
@@ -193,7 +196,7 @@ export default function KenoGameDisplay({ game }) {
           />
         </TabPanel>
         <TabPanel value={tabIndex} index={2}>
-          <StatisticsTabContent roundsData={roundsData} />
+          <StatisticsTabContent roundsData={roundsData} roundNo={roundNo} phase={phase} />
         </TabPanel>
         <TabPanel value={tabIndex} index={3}>
           <StatsTabContent numberFrequencies={numberFrequencies} />

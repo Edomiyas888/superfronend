@@ -100,6 +100,7 @@ export function useKenoGameState() {
   }, [getAuthHeader, token, userId, socketEnabled]);
 
   const roundNo = state?.roundNo ?? null;
+  const phase = state?.phase ?? 'betting';
   const countdown = state?.countdown ?? 0;
   const calledNumbers = state?.calledNumbers ?? [];
   const allBets = state?.allBets ?? [];
@@ -116,6 +117,7 @@ export function useKenoGameState() {
     error,
     socketConnected,
     roundNo,
+    phase,
     countdown,
     calledNumbers,
     allBets,

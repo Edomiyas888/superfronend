@@ -1,75 +1,12 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { CircularProgress } from '@mui/material';
 import PlayerUsername, { maskName } from '../components/fragments/maskPlayerName';
 import FairnessLogo from '../assets/fairnesslogo.jpg';
-import { kenoPayouts } from '../utils/kenoPayouts';
 import { filterUnconfirmedPendingBets } from '../utils/kenoBetMatch';
 import { t } from '../utils/translator';
+import KenoTicketCard from '../components/KenoTicketCard';
 import '../components/keno-ticket.css';
 
 const OTHERS_INITIAL_COUNT = 10;
-
-function KenoTicketCard({
-  title,
-  bet,
-  calledNumbers,
-  calculatePayout,
-  isPending = false,
-}) {
-  const payoutAmount = calculatePayout(bet);
-  const hasWon = payoutAmount > 0;
-  const matches = bet.selectedNumbers.filter((num) => calledNumbers.includes(num))?.length;
-  const odd = kenoPayouts[bet.selectedNumbers?.length]?.[matches];
-
-  return (
-    <div className={`keno-ticket-card${hasWon ? ' keno-ticket-card--won' : ''}`}>
-      <div className="keno-ticket-card__title">{title}</div>
-
-      <div className="keno-ticket-card__numbers">
-        {Array.from({ length: 10 }, (_, slotIndex) => {
-          const number =
-            bet.selectedNumbers && bet.selectedNumbers[slotIndex]
-              ? bet.selectedNumbers[slotIndex]
-              : undefined;
-          const isMatched = number != null && calledNumbers.includes(number);
-
-          return (
-            <div
-              key={slotIndex}
-              className={[
-                'keno-ticket-card__number',
-                number != null ? 'keno-ticket-card__number--filled' : '',
-                isMatched ? 'keno-ticket-card__number--matched' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              {number != null ? (
-                <span className="keno-ticket-card__number-text">{number}</span>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="keno-ticket-card__footer">
-        <div className="keno-ticket-card__footer-bet">
-          Bet {bet.betAmount}
-          {hasWon && odd >= 1 ? ` x${odd}` : ''}
-        </div>
-        <div className={`keno-ticket-card__footer-status${hasWon ? ' keno-ticket-card__footer-status--won' : ''}`}>
-          {hasWon ? `Won ${payoutAmount.toFixed(2)} ETB` : 'Waiting'}
-        </div>
-      </div>
-
-      {isPending ? (
-        <div className="keno-ticket-card__pending">
-          <CircularProgress size={18} sx={{ color: '#71cd95' }} />
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 const GameTabContent = React.memo(({
   selfBets,
