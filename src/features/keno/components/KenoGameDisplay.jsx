@@ -175,6 +175,7 @@ export default function KenoGameDisplay({ game }) {
         <TabPanel value={tabIndex} index={0}>
           <GameTabContent
             showSummary={false}
+            roundNo={roundNo}
             selfBets={selfBets}
             calledNumbers={calledNumbers}
             roundsData={roundsData}

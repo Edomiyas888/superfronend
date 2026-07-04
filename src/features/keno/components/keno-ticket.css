@@ -145,3 +145,47 @@
 .keno-ticket-card-wrap {
   position: relative;
 }
+
+.keno-ticket-card-wrap--enter {
+  animation: keno-ticket-enter 0.35s ease-out;
+}
+
+@keyframes keno-ticket-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.keno-ticket-section--others {
+  margin-top: 4px;
+}
+
+.keno-show-more-btn {
+  display: block;
+  width: 100%;
+  margin: 4px 0 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(113, 205, 149, 0.35);
+  border-radius: 6px;
+  background: rgba(113, 205, 149, 0.08);
+  color: #71cd95;
+  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.keno-show-more-btn:hover {
+  background: rgba(113, 205, 149, 0.16);
+  border-color: rgba(113, 205, 149, 0.55);
+}
+
+.keno-show-more-btn:active {
+  transform: scale(0.99);
+}

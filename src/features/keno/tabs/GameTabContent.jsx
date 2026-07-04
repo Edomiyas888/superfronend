@@ -1,16 +1,13 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { CircularProgress } from '@mui/material';
-import PlayerUsername from '../components/fragments/maskPlayerName';
+import PlayerUsername, { maskName } from '../components/fragments/maskPlayerName';
 import FairnessLogo from '../assets/fairnesslogo.jpg';
 import { kenoPayouts } from '../utils/kenoPayouts';
 import { filterUnconfirmedPendingBets } from '../utils/kenoBetMatch';
+import { t } from '../utils/translator';
 import '../components/keno-ticket.css';
 
-const maskName = (name) => {
-  if (!name) return '';
-  if (name.length <= 2) return name;
-  return `${name.charAt(0)}${'*'.repeat(name.length - 2)}${name.charAt(name.length - 1)}`;
-};
+const OTHERS_INITIAL_COUNT = 10;
 
 function KenoTicketCard({
   title,
@@ -82,13 +79,28 @@ const GameTabContent = React.memo(({
   displayedTotalPlayers,
   pendingBets = [],
   showSummary = false,
+  roundNo = null,
 }) => {
-  const topOtherBets = useMemo(() => {
+  const [showMoreOthers, setShowMoreOthers] = useState(false);
+
+  useEffect(() => {
+    setShowMoreOthers(false);
+  }, [roundNo]);
+
+  const sortedOtherBets = useMemo(() => {
     return combinedOtherBets
       .slice()
-      .sort((a, b) => b.betAmount - a.betAmount)
-      .slice(0, 20);
+      .sort((a, b) => b.betAmount - a.betAmount);
   }, [combinedOtherBets]);
+
+  const visibleOtherBets = useMemo(() => {
+    if (showMoreOthers) {
+      return sortedOtherBets;
+    }
+    return sortedOtherBets.slice(0, OTHERS_INITIAL_COUNT);
+  }, [sortedOtherBets, showMoreOthers]);
+
+  const hiddenOthersCount = Math.max(0, sortedOtherBets.length - OTHERS_INITIAL_COUNT);
 
   const visiblePendingBets = useMemo(
     () => filterUnconfirmedPendingBets(pendingBets, selfBets),
@@ -125,13 +137,17 @@ const GameTabContent = React.memo(({
       );
 
     return (
-      <KenoTicketCard
+      <div
+        className="keno-ticket-card-wrap keno-ticket-card-wrap--enter"
         key={bet.betId || bet.userId || index}
-        title={playerLabel}
-        bet={bet}
-        calledNumbers={calledNumbers}
-        calculatePayout={calculatePayout}
-      />
+      >
+        <KenoTicketCard
+          title={playerLabel}
+          bet={bet}
+          calledNumbers={calledNumbers}
+          calculatePayout={calculatePayout}
+        />
+      </div>
     );
   };
 
@@ -160,9 +176,18 @@ const GameTabContent = React.memo(({
         </div>
       ) : null}
 
-      {topOtherBets.length > 0 ? (
-        <div className="keno-ticket-section">
-          {topOtherBets.map(renderOtherBet)}
+      {visibleOtherBets.length > 0 ? (
+        <div className="keno-ticket-section keno-ticket-section--others">
+          {visibleOtherBets.map(renderOtherBet)}
+          {hiddenOthersCount > 0 && !showMoreOthers ? (
+            <button
+              type="button"
+              className="keno-show-more-btn"
+              onClick={() => setShowMoreOthers(true)}
+            >
+              {t('Show More')} ({hiddenOthersCount})
+            </button>
+          ) : null}
         </div>
       ) : null}
 

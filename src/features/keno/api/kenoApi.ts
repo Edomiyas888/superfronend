@@ -18,6 +18,7 @@ export type KenoPublicState = {
     timestamp: number;
   }>;
   myBets: KenoPublicState['allBets'];
+  marketingBets: KenoPublicState['allBets'];
   roundsHistory: Record<
     string,
     {

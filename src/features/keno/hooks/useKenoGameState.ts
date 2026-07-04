@@ -121,7 +121,7 @@ export function useKenoGameState() {
     allBets,
     selfBets,
     otherBets: allBets.filter((b) => b.userId !== userId),
-    fakePlayers: [],
+    fakePlayers: state?.marketingBets ?? [],
     roundsData,
     simulatedCount,
     displayedTotalPlayers,
