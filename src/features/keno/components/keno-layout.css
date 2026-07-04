@@ -92,7 +92,6 @@
   .keno-game-display {
     margin-top: 2px;
     border-radius: 0 0 10px 10px;
-    overflow: hidden;
   }
 
   .keno-game-stage {

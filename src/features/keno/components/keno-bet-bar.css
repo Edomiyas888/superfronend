@@ -149,24 +149,27 @@
   text-align: left;
   padding: 6px 8px 6px;
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow: visible;
+  touch-action: pan-y;
 }
 
 .keno-nav-tabs .MuiTabs-root {
   width: 100%;
   min-height: 0;
+  overflow: visible !important;
 }
 
 .keno-nav-tabs .MuiTabs-scroller {
-  overflow-x: hidden !important;
+  overflow: visible !important;
 }
 
 .keno-nav-tabs .MuiTabs-flexContainer {
-  justify-content: flex-start;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .keno-nav-tabs .MuiTab-root {
-  flex: 0 0 auto !important;
+  flex: 1 1 0 !important;
   min-width: 0 !important;
   max-width: none !important;
   min-height: 16px !important;

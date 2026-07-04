@@ -149,8 +149,7 @@ export default function KenoGameDisplay({ game }) {
         className="keno-nav-tabs"
         value={tabIndex}
         onChange={handleTabChange}
-        variant="scrollable"
-        scrollButtons={false}
+        variant="fullWidth"
         TabIndicatorProps={{ style: { display: 'none' } }}
       >
         <Tab className="keno-nav-tabs__item keno-nav-tabs__item--game" label={t('Game')} id="tab-0" />

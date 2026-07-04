@@ -1,12 +1,28 @@
+html.keno-page,
+html.keno-page body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .keno-shell {
   min-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   width: 100%;
   max-width: 100%;
   background: #1b1e1f;
   position: relative;
   isolation: isolate;
   overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   color: #fff;
+}
+
+.keno-shell--splash {
+  overflow: hidden;
 }
 
 .keno-shell .desktop_background {

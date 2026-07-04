@@ -1,4 +1,5 @@
 import { Stack } from '@mui/material';
+import { useEffect } from 'react';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/features/keno/contexts/AuthContext';
 import Header from '@/features/keno/components/appbar';
@@ -22,10 +23,17 @@ function KenoPageContent() {
   const bootPhase = useKenoBootReady(authLoading, gameReady);
   const showSplash = bootPhase !== 'done';
 
+  useEffect(() => {
+    document.documentElement.classList.add('keno-page');
+    return () => {
+      document.documentElement.classList.remove('keno-page');
+    };
+  }, []);
+
   return (
     <Stack
-      className="keno-shell"
-      sx={{ minHeight: '100vh', width: '100%', maxWidth: '100%', background: '#1b1e1f', position: 'relative' }}
+      className={`keno-shell${showSplash ? ' keno-shell--splash' : ''}`}
+      sx={{ width: '100%', maxWidth: '100%', background: '#1b1e1f', position: 'relative' }}
     >
       <div className="desktop_background" aria-hidden="true" />
       <div className="keno-shell__game">
