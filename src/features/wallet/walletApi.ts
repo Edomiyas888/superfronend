@@ -152,8 +152,8 @@ export async function fetchTelebirrDepositInfo(
   return {
     provider: 'telebirr',
     currency: typeof data.currency === 'string' ? data.currency : 'ETB',
-    recipientName: typeof data.recipientName === 'string' ? data.recipientName : 'edoimas Tariku',
-    recipientPhone: typeof data.recipientPhone === 'string' ? data.recipientPhone : '0935616694',
+    recipientName: typeof data.recipientName === 'string' ? data.recipientName : 'user user',
+    recipientPhone: typeof data.recipientPhone === 'string' ? data.recipientPhone : '0912345678',
     instructions: Array.isArray(data.instructions)
       ? data.instructions.filter((s): s is string => typeof s === 'string')
       : [],
