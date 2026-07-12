@@ -11,17 +11,35 @@ const DEFAULT_URL = 'http://localhost:3001/api/';
  * superbet-api origin (no `/api` suffix) — used for `/v1/auth/*`, wallet, etc.
  * Set `VITE_API_URL` or derive from `VITE_SWARM_API_URL` (e.g. `http://localhost:3001/api/` → `http://localhost:3001`).
  */
+function deriveBaseFromSwarmUrl(swarm: string): string {
+  return swarm.replace(/\/api\/?$/i, '').replace(/\/$/, '');
+}
+
+/** Avoid localhost API calls from deployed HTTPS pages (mixed content + CORS). */
+function resolveApiBase(explicit: string | undefined, swarm: string | undefined): string {
+  let base = explicit
+    ? explicit.replace(/\/$/, '')
+    : swarm
+      ? deriveBaseFromSwarmUrl(swarm)
+      : 'http://localhost:3001';
+
+  const onLocalPage =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const pointsToLocalDev = /localhost|127\.0\.0\.1/.test(base);
+
+  if (import.meta.env.PROD && pointsToLocalDev && !onLocalPage && swarm) {
+    base = deriveBaseFromSwarmUrl(swarm) || base;
+  }
+
+  return base;
+}
+
 export function getApiBaseUrl(): string {
-  const explicit = import.meta.env.VITE_API_URL?.trim();
-  if (explicit) {
-    return explicit.replace(/\/$/, '');
-  }
-  const swarm = import.meta.env.VITE_SWARM_API_URL?.trim();
-  if (swarm) {
-    const base = swarm.replace(/\/api\/?$/i, '').replace(/\/$/, '');
-    if (base) return base;
-  }
-  return 'http://localhost:3001';
+  return resolveApiBase(
+    import.meta.env.VITE_API_URL?.trim(),
+    import.meta.env.VITE_SWARM_API_URL?.trim()
+  );
 }
 
 export function getSwarmApiUrl(): string {

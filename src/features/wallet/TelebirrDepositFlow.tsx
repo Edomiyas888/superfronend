@@ -173,8 +173,8 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
     }
   };
 
-  const payeeName = info?.recipientName ?? 'edoimas Tariku';
-  const payeePhone = info?.recipientPhone ?? '0935616694';
+  const payeeName = info?.recipientName ?? 'user user';
+  const payeePhone = info?.recipientPhone ?? '0912345678';
 
   if (success) {
     return (

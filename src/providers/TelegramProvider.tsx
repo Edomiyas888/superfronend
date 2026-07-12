@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionStore } from '../features/auth/sessionStore';
+import { mapFetchErrorMessage } from '../lib/fetchWithRetry';
 import {
   getTelegramInitData,
   getTelegramStartParam,
@@ -33,37 +34,41 @@ export default function TelegramProvider({ children }: Props) {
   const inTma = isTelegramMiniApp();
   const [ready, setReady] = useState(!inTma);
   const [bootError, setBootError] = useState<string | null>(null);
+  const [bootAttempt, setBootAttempt] = useState(0);
+
+  const bootTelegram = useCallback(async () => {
+    const initData = getTelegramInitData();
+    try {
+      if (initData) {
+        const result = await loginWithTelegram(initData);
+        setBootError(null);
+        const startParam = result.startParam ?? getTelegramStartParam();
+        const route = startParam ? routeFromStartParam(startParam) : null;
+        if (route) navigate(route, { replace: true });
+      } else {
+        await hydrate();
+        setBootError('Open Super Bet from the Telegram bot menu to sign in.');
+      }
+    } catch (e) {
+      await hydrate();
+      const msg = mapFetchErrorMessage(e, 'Telegram sign-in failed.');
+      if (!useSessionStore.getState().username) {
+        setBootError(msg);
+      } else {
+        setBootError(null);
+      }
+    } finally {
+      setReady(true);
+    }
+  }, [hydrate, loginWithTelegram, navigate]);
 
   useEffect(() => {
     if (!inTma) return;
 
     initTelegramWebApp();
-
-    const boot = async () => {
-      const initData = getTelegramInitData();
-      try {
-        if (initData) {
-          const result = await loginWithTelegram(initData);
-          const startParam = result.startParam ?? getTelegramStartParam();
-          const route = startParam ? routeFromStartParam(startParam) : null;
-          if (route) navigate(route, { replace: true });
-        } else {
-          await hydrate();
-          setBootError('Open Super Bet from the Telegram bot menu to sign in.');
-        }
-      } catch (e) {
-        await hydrate();
-        const msg = e instanceof Error ? e.message : 'Telegram sign-in failed.';
-        if (!useSessionStore.getState().username) {
-          setBootError(msg);
-        }
-      } finally {
-        setReady(true);
-      }
-    };
-
-    void boot();
-  }, [hydrate, inTma, loginWithTelegram, navigate]);
+    setReady(false);
+    void bootTelegram();
+  }, [bootTelegram, bootAttempt, inTma]);
 
   if (!ready) {
     return (
@@ -80,6 +85,16 @@ export default function TelegramProvider({ children }: Props) {
         {getTelegramUserLabel() ? (
           <p className="tma-boot__user">{getTelegramUserLabel()}</p>
         ) : null}
+        <button
+          type="button"
+          className="tma-boot__retry"
+          onClick={() => {
+            setReady(false);
+            setBootAttempt((n) => n + 1);
+          }}
+        >
+          Try again
+        </button>
       </div>
     );
   }

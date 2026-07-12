@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getApiBaseUrl } from '../../api/config';
+import { fetchWithRetry, pingApiHealth } from '../../lib/fetchWithRetry';
 import { isTelegramMiniApp } from '../../lib/telegram/webApp';
 
 const TOKEN_KEY = 'superbet_token';
@@ -188,7 +189,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   loginWithTelegram: async (initData) => {
     const base = getApiBaseUrl();
-    const res = await fetch(`${base}/v1/auth/telegram`, {
+    await pingApiHealth(base);
+    const res = await fetchWithRetry(`${base}/v1/auth/telegram`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ initData: initData.trim() }),
