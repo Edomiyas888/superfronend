@@ -5562,22 +5562,6 @@ html.tma body {
   font-weight: 600;
 }
 
-.tma-boot__retry {
-  margin-top: 0.75rem;
-  padding: 0.65rem 1.25rem;
-  border: 1px solid rgba(113, 205, 149, 0.45);
-  border-radius: 8px;
-  background: rgba(113, 205, 149, 0.12);
-  color: #71cd95;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.tma-boot__retry:active {
-  transform: scale(0.98);
-}
-
 /* ——— Guess & Win ——— */
 .b365-gaw {
   position: relative;
