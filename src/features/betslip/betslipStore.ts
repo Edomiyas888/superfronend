@@ -313,6 +313,18 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       return;
     }
 
+    const nowSec = Math.floor(Date.now() / 1000);
+    const hasStaleSelection = Object.values(slip.events).some(
+      (ev) => ev.suspended || (Number.isFinite(ev.dateofmatch) && ev.dateofmatch <= nowSec)
+    );
+    if (hasStaleSelection) {
+      set({
+        placeStatus: 'error',
+        placeMessage: 'One or more selections have already started or finished. Remove them and try again.',
+      });
+      return;
+    }
+
     const token = useSessionStore.getState().token ?? localStorage.getItem('superbet_token');
     if (!token) {
       set({ placeStatus: 'error', placeMessage: 'Please sign in to place a bet.' });
