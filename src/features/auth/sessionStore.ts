@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getApiBaseUrl } from '../../api/config';
-import { isTelegramMiniApp } from '../../lib/telegram/webApp';
+import { getTelegramInitData, isTelegramMiniApp } from '../../lib/telegram/webApp';
 
 const TOKEN_KEY = 'superbet_token';
 export const ACCOUNT_BLOCKED_CODE = 'ACCOUNT_BLOCKED';
@@ -322,6 +322,16 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   getAuthHeader: (): Record<string, string> => {
     const t = get().token ?? localStorage.getItem(TOKEN_KEY);
-    return t ? { Authorization: `Bearer ${t}` } : {};
+    const headers: Record<string, string> = t ? { Authorization: `Bearer ${t}` } : {};
+    // Proves the caller is running inside Telegram for Mini App-only actions
+    // (deposits, withdrawals). Sent on every authenticated call so the API can
+    // enforce it per route without each caller having to opt in.
+    if (isTelegramMiniApp()) {
+      const initData = getTelegramInitData();
+      if (initData) {
+        headers['X-Telegram-Init-Data'] = initData;
+      }
+    }
+    return headers;
   },
 }));
