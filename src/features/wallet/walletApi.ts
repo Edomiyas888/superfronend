@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from '../../api/config';
+import { useSessionStore } from '../auth/sessionStore';
 
 export type WalletInfo = {
   balance: number | null;
@@ -78,6 +79,7 @@ type BalanceJson = {
   nonWithdrawable?: number;
   currency?: string;
   error?: string;
+  code?: string;
 };
 type TxJson = {
   balance?: number;
@@ -116,6 +118,9 @@ export async function fetchBalance(authHeaders: Record<string, string>): Promise
   }
   const data = (await parseJson<BalanceJson>(res)) ?? {};
   if (!res.ok) {
+    if (res.status === 403 && data.code === 'ACCOUNT_BLOCKED') {
+      useSessionStore.getState().clearSession();
+    }
     return {
       balance: null,
       withdrawable: null,
