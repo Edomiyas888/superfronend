@@ -3,6 +3,24 @@ import { getApiBaseUrl } from '../../api/config';
 import { isTelegramMiniApp } from '../../lib/telegram/webApp';
 
 const TOKEN_KEY = 'superbet_token';
+export const ACCOUNT_BLOCKED_CODE = 'ACCOUNT_BLOCKED';
+
+export class AccountBlockedError extends Error {
+  readonly code = ACCOUNT_BLOCKED_CODE;
+  constructor(message = 'Your account has been blocked.') {
+    super(message);
+    this.name = 'AccountBlockedError';
+  }
+}
+
+export function isAccountBlockedError(err: unknown): err is AccountBlockedError {
+  return (
+    err instanceof AccountBlockedError ||
+    (err instanceof Error &&
+      ((err as Error & { code?: string }).code === ACCOUNT_BLOCKED_CODE ||
+        /account has been blocked/i.test(err.message)))
+  );
+}
 
 type SessionState = {
   token: string | null;
@@ -11,7 +29,10 @@ type SessionState = {
   telegramUserId: number | null;
   telegramUsername: string | null;
   isTelegramApp: boolean;
+  /** Set when API reports ACCOUNT_BLOCKED — Mini App must not render. */
+  accountBlocked: boolean;
   clearSession: () => void;
+  markAccountBlocked: (message?: string) => void;
   hydrate: () => Promise<void>;
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, phone: string, password: string) => Promise<void>;
@@ -29,6 +50,7 @@ type SessionState = {
 
 async function parseAuthResponse(res: Response): Promise<{
   error?: string;
+  code?: string;
   token?: string;
   user?: {
     id: string;
@@ -39,11 +61,14 @@ async function parseAuthResponse(res: Response): Promise<{
   };
   startParam?: string | null;
   isNew?: boolean;
+  needsRegistration?: boolean;
+  phone?: string;
 }> {
   const text = await res.text();
   try {
     return JSON.parse(text) as {
       error?: string;
+      code?: string;
       token?: string;
       user?: {
         id: string;
@@ -54,9 +79,17 @@ async function parseAuthResponse(res: Response): Promise<{
       };
       startParam?: string | null;
       isNew?: boolean;
+      needsRegistration?: boolean;
+      phone?: string;
     };
   } catch {
     return {};
+  }
+}
+
+function throwIfBlocked(res: Response, data: { error?: string; code?: string }) {
+  if (res.status === 403 && data.code === ACCOUNT_BLOCKED_CODE) {
+    throw new AccountBlockedError(data.error || 'Your account has been blocked.');
   }
 }
 
@@ -81,6 +114,7 @@ function persistSession(
     phone: data.user.phone || null,
     telegramUserId: data.user.telegramUserId ?? null,
     telegramUsername: data.user.telegramUsername ?? null,
+    accountBlocked: false,
   });
 }
 
@@ -91,6 +125,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   telegramUserId: null,
   telegramUsername: null,
   isTelegramApp: isTelegramMiniApp(),
+  accountBlocked: false,
 
   clearSession: () => {
     localStorage.removeItem(TOKEN_KEY);
@@ -102,6 +137,21 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       phone: null,
       telegramUserId: null,
       telegramUsername: null,
+      accountBlocked: false,
+    });
+  },
+
+  markAccountBlocked: () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('username');
+    localStorage.removeItem('phone');
+    set({
+      token: null,
+      username: null,
+      phone: null,
+      telegramUserId: null,
+      telegramUsername: null,
+      accountBlocked: true,
     });
   },
 
@@ -122,11 +172,15 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       const res = await fetch(`${getApiBaseUrl()}/v1/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      const data = await parseAuthResponse(res);
+      if (res.status === 403 && data.code === ACCOUNT_BLOCKED_CODE) {
+        get().markAccountBlocked();
+        return;
+      }
       if (!res.ok) {
         get().clearSession();
         return;
       }
-      const data = await parseAuthResponse(res);
       if (!data.user) {
         get().clearSession();
         return;
@@ -139,6 +193,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         phone: data.user.phone || null,
         telegramUserId: data.user.telegramUserId ?? null,
         telegramUsername: data.user.telegramUsername ?? null,
+        accountBlocked: false,
       });
     } catch {
       get().clearSession();
@@ -157,6 +212,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       }),
     });
     const data = await parseAuthResponse(res);
+    throwIfBlocked(res, data);
     if (!res.ok) {
       throw new Error(data.error || 'Registration failed.');
     }
@@ -177,6 +233,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       }),
     });
     const data = await parseAuthResponse(res);
+    throwIfBlocked(res, data);
     if (!res.ok) {
       throw new Error(data.error || 'Invalid username or password.');
     }
@@ -194,6 +251,10 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       body: JSON.stringify({ initData: initData.trim() }),
     });
     const data = await parseAuthResponse(res);
+    if (res.status === 403 && data.code === ACCOUNT_BLOCKED_CODE) {
+      get().markAccountBlocked();
+      throw new AccountBlockedError(data.error || 'Your account has been blocked.');
+    }
     if (!res.ok) {
       throw new Error(data.error || 'Telegram sign-in failed.');
     }
@@ -218,13 +279,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         password: opts?.password,
       }),
     });
-    const data = (await parseAuthResponse(res)) as {
-      error?: string;
-      token?: string;
-      user?: { id: string; username: string; phone: string };
-      needsRegistration?: boolean;
-      phone?: string;
-    };
+    const data = await parseAuthResponse(res);
+    throwIfBlocked(res, data);
     if (!res.ok) {
       throw new Error(data.error || 'Phone sign-in failed.');
     }
@@ -249,13 +305,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         password: opts?.password,
       }),
     });
-    const data = (await parseAuthResponse(res)) as {
-      error?: string;
-      token?: string;
-      user?: { id: string; username: string; phone: string };
-      needsRegistration?: boolean;
-      phone?: string;
-    };
+    const data = await parseAuthResponse(res);
+    throwIfBlocked(res, data);
     if (!res.ok) {
       throw new Error(data.error || 'Phone verification failed.');
     }

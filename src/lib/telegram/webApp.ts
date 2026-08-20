@@ -47,3 +47,11 @@ export function getTelegramUserLabel(): string {
   const parts = [user.first_name, user.last_name].filter(Boolean);
   return parts.join(' ') || 'Telegram user';
 }
+
+export function closeTelegramMiniApp() {
+  try {
+    WebApp.close();
+  } catch {
+    /* ignore */
+  }
+}

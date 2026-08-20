@@ -5557,6 +5557,28 @@ html.tma body {
   color: var(--b365-text-muted);
 }
 
+.tma-boot--blocked {
+  color: var(--b365-text);
+}
+
+.tma-boot__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f87171;
+}
+
+.tma-boot__close {
+  margin-top: 0.75rem;
+  padding: 0.65rem 1.25rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--b365-neon, #00e701);
+  color: #04140a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .tma-boot__user {
   color: var(--b365-neon);
   font-weight: 600;

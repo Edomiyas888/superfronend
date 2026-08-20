@@ -120,7 +120,7 @@ export async function fetchBalance(authHeaders: Record<string, string>): Promise
   const data = (await parseJson<BalanceJson>(res)) ?? {};
   if (!res.ok) {
     if (res.status === 403 && data.code === 'ACCOUNT_BLOCKED') {
-      useSessionStore.getState().clearSession();
+      useSessionStore.getState().markAccountBlocked();
     }
     return {
       balance: null,

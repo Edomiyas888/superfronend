@@ -1,7 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSessionStore } from '../features/auth/sessionStore';
 import {
+  isAccountBlockedError,
+  useSessionStore,
+} from '../features/auth/sessionStore';
+import {
+  closeTelegramMiniApp,
   getTelegramInitData,
   getTelegramStartParam,
   getTelegramUserLabel,
@@ -26,10 +30,28 @@ function routeFromStartParam(startParam: string): string | null {
   return null;
 }
 
+function BlockedAccountScreen() {
+  return (
+    <div className="tma-boot tma-boot--blocked" role="alert">
+      <p className="tma-boot__title">Account blocked</p>
+      <p>Your Super Bet account has been blocked. You cannot use this Mini App.</p>
+      {getTelegramUserLabel() ? (
+        <p className="tma-boot__user">{getTelegramUserLabel()}</p>
+      ) : null}
+      <button type="button" className="tma-boot__close" onClick={() => closeTelegramMiniApp()}>
+        Close
+      </button>
+    </div>
+  );
+}
+
 export default function TelegramProvider({ children }: Props) {
   const navigate = useNavigate();
   const loginWithTelegram = useSessionStore((s) => s.loginWithTelegram);
   const hydrate = useSessionStore((s) => s.hydrate);
+  const markAccountBlocked = useSessionStore((s) => s.markAccountBlocked);
+  const accountBlocked = useSessionStore((s) => s.accountBlocked);
+  const clearSession = useSessionStore((s) => s.clearSession);
   const inTma = isTelegramMiniApp();
   const [ready, setReady] = useState(!inTma);
   const [bootError, setBootError] = useState<string | null>(null);
@@ -44,26 +66,34 @@ export default function TelegramProvider({ children }: Props) {
       try {
         if (initData) {
           const result = await loginWithTelegram(initData);
+          if (useSessionStore.getState().accountBlocked) {
+            return;
+          }
           const startParam = result.startParam ?? getTelegramStartParam();
           const route = startParam ? routeFromStartParam(startParam) : null;
           if (route) navigate(route, { replace: true });
         } else {
           await hydrate();
+          if (useSessionStore.getState().accountBlocked) {
+            return;
+          }
           setBootError('Open Super Bet from the Telegram bot menu to sign in.');
         }
       } catch (e) {
-        await hydrate();
-        const msg = e instanceof Error ? e.message : 'Telegram sign-in failed.';
-        if (!useSessionStore.getState().username) {
-          setBootError(msg);
+        if (isAccountBlockedError(e) || useSessionStore.getState().accountBlocked) {
+          markAccountBlocked();
+          return;
         }
+        clearSession();
+        const msg = e instanceof Error ? e.message : 'Telegram sign-in failed.';
+        setBootError(msg);
       } finally {
         setReady(true);
       }
     };
 
     void boot();
-  }, [hydrate, inTma, loginWithTelegram, navigate]);
+  }, [clearSession, hydrate, inTma, loginWithTelegram, markAccountBlocked, navigate]);
 
   if (!ready) {
     return (
@@ -71,6 +101,10 @@ export default function TelegramProvider({ children }: Props) {
         <p>{inTma ? 'Signing in with Telegram…' : 'Loading…'}</p>
       </div>
     );
+  }
+
+  if (inTma && accountBlocked) {
+    return <BlockedAccountScreen />;
   }
 
   if (bootError && inTma && !useSessionStore.getState().username) {
