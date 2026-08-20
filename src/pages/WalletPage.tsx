@@ -43,7 +43,7 @@ export default function WalletPage() {
   const tab: WalletTab =
     tabParam === 'withdraw' || tabParam === 'history' ? tabParam : 'deposit';
 
-  const { username, getAuthHeader } = useSessionStore();
+  const { username, getAuthHeader, isTelegramApp } = useSessionStore();
   const queryClient = useQueryClient();
   const loggedIn = !!username;
 
@@ -219,13 +219,20 @@ export default function WalletPage() {
                 <h2>Deposit via Telebirr</h2>
                 <p>Send money from Telebirr, then verify your payment here.</p>
               </header>
-              <TelebirrDepositFlow
-                authHeaders={getAuthHeader()}
-                currency={currency}
-                onSuccess={() => {
-                  void invalidateWallet();
-                }}
-              />
+              {isTelegramApp ? (
+                <TelebirrDepositFlow
+                  authHeaders={getAuthHeader()}
+                  currency={currency}
+                  onSuccess={() => {
+                    void invalidateWallet();
+                  }}
+                />
+              ) : (
+                <p className="b365-muted" style={{ margin: 0 }}>
+                  Deposits are only available in the Super Bet Telegram Mini App. Open the bot in Telegram
+                  and launch Super Bet from there to deposit.
+                </p>
+              )}
             </section>
           ) : null}
 

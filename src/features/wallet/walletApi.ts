@@ -1,5 +1,6 @@
 import { getApiBaseUrl } from '../../api/config';
 import { useSessionStore } from '../auth/sessionStore';
+import { getTelegramInitData, isTelegramMiniApp } from '../../lib/telegram/webApp';
 
 export type WalletInfo = {
   balance: number | null;
@@ -167,15 +168,27 @@ export async function fetchTelebirrDepositInfo(
 
 /**
  * POST `/v1/wallet/deposit/telebirr` — multipart screenshot + amount (pending review).
+ * Requires Telegram Mini App initData.
  */
 export async function submitTelebirrDepositScreenshot(
   authHeaders: Record<string, string>,
   params: { amount: number; screenshot: File; ref?: string }
 ): Promise<TelebirrDepositSubmitResult> {
+  if (!isTelegramMiniApp()) {
+    throw new Error(
+      'Deposits are only available in the Super Bet Telegram Mini App. Open the app from the Telegram bot.'
+    );
+  }
+  const initData = getTelegramInitData();
+  if (!initData) {
+    throw new Error('Open Super Bet from the Telegram bot menu to deposit.');
+  }
+
   const base = getApiBaseUrl();
   const form = new FormData();
   form.append('amount', String(params.amount));
   form.append('screenshot', params.screenshot);
+  form.append('initData', initData);
   if (params.ref?.trim()) form.append('ref', params.ref.trim());
 
   const headers: Record<string, string> = {};
@@ -206,16 +219,27 @@ export async function submitTelebirrDepositScreenshot(
 
 /**
  * POST `/v1/wallet/deposit/telebirr/ref` — JSON ref + amount (pending review).
+ * Requires Telegram Mini App initData.
  */
 export async function submitTelebirrDepositRef(
   authHeaders: Record<string, string>,
   params: { amount: number; ref: string }
 ): Promise<TelebirrDepositSubmitResult> {
+  if (!isTelegramMiniApp()) {
+    throw new Error(
+      'Deposits are only available in the Super Bet Telegram Mini App. Open the app from the Telegram bot.'
+    );
+  }
+  const initData = getTelegramInitData();
+  if (!initData) {
+    throw new Error('Open Super Bet from the Telegram bot menu to deposit.');
+  }
+
   const base = getApiBaseUrl();
   const res = await fetch(`${base}/v1/wallet/deposit/telebirr/ref`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders },
-    body: JSON.stringify({ amount: params.amount, ref: params.ref }),
+    body: JSON.stringify({ amount: params.amount, ref: params.ref, initData }),
   });
   const data = (await parseJson<TelebirrDepositJson>(res)) ?? {};
   if (!res.ok) {
