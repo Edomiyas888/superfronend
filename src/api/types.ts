@@ -105,6 +105,8 @@ export type MarketView = {
   name: string;
   type?: string | number;
   displayKey?: string;
+  /** Handicap / total line — several markets share a name and differ only by this. */
+  base?: number;
   homeScore?: number;
   awayScore?: number;
   events: MarketEventView[];

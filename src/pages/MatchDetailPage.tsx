@@ -16,7 +16,19 @@ import {
   marketCategory,
   type MarketCategoryId,
 } from '../features/matchDetail/marketCategory';
-import { pickTopMarkets } from '../features/matchDetail/topMarkets';
+import {
+  marketDisplayName,
+  marketMatchesSearch,
+  pickTopMarkets,
+  selectionLabel,
+  sortMarketsByImportance,
+} from '../features/matchDetail/topMarkets';
+
+/** Columns follow the selection count so 2-way markets get the full width (no empty third cell). */
+function oddsGridClass(selectionCount: number): string {
+  const cols = selectionCount >= 1 && selectionCount <= 3 ? selectionCount : 0;
+  return cols ? `b365-md-odds-grid b365-md-odds-grid--${cols}` : 'b365-md-odds-grid';
+}
 
 function DetailOddButton({
   name,
@@ -58,6 +70,7 @@ export default function MatchDetailPage() {
   const events = useBetslipStore((s) => s.events);
 
   const [filter, setFilter] = useState<MarketCategoryId>('all');
+  const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
   const q = useQuery({
@@ -84,26 +97,32 @@ export default function MatchDetailPage() {
 
   const topMarketIds = useMemo(() => new Set(topMarkets.map((m) => m.id)), [topMarkets]);
 
+  const searchTerm = search.trim().toLowerCase();
+  const searching = searchTerm.length > 0;
+
   const filteredMarkets = useMemo(() => {
     if (!detail) return [];
-    const list =
-      filter === 'all' ? detail.markets : detail.markets.filter((m) => marketCategory(m) === filter);
-    if (filter === 'all') {
-      return list.filter((m) => !topMarketIds.has(m.id));
+    let list = filter === 'all' ? detail.markets : detail.markets.filter((m) => marketCategory(m) === filter);
+    if (searching) {
+      // Search spans every market, including the ones promoted into Top Markets.
+      list = list.filter((m) => marketMatchesSearch(m, searchTerm));
+    } else if (filter === 'all') {
+      list = list.filter((m) => !topMarketIds.has(m.id));
     }
-    return list;
-  }, [detail, filter, topMarketIds]);
+    return sortMarketsByImportance(list);
+  }, [detail, filter, topMarketIds, searching, searchTerm]);
 
   useEffect(() => {
     setExpanded({});
-  }, [filter]);
+  }, [filter, searchTerm]);
 
   const isMarketOpen = useCallback(
     (marketId: number, index: number) => {
       if (expanded[marketId] !== undefined) return expanded[marketId];
-      return index === 0;
+      // A search result is only useful with its selections showing.
+      return searching || index === 0;
     },
-    [expanded]
+    [expanded, searching]
   );
 
   const toggleOdd = (
@@ -211,26 +230,35 @@ export default function MatchDetailPage() {
             />
           ) : null}
 
-          {topMarkets.length > 0 ? (
+          {topMarkets.length > 0 && !searching ? (
             <section className="b365-md-top-markets" aria-label="Top markets">
               <h2 className="b365-md-top-markets__title">Top Markets</h2>
               <div className="b365-md-top-markets__list">
                 {topMarkets.map((m) => (
                   <div key={m.id} className="b365-md-top-market">
-                    <h3 className="b365-md-top-market__name">{m.name}</h3>
-                    <div className="b365-md-odds-grid">
+                    <h3 className="b365-md-top-market__name">{marketDisplayName(m)}</h3>
+                    <div className={oddsGridClass(m.events.length)}>
                       {m.events.map((e) => {
                         const k = keyFor(detail.gameId, m.id, e.id);
                         const sel = !!events[k];
                         const price = Number(e.price);
+                        const label = selectionLabel(m, e);
                         return (
                           <DetailOddButton
                             key={e.id}
-                            name={e.name}
+                            name={label}
                             price={price}
                             selected={sel}
                             onToggle={() =>
-                              toggleOdd(m.id, m.type, e.id, e.name, price, m.name, e.type ? String(e.type) : undefined)
+                              toggleOdd(
+                                m.id,
+                                m.type,
+                                e.id,
+                                label,
+                                price,
+                                marketDisplayName(m),
+                                e.type ? String(e.type) : undefined
+                              )
                             }
                           />
                         );
@@ -245,7 +273,40 @@ export default function MatchDetailPage() {
           <section className="b365-md-markets" aria-label="Betting markets">
             <div className="b365-md-toolbar">
               <h2 className="b365-md-toolbar__title">Markets</h2>
-              <p className="b365-md-toolbar__hint">Filter by market type, then expand a section</p>
+              <p className="b365-md-toolbar__hint">
+                {searching
+                  ? `${filteredMarkets.length} market${filteredMarkets.length === 1 ? '' : 's'} matching “${search.trim()}”`
+                  : 'Search or filter by market type, then expand a section'}
+              </p>
+            </div>
+
+            <div className="b365-md-search">
+              <svg className="b365-md-search__icon" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2" />
+                <path d="M16 16l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <input
+                type="search"
+                className="b365-input b365-md-search__input"
+                placeholder="Search markets or selections…"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  // A global search is the useful default — narrowing again is one tap away.
+                  if (e.target.value.trim()) setFilter('all');
+                }}
+                aria-label="Search betting markets"
+              />
+              {searching ? (
+                <button
+                  type="button"
+                  className="b365-md-search__clear"
+                  onClick={() => setSearch('')}
+                  aria-label="Clear market search"
+                >
+                  ×
+                </button>
+              ) : null}
             </div>
 
             <div className="b365-md-filters" role="tablist" aria-label="Market categories">
@@ -270,7 +331,11 @@ export default function MatchDetailPage() {
             ) : null}
 
             {filteredMarkets.length === 0 ? (
-              <p className="b365-md-empty b365-muted">No markets in this category.</p>
+              <p className="b365-md-empty b365-muted">
+                {searching
+                  ? `No markets match “${search.trim()}”.`
+                  : 'No markets in this category.'}
+              </p>
             ) : (
               <div className="b365-md-acc-list">
                 {filteredMarkets.map((m, i) => {
@@ -284,7 +349,7 @@ export default function MatchDetailPage() {
                         id={`b365-md-acc-h-${m.id}`}
                         onClick={() => toggleAccordion(m.id, i)}
                       >
-                        <span className="b365-md-acc__title">{m.name}</span>
+                        <span className="b365-md-acc__title">{marketDisplayName(m)}</span>
                         <span className="b365-md-acc__meta">
                           {m.events.length} {m.events.length === 1 ? 'selection' : 'selections'}
                         </span>
@@ -297,19 +362,28 @@ export default function MatchDetailPage() {
                         aria-labelledby={`b365-md-acc-h-${m.id}`}
                         hidden={!open}
                       >
-                        <div className="b365-md-odds-grid">
+                        <div className={oddsGridClass(m.events.length)}>
                           {m.events.map((e) => {
                             const k = keyFor(detail.gameId, m.id, e.id);
                             const sel = !!events[k];
                             const price = Number(e.price);
+                            const label = selectionLabel(m, e);
                             return (
                               <DetailOddButton
                                 key={e.id}
-                                name={e.name}
+                                name={label}
                                 price={price}
                                 selected={sel}
                                 onToggle={() =>
-                                  toggleOdd(m.id, m.type, e.id, e.name, price, m.name, e.type ? String(e.type) : undefined)
+                                  toggleOdd(
+                                    m.id,
+                                    m.type,
+                                    e.id,
+                                    label,
+                                    price,
+                                    marketDisplayName(m),
+                                    e.type ? String(e.type) : undefined
+                                  )
                                 }
                               />
                             );

@@ -115,6 +115,12 @@ function parseLiveLastEvent(raw: unknown): LiveLastEvent | null {
   };
 }
 
+function numOrUndefined(v: unknown): number | undefined {
+  if (v == null || v === '') return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
   const g = data[0];
   if (!g) return null;
@@ -126,13 +132,14 @@ function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
       name: String((m as { name?: unknown }).name ?? ''),
       type: (m as { type?: unknown }).type as string | number | undefined,
       displayKey: (m as { display_key?: unknown }).display_key as string | undefined,
+      base: numOrUndefined((m as { base?: unknown }).base),
       homeScore: g.home_score,
       awayScore: g.away_score,
       events: odds.map((o) => ({
         id: Number(o.id),
         name: String(o.name ?? ''),
         price: Number(o.value),
-        base: (m as { base?: unknown }).base as number | undefined,
+        base: numOrUndefined((o as { base?: unknown }).base ?? (m as { base?: unknown }).base),
       })),
     };
   }) ?? [];
@@ -416,7 +423,7 @@ export async function restGetMatchOdds(gameId: number): Promise<MatchDetailView 
           'info',
           'text_info',
         ],
-        market: ['id', 'name', 'type', 'display_key', 'home_score', 'away_score'],
+        market: ['id', 'name', 'type', 'display_key', 'base', 'home_score', 'away_score'],
         event: ['id', 'name', 'price', 'type', 'base'],
       },
       where: {
@@ -683,6 +690,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
               id: ev.id,
               name: ev.name,
               value: ev.price,
+              base: ev.base,
             };
           });
           return {
@@ -741,6 +749,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
                 id: ev.id,
                 name: ev.name,
                 value: ev.price,
+                base: ev.base,
               };
             });
             return {

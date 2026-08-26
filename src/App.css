@@ -4421,6 +4421,35 @@ a.b365-btn-header-login {
   padding: 10px 12px 12px;
 }
 
+/*
+ * Size the row to the selections it actually has: a 2-way market gets two wide cells instead of
+ * two narrow ones plus a hole, which is what lets lines like "Over 2.5" render without truncating.
+ */
+.b365-md-odds-grid--1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.b365-md-odds-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.b365-md-odds-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/*
+ * In 1- and 2-up rows the label is a team name plus its line ("Manchester City -3.5"); ellipsis
+ * would eat the line, which is the part that identifies the bet, so wrap to a second row instead.
+ */
+.b365-md-odds-grid--1 .b365-detail-odd__label,
+.b365-md-odds-grid--2 .b365-detail-odd__label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .b365-detail-odd {
   display: flex;
   flex-direction: row;
