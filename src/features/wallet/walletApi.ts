@@ -1,6 +1,7 @@
 import { getApiBaseUrl } from '../../api/config';
 import { useSessionStore } from '../auth/sessionStore';
 import { getTelegramInitData, isTelegramMiniApp } from '../../lib/telegram/webApp';
+import { guardSession, readJsonSafe } from '../../api/sessionGuard';
 
 export type WalletInfo = {
   balance: number | null;
@@ -114,6 +115,7 @@ export async function fetchBalance(authHeaders: Record<string, string>): Promise
   let res: Response;
   try {
     res = await fetch(`${base}/v1/wallet/balance`, { headers: authHeaders });
+    guardSession(res, await readJsonSafe(res));
   } catch {
     return { balance: null, withdrawable: null, nonWithdrawable: null, currency: 'ETB', status: 'error' };
   }
@@ -151,6 +153,7 @@ export async function fetchTelebirrDepositInfo(
 ): Promise<TelebirrDepositInfo> {
   const base = getApiBaseUrl();
   const res = await fetch(`${base}/v1/wallet/deposit/telebirr/info`, { headers: authHeaders });
+  guardSession(res, await readJsonSafe(res));
   const data = (await parseJson<TelebirrInfoJson>(res)) ?? {};
   if (!res.ok) {
     throw new Error(typeof data.error === 'string' ? data.error : 'Could not load Telebirr deposit info.');
@@ -201,6 +204,7 @@ export async function submitTelebirrDepositScreenshot(
     headers,
     body: form,
   });
+  guardSession(res, await readJsonSafe(res));
   const data = (await parseJson<TelebirrDepositJson>(res)) ?? {};
   if (!res.ok) {
     throw new Error(typeof data.error === 'string' ? data.error : 'Telebirr deposit submission failed.');
@@ -241,6 +245,7 @@ export async function submitTelebirrDepositRef(
     headers: { 'Content-Type': 'application/json', ...authHeaders },
     body: JSON.stringify({ amount: params.amount, ref: params.ref, initData }),
   });
+  guardSession(res, await readJsonSafe(res));
   const data = (await parseJson<TelebirrDepositJson>(res)) ?? {};
   if (!res.ok) {
     throw new Error(typeof data.error === 'string' ? data.error : 'Telebirr deposit submission failed.');
@@ -281,6 +286,7 @@ export async function fetchDepositRequests(
   const res = await fetch(`${base}/v1/wallet/deposit/requests?${qs.toString()}`, {
     headers: authHeaders,
   });
+  guardSession(res, await readJsonSafe(res));
   const data = (await parseJson<DepositRequestsJson>(res)) ?? {};
   if (!res.ok) {
     throw new Error(typeof data.error === 'string' ? data.error : 'Could not load deposit requests.');
@@ -313,6 +319,7 @@ export async function fetchWalletTransactions(
   const res = await fetch(`${base}/v1/wallet/transactions?${qs.toString()}`, {
     headers: authHeaders,
   });
+  guardSession(res, await readJsonSafe(res));
   const data = (await parseJson<Partial<WalletTransactionsPage> & { error?: string }>(res)) ?? {};
   if (!res.ok) {
     throw new Error(typeof data.error === 'string' ? data.error : 'Could not load transactions.');

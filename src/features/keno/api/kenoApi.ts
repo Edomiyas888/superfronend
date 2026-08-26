@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from '@/api/config';
+import { guardSession, readJsonSafe } from '../../../api/sessionGuard';
 
 export type KenoPublicState = {
   roundNo: number;
@@ -56,6 +57,7 @@ export async function fetchKenoState(
   const res = await fetch(`${getApiBaseUrl()}/v1/keno/state`, {
     headers: { ...authHeaders },
   });
+  guardSession(res, await readJsonSafe(res));
   if (!res.ok) {
     throw new Error('Could not load Keno game state.');
   }
@@ -74,6 +76,7 @@ export async function placeKenoBet(
     },
     body: JSON.stringify(payload),
   });
+  guardSession(res, await readJsonSafe(res));
 
   const data = (await res.json()) as PlaceKenoBetResult & { error?: string; message?: string };
   if (!res.ok) {
@@ -89,6 +92,7 @@ export async function checkKenoTicket(code: string) {
   const res = await fetch(
     `${getApiBaseUrl()}/v1/keno/tickets/check?code=${encodeURIComponent(code)}`
   );
+  guardSession(res, await readJsonSafe(res));
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.error ?? 'Ticket not found.');
@@ -98,6 +102,7 @@ export async function checkKenoTicket(code: string) {
 
 export async function fetchKenoMonthlyLeaderboard(limit = 100) {
   const res = await fetch(`${getApiBaseUrl()}/v1/keno/leaderboard/monthly?limit=${limit}`);
+  guardSession(res, await readJsonSafe(res));
   const data = await res.json();
   if (!res.ok || !data.success) {
     throw new Error(data.error ?? 'Could not load leaderboard.');
@@ -107,6 +112,7 @@ export async function fetchKenoMonthlyLeaderboard(limit = 100) {
 
 export async function fetchKenoWeeklyLeaderboard(limit = 100) {
   const res = await fetch(`${getApiBaseUrl()}/v1/keno/leaderboard/weekly?limit=${limit}`);
+  guardSession(res, await readJsonSafe(res));
   const data = await res.json();
   if (!res.ok || !data.success) {
     throw new Error(data.error ?? 'Could not load leaderboard.');

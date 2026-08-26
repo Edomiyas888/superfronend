@@ -1,5 +1,6 @@
 import { getApiBaseUrl } from '../../api/config';
 import type { BetslipLike, OddsCorrectionChange, PlaceBetResult } from '../../api/placeBet';
+import { guardSession, readJsonSafe } from '../../api/sessionGuard';
 
 type PaginatedSlips = {
   items: PlacedBetRow[];
@@ -58,6 +59,7 @@ export async function placeBetSlip(
       bones: opts?.bones ?? 0,
     }),
   });
+  guardSession(res, await readJsonSafe(res));
   const data = await parseJson<PlaceBetResult>(res);
   if (!res.ok) {
     return {
@@ -82,6 +84,7 @@ export async function correctBetSlip(
     headers: { 'Content-Type': 'application/json', ...authHeaders },
     body: JSON.stringify({ slip }),
   });
+  guardSession(res, await readJsonSafe(res));
   const data = await parseJson<{ correction?: boolean; changes?: OddsCorrectionChange[]; error?: string }>(res);
   if (!res.ok) {
     throw new Error(data.error ?? 'Could not refresh odds.');
@@ -105,6 +108,7 @@ export async function fetchMyBets(
   const res = await fetch(`${base}/v1/bets/mine${qs ? `?${qs}` : ''}`, {
     headers: authHeaders,
   });
+  guardSession(res, await readJsonSafe(res));
   const data = await parseJson<PaginatedSlips & { error?: string }>(res);
   if (!res.ok) {
     throw new Error(data.error ?? 'Could not load bets.');

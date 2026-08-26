@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from './config';
+import { guardSession, readJsonSafe } from './sessionGuard';
 
 export type GuessWinMatch = {
   id: string;
@@ -33,6 +34,7 @@ export async function fetchGuessWinMatches(
   const res = await fetch(`${base}/v1/guess-win/matches`, {
     headers: authHeaders,
   });
+  guardSession(res, await readJsonSafe(res));
   const data = await parseJson<{ items?: GuessWinMatch[]; error?: string }>(res);
   if (!res.ok) throw new Error(data.error ?? 'Could not load guess & win matches.');
   return data.items ?? [];
@@ -49,6 +51,7 @@ export async function submitGuessWinScore(
     headers: { 'Content-Type': 'application/json', ...authHeaders },
     body: JSON.stringify({ score }),
   });
+  guardSession(res, await readJsonSafe(res));
   const data = await parseJson<{
     ok?: boolean;
     score?: string;

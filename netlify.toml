@@ -1,3 +1,44 @@
 [build]
   command = "npm run build"
   publish = "dist"
+
+# ---------------------------------------------------------------------------
+# Security headers
+#
+# This app holds a bearer token in localStorage and moves real money, so a single
+# injected script is a full account takeover. The CSP below is the control that
+# makes that hard: script-src pins executable code to our own bundle, base-uri and
+# form-action close the two classic ways an injection exfiltrates without loading
+# a script, and object-src kills legacy plugin vectors.
+#
+# Origins are allow-listed from what the app actually talks to. When you add an
+# integration, add its origin here or the browser will block it.
+# ---------------------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org; script-src 'self' https://www.google.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://cdn-atlas-v.com https://fonts.gstatic.com; img-src 'self' data: blob: https://cdn-atlas-v.com https://admin-canary.logiqsport.com https://adminpro.logiqsport.com https://www.gstatic.com; media-src 'self' data: blob: https://cdn-atlas-v.com; worker-src 'self' blob:; manifest-src 'self'; frame-src 'self' https://www.google.com https://*.firebaseapp.com https://*.web.app; connect-src 'self' https://p01--superbackend--7ddyfzspj7sx.code.run wss://p01--superbackend--7ddyfzspj7sx.code.run wss://eu-swarm-ws.betconstruct.com https://cdn-atlas-v.com https://admin-canary.logiqsport.com https://adminpro.logiqsport.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://apis.google.com https://*.firebaseapp.com; upgrade-insecure-requests"
+
+    # Telegram renders the Mini App inside its own client, so framing cannot be
+    # denied outright — frame-ancestors above restricts it to Telegram and us.
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Camera stays enabled: the ticket scanner (html5-qrcode) needs it. Everything
+    # else a betting app has no business asking for.
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+    X-DNS-Prefetch-Control = "off"
+
+# Content-hashed filenames — safe to cache forever.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The entry point must never be cached, or users keep running a stale bundle
+# against a moved API contract long after a deploy.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
