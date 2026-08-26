@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
-import WorldCupTrophyIcon from './WorldCupTrophyIcon';
+import PremierLeagueTrophyIcon from './PremierLeagueTrophyIcon';
 import fastKenoLogo from '../assets/fast-keno-logo-user.png';
 import liveIcon from '../assets/home-live.png';
 import betSlipsIcon from '../assets/home-bet-slips.png';
 
 const actions = [
   {
-    to: '/world-cup-2026',
-    label: 'World Cup',
-    className: 'b365-home-action--wc',
+    to: '/premier-league',
+    label: 'EPL',
+    className: 'b365-home-action--epl',
     kind: 'trophy' as const,
   },
   {
@@ -47,7 +47,7 @@ export default function HomeQuickActions() {
               <span className="b365-home-action__visual" aria-hidden="true">
                 <span className="b365-home-action__glow" />
                 {action.kind === 'trophy' ? (
-                  <WorldCupTrophyIcon className="b365-home-action__wc-trophy" />
+                  <PremierLeagueTrophyIcon className="b365-home-action__epl-trophy" />
                 ) : action.kind === 'keno-logo' ? (
                   <img
                     src={action.icon}

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useSports } from '../contexts/SportsContext';
 import { useUpcomingMatches } from '../hooks/useUpcomingMatches';
 import { usePopularMatches } from '../hooks/usePopularMatches';
-import { useWorldCupMatches } from '../hooks/useWorldCupMatches';
+import { usePremierLeagueMatches } from '../hooks/usePremierLeagueMatches';
 import DateFilterChips from '../components/DateFilterChips';
 import MatchListByDate from '../components/MatchListByDate';
 import MatchOfTheDay from '../components/MatchOfTheDay';
@@ -23,21 +23,25 @@ export default function SportsHomePage() {
   const [featuredDate, setFeaturedDate] = useState<DateFilterKey>('week');
 
   const popularQ = usePopularMatches();
-  const worldCupQ = useWorldCupMatches('week');
+  // The Premier League chip is the default, so it gets its own precise (England-scoped) feed.
+  const premierLeagueQ = usePremierLeagueMatches('week');
   const upcomingQ = useUpcomingMatches('Soccer', featuredDate);
 
-  const popularSource = popularLeague === 'World Cup' ? worldCupQ : popularQ;
+  const isPremierLeague = popularLeague === 'Premier League';
+  const popularSource = isPremierLeague ? premierLeagueQ : popularQ;
 
   const popularGames = useMemo(() => {
-    if (popularLeague === 'World Cup') {
-      return curatePopularGames(worldCupQ.data ?? [], 16, 7);
+    if (popularLeague === 'Premier League') {
+      return curatePopularGames(premierLeagueQ.data ?? [], 16, 7);
     }
     const raw = popularQ.data ?? [];
-    const leagueFiltered = raw.filter((g) => competitionMatchesLeague(g.competitionName, popularLeague));
+    const leagueFiltered = raw.filter((g) =>
+      competitionMatchesLeague(g.competitionName, popularLeague, g.regionName)
+    );
     return curatePopularGames(leagueFiltered, 16);
-  }, [popularQ.data, worldCupQ.data, popularLeague]);
+  }, [popularQ.data, premierLeagueQ.data, popularLeague]);
 
-  const popularDayWindow = popularLeague === 'World Cup' ? 7 : POPULAR_DAY_WINDOW;
+  const popularDayWindow = isPremierLeague ? 7 : POPULAR_DAY_WINDOW;
 
   return (
     <div className="b365-home">

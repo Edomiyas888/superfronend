@@ -1,12 +1,11 @@
 import type { GameView } from '../api/types';
 import { competitionMatchesLeague } from './competitionFilter';
-import { isWorldCupCompetition } from './worldCupFilter';
 
 export type MatchListFilterState = {
   region: string;
   competition: string;
   search: string;
-  /** Slug from `SPORT_QUICK_LEAGUE_FILTERS` — e.g. `world-cup`, `premier-league`. */
+  /** `leagueKey` of the active quick-league chip — e.g. `Premier League`, `UFC`. */
   quickLeague: string;
 };
 
@@ -31,12 +30,6 @@ export function extractCompetitions(games: GameView[] | undefined, region: strin
   return [...set].sort((a, b) => a.localeCompare(b));
 }
 
-function matchesQuickLeague(g: GameView, quickLeague: string): boolean {
-  if (!quickLeague) return true;
-  if (quickLeague === 'world-cup') return isWorldCupCompetition(g.competitionName);
-  return competitionMatchesLeague(g.competitionName, quickLeague);
-}
-
 export function filterGames(games: GameView[] | undefined, filters: MatchListFilterState): GameView[] {
   if (!games?.length) return [];
   const region = filters.region.trim();
@@ -45,7 +38,9 @@ export function filterGames(games: GameView[] | undefined, filters: MatchListFil
   const quickLeague = filters.quickLeague.trim();
 
   return games.filter((g) => {
-    if (!matchesQuickLeague(g, quickLeague)) return false;
+    if (quickLeague && !competitionMatchesLeague(g.competitionName, quickLeague, g.regionName)) {
+      return false;
+    }
     if (region && g.regionName !== region) return false;
     if (competition && g.competitionName !== competition) return false;
     if (search) {

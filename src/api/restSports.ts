@@ -4,7 +4,11 @@ import { liveDisplayFieldsFromRawGame, gameIsLiveInFeed, normalizeGameInfo } fro
 import { pickTeamIdFromGame } from '../utils/teamLogos';
 import type { SwarmResponse } from './swarmTypes';
 import type { FlatGameRow, GameView, LiveLastEvent, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
-import { isWorldCupCompetition } from '../utils/worldCupFilter';
+import {
+  EPL_COMPETITION_NAME,
+  EPL_REGION_NAME,
+  isPremierLeagueCompetition,
+} from '../utils/premierLeagueFilter';
 
 const SUB = { subscribe: true as const };
 
@@ -241,6 +245,9 @@ export async function restGetMatchesForSport(
 export async function restGetUpcomingMatches(opts?: {
   sportAlias?: string;
   timeHours?: string | number;
+  /** Narrow server-side — Swarm reuses competition names across regions. */
+  regionName?: string;
+  competitionName?: string;
 }): Promise<GameView[]> {
   const sportAlias = opts?.sportAlias ?? 'Soccer';
   const lt = ltSecondsFromTimeHours(opts?.timeHours);
@@ -274,6 +281,8 @@ export async function restGetUpcomingMatches(opts?: {
     },
     where: {
       sport: { alias: sportAlias },
+      ...(opts?.regionName ? { region: { name: opts.regionName } } : {}),
+      ...(opts?.competitionName ? { competition: { name: opts.competitionName } } : {}),
       game: { '@and': gameAnd },
       market: { type: { '@in': MATCH_RESULT_TYPES } },
     },
@@ -306,26 +315,37 @@ export async function restGetUpcomingMatches(opts?: {
  */
 export async function restGetPopularSoccerMatches(): Promise<GameView[]> {
   const games = await restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours: 'all' });
-  // World Cup fixtures are usually promoted — keep them in Popular so the WC chip is not empty.
-  return games.filter((g) => !g.promoted || isWorldCupCompetition(g.competitionName));
+  // Premier League fixtures are often promoted — keep them so the default chip is not empty.
+  return games.filter(
+    (g) => !g.promoted || isPremierLeagueCompetition(g.competitionName, g.regionName)
+  );
 }
 
-/** FIFA World Cup fixtures (prematch + live), optional kickoff window via `timeHours`. */
-export async function restGetWorldCupMatches(opts?: {
+/**
+ * English Premier League fixtures (prematch + live), optional kickoff window via `timeHours`.
+ * Prematch is narrowed server-side to `England` / `Premier League`; the live feed carries every
+ * region at once, so it is filtered with the same predicate client-side.
+ */
+export async function restGetPremierLeagueMatches(opts?: {
   timeHours?: string | number;
 }): Promise<GameView[]> {
   const timeHours = opts?.timeHours ?? 'all';
 
   const [prematch, live] = await Promise.all([
-    restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours }),
+    restGetUpcomingMatches({
+      sportAlias: 'Soccer',
+      timeHours,
+      regionName: EPL_REGION_NAME,
+      competitionName: EPL_COMPETITION_NAME,
+    }),
     timeHours === 'all' || String(timeHours).toLowerCase() === 'today'
-      ? restGetLiveGames().catch(() => [] as GameView[])
+      ? restGetLiveGames({ sportAlias: 'Soccer' }).catch(() => [] as GameView[])
       : Promise.resolve([] as GameView[]),
   ]);
 
   const byId = new Map<number, GameView>();
   for (const g of [...live, ...prematch]) {
-    if (isWorldCupCompetition(g.competitionName)) {
+    if (isPremierLeagueCompetition(g.competitionName, g.regionName)) {
       byId.set(g.id, g);
     }
   }

@@ -8,7 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import WalletPage from './pages/WalletPage';
 import AllSportsPage from './pages/AllSportsPage';
 import MyBetsPage from './pages/MyBetsPage';
-import WorldCup2026Page from './pages/WorldCup2026Page';
+import PremierLeaguePage from './pages/PremierLeaguePage';
 import KenoPage from './features/keno/KenoPage';
 import './App.css';
 import './styles/motd-overrides.css';
@@ -26,7 +26,7 @@ export default function App() {
           <Route index element={<SportsHomePage />} />
           <Route path="sport-new" element={<SportsHomePage />} />
           <Route path="live" element={<LiveGamesPage />} />
-          <Route path="world-cup-2026" element={<WorldCup2026Page />} />
+          <Route path="premier-league" element={<PremierLeaguePage />} />
           <Route path="sports" element={<AllSportsPage />} />
           <Route path="my-bets" element={<MyBetsPage />} />
           <Route path="wallet" element={<WalletPage />} />

@@ -70,7 +70,7 @@ export default function LiveGamesPage() {
         region,
         competition,
         search,
-        quickLeague: quickLeagueKey === 'world-cup' ? 'world-cup' : quickLeagueKey,
+        quickLeague: quickLeagueKey,
       }),
     [q.data, region, competition, search, quickLeagueKey]
   );

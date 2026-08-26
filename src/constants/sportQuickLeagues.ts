@@ -2,7 +2,6 @@ import type { PopularLeagueKey } from './popularLeagues';
 
 export type SoccerQuickLeagueSlug =
   | ''
-  | 'world-cup'
   | 'premier-league'
   | 'bundesliga'
   | 'la-liga'
@@ -17,15 +16,14 @@ export type SportQuickLeagueSlug = SoccerQuickLeagueSlug | MmaQuickLeagueSlug;
 export type SportQuickLeagueFilter = {
   slug: SportQuickLeagueSlug;
   label: string;
-  /** Passed to `competitionMatchesLeague` — `world-cup` is special. */
-  leagueKey?: PopularLeagueKey | 'world-cup' | 'UFC' | 'Bellator' | 'PFL';
+  /** Passed to `competitionMatchesLeague`. */
+  leagueKey?: PopularLeagueKey | 'UFC' | 'Bellator' | 'PFL';
   featured?: boolean;
 };
 
 export const SOCCER_QUICK_LEAGUE_FILTERS: SportQuickLeagueFilter[] = [
   { slug: '', label: 'All' },
-  { slug: 'world-cup', label: 'World Cup 2026', leagueKey: 'world-cup', featured: true },
-  { slug: 'premier-league', label: 'Premier League', leagueKey: 'Premier League' },
+  { slug: 'premier-league', label: 'Premier League', leagueKey: 'Premier League', featured: true },
   { slug: 'bundesliga', label: 'Bundesliga', leagueKey: 'Bundesliga' },
   { slug: 'la-liga', label: 'La Liga', leagueKey: 'La Liga' },
   { slug: 'serie-a', label: 'Serie A', leagueKey: 'Serie A' },

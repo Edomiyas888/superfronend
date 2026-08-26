@@ -4,7 +4,6 @@ import { HeroBannerArt, FooterIcon } from './HeroBannerArt';
 import fastKenoBannerArt from '../assets/fast-keno-banner.png';
 import fastSportsBannerArt from '../assets/fast-sports-banner.png';
 import mcgregorHollowayBannerArt from '../assets/mcgregor-holloway-banner.png';
-import worldCupBannerArt from '../assets/world-cup-banner.png';
 import { useSportLink } from '../hooks/useSportLink';
 
 const AUTO_INTERVAL_MS = 6000;
@@ -20,7 +19,7 @@ type HeroSlide = {
   badge: string;
   title: [string, string];
   subtitle: string;
-  art: 'default' | 'keno' | 'wc';
+  art: 'default' | 'keno' | 'epl';
   artImage?: string;
   footer: FooterItem[];
 };
@@ -56,16 +55,15 @@ function buildHeroSlides(mmaLink: string): HeroSlide[] {
     ],
   },
   {
-    id: 'world-cup',
-    to: '/world-cup-2026',
-    badge: 'World Cup 2026',
-    title: ['Bet the', 'World Cup!'],
-    subtitle: 'Every match, every market — all in one app.',
-    art: 'wc',
-    artImage: worldCupBannerArt,
+    id: 'premier-league',
+    to: '/premier-league',
+    badge: 'English Premier League',
+    title: ['Bet the', 'Premier League!'],
+    subtitle: 'Every matchweek fixture, every market — all in one app.',
+    art: 'epl',
     footer: [
       { icon: 'odds', label: 'Top odds' },
-      { icon: 'groups', label: 'All groups' },
+      { icon: 'groups', label: 'All 20 clubs' },
       { icon: 'live', label: 'Live betting' },
     ],
   },
@@ -95,7 +93,7 @@ function HeroBannerCard({ slide }: { slide: HeroSlide }) {
         slide.artImage ? 'b365-hero-banner--photo' : '',
         slide.id === 'main' ? 'b365-hero-banner--sports' : '',
         slide.id === 'keno' ? 'b365-hero-banner--keno' : '',
-        slide.id === 'world-cup' ? 'b365-hero-banner--wc' : '',
+        slide.id === 'premier-league' ? 'b365-hero-banner--epl' : '',
         slide.id === 'ufc329' ? 'b365-hero-banner--ufc' : '',
       ]
         .filter(Boolean)

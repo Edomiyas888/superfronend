@@ -49,7 +49,7 @@ export default function LiveMatchFilters({
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const advancedActive = Boolean(region || competition || search);
   const quickLeagueFilters = getSportQuickLeagueFilters(sportAlias);
-  const showWorldCupLink = !isMmaSportAlias(sportAlias);
+  const showPremierLeagueLink = !isMmaSportAlias(sportAlias);
   const allSports = sportAlias === undefined;
 
   const sportChips = sports.filter((s) => (s.gameCount ?? 0) > 0 || s.alias === DEFAULT_INPLAY_SPORT_ALIAS);
@@ -118,18 +118,18 @@ export default function LiveMatchFilters({
           <div className="b365-pop-leagues-scroll">
             {quickLeagueFilters.map(({ slug, label, featured }) => {
               const active = quickLeague === slug;
-              const isWc = slug === 'world-cup';
+              const isEpl = slug === 'premier-league';
               return (
                 <button
                   key={slug || 'all'}
                   type="button"
                   role="tab"
                   aria-selected={active}
-                  className={`b365-pop-league-chip ${active ? 'active' : ''} ${featured ? 'b365-pop-league-chip--featured' : ''} ${isWc ? 'b365-pop-league-chip--wc' : ''}`}
+                  className={`b365-pop-league-chip ${active ? 'active' : ''} ${featured ? 'b365-pop-league-chip--featured' : ''} ${isEpl ? 'b365-pop-league-chip--epl' : ''}`}
                   onClick={() => onQuickLeagueChange(slug)}
                 >
-                  {isWc ? (
-                    <span className="b365-pop-league-chip__wc-icon" aria-hidden>
+                  {isEpl ? (
+                    <span className="b365-pop-league-chip__epl-icon" aria-hidden>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M8 21h8M12 17v4M7 4h10l1 4H6l1-4z"
@@ -146,9 +146,9 @@ export default function LiveMatchFilters({
             })}
           </div>
         </div>
-        {showWorldCupLink && quickLeague === 'world-cup' ? (
-          <Link to="/world-cup-2026" className="b365-match-filters-wc-link">
-            Open full World Cup 2026 hub →
+        {showPremierLeagueLink && quickLeague === 'premier-league' ? (
+          <Link to="/premier-league" className="b365-match-filters-epl-link">
+            Open full Premier League hub →
           </Link>
         ) : null}
       </div>

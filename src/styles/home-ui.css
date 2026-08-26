@@ -148,7 +148,7 @@
   pointer-events: none;
 }
 
-.b365-home-action--wc .b365-home-action__glow {
+.b365-home-action--epl .b365-home-action__glow {
   background: radial-gradient(circle, rgba(255, 215, 0, 0.55) 0%, rgba(57, 255, 20, 0.25) 55%, transparent 72%);
   animation: b365-safari-trophy-glow 2.4s ease-in-out infinite;
 }
@@ -192,7 +192,7 @@
   max-width: 92%;
 }
 
-.b365-home-action__wc-trophy {
+.b365-home-action__epl-trophy {
   position: relative;
   z-index: 1;
   display: block;
@@ -217,51 +217,23 @@
   white-space: nowrap;
 }
 
-.b365-wc-trophy-icon {
+.b365-epl-trophy-icon {
   display: block;
   width: auto;
   height: 100%;
   max-width: 100%;
-  object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
   transform-origin: center 82%;
-  filter: blur(4px);
-  transform: scale(1.1);
-  opacity: 0.55;
-  transition:
-    filter 0.3s ease-out,
-    transform 0.3s ease-out,
-    opacity 0.3s ease-out;
 }
 
-.b365-wc-trophy-icon--loading {
-  animation: b365-safari-trophy-skeleton 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.b365-wc-trophy-icon--loaded {
-  filter: blur(0);
-  transform: scale(1);
-  opacity: 1;
-}
-
-.b365-wc-trophy-icon--safari.b365-wc-trophy-icon--loaded {
+.b365-epl-trophy-icon--safari {
   animation: b365-safari-trophy-bounce 2.4s ease-in-out infinite;
 }
 
-.b365-motd-wc-btn__trophy {
+.b365-motd-epl-btn__trophy {
   width: auto;
   height: 24px;
-}
-
-@keyframes b365-safari-trophy-skeleton {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.85;
-  }
 }
 
 @keyframes b365-safari-trophy-bounce {
@@ -296,14 +268,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .b365-wc-trophy-icon--safari.b365-wc-trophy-icon--loaded,
-  .b365-wc-trophy-icon--loading,
-  .b365-home-action--wc .b365-home-action__glow {
+  .b365-epl-trophy-icon--safari,
+  .b365-home-action--epl .b365-home-action__glow {
     animation: none;
-  }
-
-  .b365-wc-trophy-icon--loading {
-    opacity: 0.7;
   }
 }
 
@@ -321,7 +288,7 @@
   }
 
   .b365-home-action__asset,
-  .b365-home-action__wc-trophy {
+  .b365-home-action__epl-trophy {
     height: 40px;
     max-width: 82%;
   }
@@ -444,7 +411,7 @@
 .b365-hero-banner--photo.b365-hero-banner--keno,
 .b365-hero-banner--photo.b365-hero-banner--sports,
 .b365-hero-banner--photo.b365-hero-banner--ufc,
-.b365-hero-banner--photo.b365-hero-banner--wc {
+.b365-hero-banner--photo.b365-hero-banner--epl {
   background: #071008;
 }
 
@@ -480,7 +447,7 @@
   object-position: 72% center;
 }
 
-.b365-hero-banner--photo.b365-hero-banner--wc .b365-hero-banner__overlay {
+.b365-hero-banner--photo.b365-hero-banner--epl .b365-hero-banner__overlay {
   background: linear-gradient(
     90deg,
     rgba(8, 14, 28, 0.96) 0%,
@@ -491,20 +458,20 @@
   );
 }
 
-.b365-hero-banner--photo.b365-hero-banner--wc .b365-hero-banner__bg-img {
+.b365-hero-banner--photo.b365-hero-banner--epl .b365-hero-banner__bg-img {
   object-position: 78% center;
 }
 
-.b365-hero-banner--wc .b365-hero-banner__badge {
+.b365-hero-banner--epl .b365-hero-banner__badge {
   background: linear-gradient(180deg, #fde047 0%, #d4af37 100%);
   color: #0a1020;
 }
 
-.b365-hero-banner--wc .b365-hero-banner__title {
+.b365-hero-banner--epl .b365-hero-banner__title {
   color: #f0f7ff;
 }
 
-.b365-hero-banner--wc .b365-hero-banner__sub {
+.b365-hero-banner--epl .b365-hero-banner__sub {
   color: rgba(224, 236, 255, 0.9);
 }
 
@@ -573,7 +540,7 @@
   height: 100%;
 }
 
-.b365-hero-banner__art--wc {
+.b365-hero-banner__art--epl {
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -592,7 +559,7 @@
   pointer-events: none;
 }
 
-.b365-hero-banner__wc-trophy {
+.b365-hero-banner__epl-trophy {
   position: relative;
   z-index: 1;
   height: 92px;
@@ -601,7 +568,7 @@
   filter: drop-shadow(0 10px 24px rgba(255, 193, 7, 0.35));
 }
 
-.b365-hero-banner--wc {
+.b365-hero-banner--epl {
   background:
     radial-gradient(ellipse 90% 80% at 100% 40%, rgba(255, 193, 7, 0.16) 0%, transparent 58%),
     linear-gradient(145deg, #101820 0%, #0b1016 48%, #121820 100%);
@@ -749,13 +716,13 @@
     right: 8px;
   }
 
-  .b365-hero-banner__art--wc {
+  .b365-hero-banner__art--epl {
     width: 168px;
     height: 128px;
     right: 12px;
   }
 
-  .b365-hero-banner__wc-trophy {
+  .b365-hero-banner__epl-trophy {
     height: 104px;
   }
 
@@ -764,7 +731,7 @@
   }
 
   .b365-home-action__asset,
-  .b365-home-action__wc-trophy {
+  .b365-home-action__epl-trophy {
     height: 50px;
   }
 

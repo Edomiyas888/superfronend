@@ -1,29 +1,7 @@
-import { isWorldCupCompetition } from './worldCupFilter';
+import { isPremierLeagueCompetition } from './premierLeagueFilter';
 
 function norm(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, ' ');
-}
-
-/** English top flight only — not Ethiopian/Russian/etc. "Premier League". */
-function matchesEnglishPremierLeague(competitionName: string): boolean {
-  const c = norm(competitionName);
-  if (!c.includes('premier league') && c !== 'epl') return false;
-
-  const blocked =
-    /^(?!english\b)(?!england\b)[\w.]+\s+premier league/.test(c) ||
-    /\b(ethiopian|russian|ghanaian|irish|welsh|scottish|kuwaiti|bahraini|maltese|lebanese|jordanian|bangladesh|israeli|azerbaijan|belarus|ukrainian|kazakh|nigerian|south african|zambian|ugandan|tanzanian|kenyan|botswana|namibia|premier league 2|u21|u23|women|womens|feminine|reserve|youth|development|championship)\b/.test(
-      c
-    );
-
-  if (blocked) return false;
-
-  return (
-    c === 'premier league' ||
-    c === 'english premier league' ||
-    c === 'epl' ||
-    (c.includes('england') && c.includes('premier league')) ||
-    (c.includes('english') && c.includes('premier league'))
-  );
 }
 
 /** German top flight only — not 2. Bundesliga or Austrian Bundesliga. */
@@ -130,9 +108,8 @@ function defaultSubstringMatch(competitionName: string, league: string): boolean
   return c.includes(l);
 }
 
-const LEAGUE_MATCHERS: Record<string, (competitionName: string) => boolean> = {
-  'World Cup': isWorldCupCompetition,
-  'Premier League': matchesEnglishPremierLeague,
+const LEAGUE_MATCHERS: Record<string, (competitionName: string, regionName?: string | null) => boolean> = {
+  'Premier League': isPremierLeagueCompetition,
   Bundesliga: matchesGermanBundesliga,
   'La Liga': matchesSpanishLaLiga,
   'Serie A': matchesItalianSerieA,
@@ -148,11 +125,18 @@ const LEAGUE_MATCHERS: Record<string, (competitionName: string) => boolean> = {
   PFL: matchesPfl,
 };
 
-/** Match Swarm `competition.name` to a Popular-leagues filter chip. */
-export function competitionMatchesLeague(competitionName: string, league: string): boolean {
+/**
+ * Match Swarm `competition.name` to a Popular-leagues filter chip. `regionName` disambiguates
+ * competition names several countries share (e.g. "Premier League").
+ */
+export function competitionMatchesLeague(
+  competitionName: string,
+  league: string,
+  regionName?: string | null
+): boolean {
   const key = league.trim();
   if (!key) return true;
   const matcher = LEAGUE_MATCHERS[key];
-  if (matcher) return matcher(competitionName);
+  if (matcher) return matcher(competitionName, regionName);
   return defaultSubstringMatch(competitionName, key);
 }

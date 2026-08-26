@@ -43,8 +43,8 @@
     box-shadow 0.15s ease;
 }
 
-/* ——— World Cup 2026 CTA (replaces Live Match) ——— */
-.b365-motd-wc-btn {
+/* ——— Premier League CTA (replaces Live Match) ——— */
+.b365-motd-epl-btn {
   position: relative;
   display: inline-flex;
   align-items: stretch;
@@ -63,7 +63,7 @@
     #39ff14 100%
   );
   background-size: 220% 100%;
-  animation: b365-wc-btn-gradient 4s ease infinite;
+  animation: b365-epl-btn-gradient 4s ease infinite;
   box-shadow:
     0 0 28px rgba(255, 215, 0, 0.35),
     0 0 40px rgba(57, 255, 20, 0.25),
@@ -71,18 +71,18 @@
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.b365-motd-wc-btn__glow {
+.b365-motd-epl-btn__glow {
   position: absolute;
   inset: -4px;
   border-radius: inherit;
   background: radial-gradient(circle at 50% 50%, rgba(57, 255, 20, 0.35) 0%, transparent 70%);
   opacity: 0.7;
-  animation: b365-wc-btn-pulse 2.4s ease-in-out infinite;
+  animation: b365-epl-btn-pulse 2.4s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-.b365-motd-wc-btn__shimmer {
+.b365-motd-epl-btn__shimmer {
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -92,12 +92,12 @@
     transparent 65%
   );
   transform: translateX(-120%);
-  animation: b365-wc-btn-shimmer 3.2s ease-in-out infinite;
+  animation: b365-epl-btn-shimmer 3.2s ease-in-out infinite;
   pointer-events: none;
   z-index: 2;
 }
 
-.b365-motd-wc-btn__inner {
+.b365-motd-epl-btn__inner {
   position: relative;
   z-index: 1;
   display: inline-flex;
@@ -110,7 +110,7 @@
   min-height: 44px;
 }
 
-.b365-motd-wc-btn__icon {
+.b365-motd-epl-btn__icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,7 +125,7 @@
   overflow: visible;
 }
 
-.b365-motd-wc-btn__text {
+.b365-motd-epl-btn__text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -133,7 +133,7 @@
   gap: 1px;
 }
 
-.b365-motd-wc-btn__title {
+.b365-motd-epl-btn__title {
   font-size: 0.92rem;
   font-weight: 900;
   letter-spacing: 0.03em;
@@ -144,7 +144,7 @@
   color: transparent;
 }
 
-.b365-motd-wc-btn__year {
+.b365-motd-epl-btn__year {
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -152,7 +152,7 @@
   text-shadow: 0 0 10px rgba(57, 255, 20, 0.45);
 }
 
-.b365-motd-wc-btn__arrow {
+.b365-motd-epl-btn__arrow {
   display: flex;
   align-items: center;
   color: var(--b365-neon);
@@ -161,7 +161,7 @@
   transition: transform 0.15s ease;
 }
 
-.b365-motd-wc-btn:hover {
+.b365-motd-epl-btn:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow:
     0 0 36px rgba(255, 215, 0, 0.5),
@@ -170,16 +170,16 @@
   text-decoration: none !important;
 }
 
-.b365-motd-wc-btn:hover .b365-motd-wc-btn__arrow {
+.b365-motd-epl-btn:hover .b365-motd-epl-btn__arrow {
   transform: translateX(3px);
   opacity: 1;
 }
 
-.b365-motd-wc-btn:active {
+.b365-motd-epl-btn:active {
   transform: translateY(0) scale(0.99);
 }
 
-@keyframes b365-wc-btn-gradient {
+@keyframes b365-epl-btn-gradient {
   0%,
   100% {
     background-position: 0% 50%;
@@ -189,7 +189,7 @@
   }
 }
 
-@keyframes b365-wc-btn-shimmer {
+@keyframes b365-epl-btn-shimmer {
   0%,
   70%,
   100% {
@@ -200,7 +200,7 @@
   }
 }
 
-@keyframes b365-wc-btn-pulse {
+@keyframes b365-epl-btn-pulse {
   0%,
   100% {
     opacity: 0.45;
@@ -212,12 +212,12 @@
   }
 }
 
-/* ——— World Cup 2026 page ——— */
-.b365-wc-page {
+/* ——— Premier League page ——— */
+.b365-epl-page {
   padding-bottom: 24px;
 }
 
-.b365-wc-hero {
+.b365-epl-hero {
   position: relative;
   margin: 0 0 20px;
   padding: 22px 18px;
@@ -233,19 +233,19 @@
     0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.b365-wc-hero__glow {
+.b365-epl-hero__glow {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at 70% 30%, rgba(57, 255, 20, 0.08) 0%, transparent 45%);
   pointer-events: none;
 }
 
-.b365-wc-hero__content {
+.b365-epl-hero__content {
   position: relative;
   z-index: 1;
 }
 
-.b365-wc-hero__eyebrow {
+.b365-epl-hero__eyebrow {
   margin: 0 0 6px;
   font-size: 11px;
   font-weight: 700;
@@ -254,7 +254,7 @@
   color: rgba(255, 215, 0, 0.85);
 }
 
-.b365-wc-hero__title {
+.b365-epl-hero__title {
   margin: 0 0 8px;
   font-size: clamp(1.75rem, 7vw, 2.4rem);
   font-weight: 900;
@@ -266,7 +266,7 @@
   color: transparent;
 }
 
-.b365-wc-hero__sub {
+.b365-epl-hero__sub {
   margin: 0;
   font-size: 14px;
   line-height: 1.45;
@@ -274,13 +274,13 @@
   max-width: 36rem;
 }
 
-.b365-wc-filters {
+.b365-epl-filters {
   display: grid;
   gap: 10px;
   margin-bottom: 16px;
 }
 
-.b365-wc-filters__count {
+.b365-epl-filters__count {
   margin: 0;
   font-size: 13px;
 }
@@ -677,7 +677,7 @@
   flex-direction: column;
 }
 
-.b365-motd-skel--wc-btn,
+.b365-motd-skel--epl-btn,
 .b365-motd-skel--live-btn {
   width: 168px;
   height: 48px;
@@ -703,13 +703,13 @@
 }
 
 @media (max-width: 640px) {
-  .b365-motd-wc-btn__inner {
+  .b365-motd-epl-btn__inner {
     padding: 9px 14px 9px 10px;
     min-height: 42px;
     gap: 8px;
   }
 
-  .b365-motd-wc-btn__title {
+  .b365-motd-epl-btn__title {
     font-size: 0.84rem;
   }
 
@@ -751,13 +751,13 @@
     transition: none;
   }
 
-  .b365-motd-wc-btn,
-  .b365-motd-wc-btn__glow,
-  .b365-motd-wc-btn__shimmer {
+  .b365-motd-epl-btn,
+  .b365-motd-epl-btn__glow,
+  .b365-motd-epl-btn__shimmer {
     animation: none;
   }
 
-  .b365-motd-wc-btn:hover,
+  .b365-motd-epl-btn:hover,
   .b365-motd-live-btn:hover {
     transform: none;
   }

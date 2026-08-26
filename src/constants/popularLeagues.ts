@@ -1,6 +1,5 @@
-/** Same order as finixbet `TopLeagues` — default selection is first (World Cup). */
+/** Same order as finixbet `TopLeagues` — default selection is first (English Premier League). */
 export const POPULAR_LEAGUE_KEYS = [
-  'World Cup',
   'Premier League',
   'Bundesliga',
   'La Liga',
