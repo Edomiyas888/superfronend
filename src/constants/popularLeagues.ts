@@ -1,6 +1,6 @@
 /**
- * Popular league chips, in display order — default selection is first (English Premier League),
- * with the Champions League beside it.
+ * Popular league chips, in display order. The home page opens on the Champions League when it has
+ * fixtures in the window, otherwise on the Premier League (see `SportsHomePage`).
  */
 export const POPULAR_LEAGUE_KEYS = [
   'Premier League',

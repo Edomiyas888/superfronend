@@ -1,6 +1,7 @@
 /** Home: hero promos + featured match + popular / upcoming lists. */
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import type { GameView } from '../api/types';
 import { useSports } from '../contexts/SportsContext';
 import { useUpcomingMatches } from '../hooks/useUpcomingMatches';
 import { usePopularMatches } from '../hooks/usePopularMatches';
@@ -17,15 +18,35 @@ import type { DateFilterKey } from '../constants/dateFilters';
 import { competitionMatchesLeague } from '../utils/competitionFilter';
 import { curatePopularGames, POPULAR_DAY_WINDOW } from '../utils/popularGames';
 
+/** Popular chip selected on arrival, while it has fixtures in its window. */
+const DEFAULT_POPULAR_LEAGUE = 'UEFA Champions League';
+/** Selected instead when the default league is between matchdays. */
+const FALLBACK_POPULAR_LEAGUE = 'Premier League';
+
+function leagueGames(games: GameView[] | undefined, league: string): GameView[] {
+  return curatePopularGames(
+    (games ?? []).filter((g) => competitionMatchesLeague(g.competitionName, league, g.regionName))
+  );
+}
+
 export default function SportsHomePage() {
   const { loading, error } = useSports();
-  const [popularLeague, setPopularLeague] = useState<string>(POPULAR_LEAGUE_KEYS[0]);
+  // null until the user picks a chip — then the default below applies.
+  const [pickedLeague, setPickedLeague] = useState<string | null>(null);
   const [featuredDate, setFeaturedDate] = useState<DateFilterKey>('week');
 
   const popularQ = usePopularMatches();
-  // The Premier League chip is the default, so it gets its own precise (England-scoped) feed.
+  // The Premier League chip gets its own precise (England-scoped) feed.
   const premierLeagueQ = usePremierLeagueMatches('week');
   const upcomingQ = useUpcomingMatches('Soccer', featuredDate);
+
+  // The Champions League plays every two or three weeks; between matchdays its 3-day window is
+  // empty, so open on the Premier League rather than an empty list. While loading, assume it plays.
+  const defaultLeague =
+    popularQ.isSuccess && leagueGames(popularQ.data, DEFAULT_POPULAR_LEAGUE).length === 0
+      ? FALLBACK_POPULAR_LEAGUE
+      : DEFAULT_POPULAR_LEAGUE;
+  const popularLeague = pickedLeague ?? defaultLeague;
 
   const isPremierLeague = popularLeague === 'Premier League';
   const popularSource = isPremierLeague ? premierLeagueQ : popularQ;
@@ -34,11 +55,7 @@ export default function SportsHomePage() {
     if (popularLeague === 'Premier League') {
       return curatePopularGames(premierLeagueQ.data ?? [], 7);
     }
-    const raw = popularQ.data ?? [];
-    const leagueFiltered = raw.filter((g) =>
-      competitionMatchesLeague(g.competitionName, popularLeague, g.regionName)
-    );
-    return curatePopularGames(leagueFiltered);
+    return leagueGames(popularQ.data, popularLeague);
   }, [popularQ.data, premierLeagueQ.data, popularLeague]);
 
   const popularDayWindow = isPremierLeague ? 7 : POPULAR_DAY_WINDOW;
@@ -66,7 +83,7 @@ export default function SportsHomePage() {
             See all
           </Link>
         </div>
-        <PopularLeagueChips leagues={POPULAR_LEAGUE_KEYS} value={popularLeague} onChange={setPopularLeague} />
+        <PopularLeagueChips leagues={POPULAR_LEAGUE_KEYS} value={popularLeague} onChange={setPickedLeague} />
         <div className="b365-league-header">
           {popularLeague} · next {popularDayWindow} days
         </div>
