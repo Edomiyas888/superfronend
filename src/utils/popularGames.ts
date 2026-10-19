@@ -23,36 +23,18 @@ function addDaysToDayKey(dayKey: string, days: number): string {
 export const POPULAR_DAY_WINDOW = 3;
 
 /**
- * Popular home list: one real fixture from today (if any), then upcoming real matches
- * within the next 3 days. Excludes Swarm stats / mythical / aggregate markets.
+ * Popular home list: every real fixture of the chosen league from today through the day window,
+ * in kickoff order. The header promises "next N days", so nothing inside the window is dropped.
+ * Excludes Swarm stats / mythical / aggregate markets.
  */
-export function curatePopularGames(
-  games: GameView[],
-  maxGames = 16,
-  dayWindow = POPULAR_DAY_WINDOW
-): GameView[] {
-  const actual = games.filter((g) => !isSpecialOrVirtualFixture(g)).sort((a, b) => a.startTs - b.startTs);
+export function curatePopularGames(games: GameView[], dayWindow = POPULAR_DAY_WINDOW): GameView[] {
   const todayKey = dayKeyLocal(Math.floor(Date.now() / 1000));
   const maxDayKey = addDaysToDayKey(todayKey, dayWindow - 1);
-
-  let todayPick: GameView | undefined;
-  const upcoming: GameView[] = [];
-
-  for (const g of actual) {
-    const dk = dayKeyLocal(g.startTs);
-    if (dk < todayKey || dk > maxDayKey) continue;
-    if (dk === todayKey) {
-      if (!todayPick) todayPick = g;
-    } else {
-      upcoming.push(g);
-    }
-  }
-
-  const result: GameView[] = [];
-  if (todayPick) result.push(todayPick);
-  for (const g of upcoming) {
-    if (result.length >= maxGames) break;
-    result.push(g);
-  }
-  return result;
+  return games
+    .filter((g) => !isSpecialOrVirtualFixture(g))
+    .filter((g) => {
+      const dk = dayKeyLocal(g.startTs);
+      return dk >= todayKey && dk <= maxDayKey;
+    })
+    .sort((a, b) => a.startTs - b.startTs);
 }

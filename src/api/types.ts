@@ -80,6 +80,9 @@ export type GameView = {
   sportName: string;
   regionName: string;
   competitionName: string;
+  /** Swarm `region.order` / `competition.order` — the operator's own ordering, when requested. */
+  regionOrder?: number;
+  competitionOrder?: number;
   marketsCount: number;
   /** When present, excludes fixture from “popular” lists (Finix Top Matches uses promoted). */
   promoted?: boolean;
@@ -98,6 +101,8 @@ export type MarketEventView = {
   price: number;
   type?: string | number;
   base?: number;
+  /** Swarm `order` — the operator's own selection order (Over before Under, home before away). */
+  order?: number;
 };
 
 export type MarketView = {
@@ -107,6 +112,10 @@ export type MarketView = {
   displayKey?: string;
   /** Handicap / total line — several markets share a name and differ only by this. */
   base?: number;
+  /** Swarm `group_name` — the operator's own market tabs (Match, Totals, Handicaps, Halves …). */
+  groupName?: string;
+  /** Swarm `order` — the operator's own market order. */
+  order?: number;
   homeScore?: number;
   awayScore?: number;
   events: MarketEventView[];

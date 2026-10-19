@@ -32,13 +32,13 @@ export default function SportsHomePage() {
 
   const popularGames = useMemo(() => {
     if (popularLeague === 'Premier League') {
-      return curatePopularGames(premierLeagueQ.data ?? [], 16, 7);
+      return curatePopularGames(premierLeagueQ.data ?? [], 7);
     }
     const raw = popularQ.data ?? [];
     const leagueFiltered = raw.filter((g) =>
       competitionMatchesLeague(g.competitionName, popularLeague, g.regionName)
     );
-    return curatePopularGames(leagueFiltered, 16);
+    return curatePopularGames(leagueFiltered);
   }, [popularQ.data, premierLeagueQ.data, popularLeague]);
 
   const popularDayWindow = isPremierLeague ? 7 : POPULAR_DAY_WINDOW;
@@ -76,7 +76,6 @@ export default function SportsHomePage() {
           isError={popularSource.isError}
           error={popularSource.error}
           emptyMessage="No upcoming fixtures for this league."
-          maxGames={16}
         />
       </section>
 

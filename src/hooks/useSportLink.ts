@@ -2,8 +2,11 @@ import { useMemo } from 'react';
 import { useSports } from '../contexts/SportsContext';
 import { getDefaultQuickLeagueSlug } from '../constants/sportQuickLeagues';
 
-/** Resolve `/sport/:id?alias=…` for a Swarm sport alias, with safe fallback. */
-export function useSportLink(alias: string, period?: string): string {
+/**
+ * Resolve `/sport/:id?alias=…` for a Swarm sport alias, with safe fallback. `league` picks a quick
+ * league chip (e.g. `champions-league`) instead of the sport's default.
+ */
+export function useSportLink(alias: string, period?: string, league?: string): string {
   const { sports } = useSports();
 
   return useMemo(() => {
@@ -11,9 +14,9 @@ export function useSportLink(alias: string, period?: string): string {
     if (!sport) return '/sports';
 
     const params = new URLSearchParams({ alias: sport.alias });
-    const defaultLeague = getDefaultQuickLeagueSlug(sport.alias);
-    if (defaultLeague) params.set('league', defaultLeague);
+    const leagueSlug = league ?? getDefaultQuickLeagueSlug(sport.alias);
+    if (leagueSlug) params.set('league', leagueSlug);
     if (period) params.set('period', period);
     return `/sport/${sport.id}?${params.toString()}`;
-  }, [sports, alias, period]);
+  }, [sports, alias, period, league]);
 }

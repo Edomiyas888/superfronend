@@ -70,6 +70,18 @@ const COMBINATION = /\band\b|\bcombo\b|\bcombination\b|\bmix\b|\bmulti\b|:|\bvs\
 /** Same bet, alternate line or payout rule — keep just below the plain version. */
 const VARIANT = /\basian\b|early payout|\b1up\b|\bexact\b|\bbands\b|3 way|2 or more|\bor more\b/i;
 
+/**
+ * Combination markets promoted by hand into the headline block, at the rank of the market they
+ * should follow. Keyed by Swarm `type`, with a name match for feeds that omit it.
+ */
+const PROMOTED: { rank: number; type: string; name: RegExp }[] = [
+  {
+    rank: KIND_RANK_BY_DISPLAY_KEY.TOTALS ?? 3,
+    type: 'DoubleChanceAndBothTeamToScore',
+    name: /^double chance and both (teams )?to score$/i,
+  },
+];
+
 const PERIOD_PENALTY = 30;
 const VARIANT_PENALTY = 1;
 const UNRANKED = 90;
@@ -94,6 +106,9 @@ function kindRank(m: MarketView): number {
  * the top, period-scoped and exotic variants pushed below them.
  */
 export function marketImportanceRank(m: MarketView): number {
+  const promoted = PROMOTED.find((p) => String(m.type ?? '') === p.type || p.name.test(m.name.trim()));
+  if (promoted) return promoted.rank;
+
   const base = kindRank(m);
   if (base >= UNRANKED) return UNRANKED;
 
@@ -106,14 +121,19 @@ export function marketImportanceRank(m: MarketView): number {
 }
 
 /**
- * Stable sort by importance. Markets of equal importance keep the order the API returned them in,
- * except that the repeated lines of one market (Total Goals 0.5, 1, 1.5 …) are ordered numerically.
+ * Stable sort by importance. Markets of equal importance follow Swarm's own `order` (falling back to
+ * the order the API returned them in), and the repeated lines of one market (Total Goals 0.5, 1,
+ * 1.5 …) stay together, ordered numerically.
  */
 export function sortMarketsByImportance(markets: MarketView[]): MarketView[] {
+  // Swarm ships markets as an object map, so arrival order means nothing; its `order` field does.
+  const useSwarmOrder = markets.length > 0 && markets.every((m) => m.order != null);
   const firstIndexByName = new Map<string, number>();
   markets.forEach((m, i) => {
     const name = m.name.trim().toLowerCase();
-    if (!firstIndexByName.has(name)) firstIndexByName.set(name, i);
+    const pos = useSwarmOrder ? (m.order as number) : i;
+    const current = firstIndexByName.get(name);
+    if (current === undefined || pos < current) firstIndexByName.set(name, pos);
   });
 
   return markets

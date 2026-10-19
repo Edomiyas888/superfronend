@@ -4339,9 +4339,38 @@ a.b365-btn-header-login {
   color: #e8fff8;
 }
 
+.b365-md-filter-chip__count {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
 .b365-md-empty {
   padding: 20px 0;
   text-align: center;
+}
+
+/* A card holding a bet-slip pick stays findable when collapsed. */
+.b365-md-acc--picked {
+  border-color: rgba(72, 209, 176, 0.36);
+}
+
+/* Lines of one market (Total Goals 0.5 … 5.5) stack as rows, spaced like cells within a row. */
+.b365-md-line-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px 12px;
+}
+
+.b365-md-line-rows > .b365-md-odds-grid {
+  padding: 0;
+}
+
+.b365-md-line-rows .b365-detail-odd {
+  padding: 10px 12px;
 }
 
 .b365-md-acc-list {
@@ -6513,4 +6542,211 @@ html.tma body {
   .b365-gaw-modal {
     border-radius: 20px;
   }
+}
+
+/* Sport page — kickoff-window chips over a country list (flag · name · count) */
+.b365-time-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin: 4px 0 10px;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.b365-time-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.b365-time-chip {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border: 1px solid var(--b365-border);
+  border-radius: 8px;
+  background: var(--b365-bg);
+  color: var(--b365-text-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.b365-time-chip:hover {
+  border-color: var(--b365-border-light);
+  color: var(--b365-text);
+}
+
+.b365-time-chip--active {
+  background: linear-gradient(180deg, rgba(26, 92, 82, 0.45) 0%, rgba(10, 74, 56, 0.92) 100%);
+  border-color: rgba(72, 209, 176, 0.42);
+  color: #e8fff8;
+}
+
+.b365-sport-search {
+  margin-bottom: 12px;
+}
+
+.b365-sport-league {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.b365-sport-league__name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--b365-text);
+}
+
+.b365-sport-league__clear {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--b365-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--b365-text-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.b365-sport-league__clear:hover {
+  color: var(--b365-text);
+  border-color: var(--b365-border-light);
+}
+
+.b365-regions {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(10, 10, 12, 0.6);
+}
+
+.b365-region + .b365-region {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.b365-region__head,
+.b365-region-comp__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--b365-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.b365-region__head {
+  padding: 15px 16px;
+}
+
+.b365-region__head:hover,
+.b365-region-comp__head:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.b365-region--open > .b365-region__head {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.b365-region__flag {
+  flex-shrink: 0;
+  width: 30px;
+  height: 22px;
+  border-radius: 4px;
+  background-size: cover;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.b365-region__flag--globe {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #e0ecff;
+}
+
+.b365-region__flag--globe svg {
+  width: 16px;
+  height: 16px;
+}
+
+.b365-region__name,
+.b365-region-comp__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.b365-region__name {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.b365-region__count {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--b365-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-region__chev {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin: 0 2px 4px 2px;
+  border-right: 2px solid rgba(255, 255, 255, 0.55);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.55);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.b365-region__chev--open {
+  transform: rotate(-135deg);
+  margin-bottom: -4px;
+}
+
+.b365-region__body {
+  padding: 0 8px 8px;
+}
+
+.b365-region-comp {
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.b365-region-comp + .b365-region-comp {
+  margin-top: 6px;
+}
+
+.b365-region-comp__head {
+  padding: 12px 12px 12px 14px;
+}
+
+.b365-region-comp__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.b365-region-comp__games {
+  padding: 0 0 6px;
 }

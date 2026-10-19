@@ -133,14 +133,20 @@ function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
       type: (m as { type?: unknown }).type as string | number | undefined,
       displayKey: (m as { display_key?: unknown }).display_key as string | undefined,
       base: numOrUndefined((m as { base?: unknown }).base),
+      groupName: String((m as { group_name?: unknown }).group_name ?? '').trim() || undefined,
+      order: numOrUndefined((m as { order?: unknown }).order),
       homeScore: g.home_score,
       awayScore: g.away_score,
-      events: odds.map((o) => ({
-        id: Number(o.id),
-        name: String(o.name ?? ''),
-        price: Number(o.value),
-        base: numOrUndefined((o as { base?: unknown }).base ?? (m as { base?: unknown }).base),
-      })),
+      // Swarm events arrive as an object map; `order` restores Over-before-Under / home-before-away.
+      events: odds
+        .map((o) => ({
+          id: Number(o.id),
+          name: String(o.name ?? ''),
+          price: Number(o.value),
+          base: numOrUndefined((o as { base?: unknown }).base ?? (m as { base?: unknown }).base),
+          order: numOrUndefined((o as { order?: unknown }).order),
+        }))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
     };
   }) ?? [];
 
@@ -214,7 +220,7 @@ export async function restGetMatchesForSport(
       source: 'betting',
       what: {
         sport: ['id', 'name', 'alias'],
-        region: ['id', 'name', 'alias'],
+        region: ['id', 'name', 'alias', 'order'],
         competition: ['id', 'name', 'order'],
         game: [
           'id',
@@ -317,15 +323,20 @@ export async function restGetUpcomingMatches(opts?: {
 }
 
 /**
- * Finix `PopularMatchesTable`: Soccer prematch fixtures (no kickoff upper bound) with match-result
- * markets, excluding promoted games (those surface in “Top” / Featured instead).
+ * Soccer fixtures for the home Popular list (prematch with no kickoff upper bound, plus in-play),
+ * with match-result markets. The list is always narrowed to one league, so it must carry that
+ * league's whole slate: promoted games are the headline fixtures and stay in, and in-play games
+ * stay so a match does not vanish at kickoff.
  */
 export async function restGetPopularSoccerMatches(): Promise<GameView[]> {
-  const games = await restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours: 'all' });
-  // Premier League fixtures are often promoted — keep them so the default chip is not empty.
-  return games.filter(
-    (g) => !g.promoted || isPremierLeagueCompetition(g.competitionName, g.regionName)
-  );
+  const [prematch, live] = await Promise.all([
+    restGetUpcomingMatches({ sportAlias: 'Soccer', timeHours: 'all' }),
+    restGetLiveGames({ sportAlias: 'Soccer' }).catch(() => [] as GameView[]),
+  ]);
+
+  const byId = new Map<number, GameView>();
+  for (const g of [...live, ...prematch]) byId.set(g.id, g);
+  return [...byId.values()];
 }
 
 /**
@@ -423,8 +434,8 @@ export async function restGetMatchOdds(gameId: number): Promise<MatchDetailView 
           'info',
           'text_info',
         ],
-        market: ['id', 'name', 'type', 'display_key', 'base', 'home_score', 'away_score'],
-        event: ['id', 'name', 'price', 'type', 'base'],
+        market: ['id', 'name', 'type', 'display_key', 'base', 'group_name', 'order', 'home_score', 'away_score'],
+        event: ['id', 'name', 'price', 'type', 'base', 'order'],
       },
       where: {
         game: { id: gameId },
@@ -610,6 +621,20 @@ function pickTwoWay(events: ParsedEvent[]): { home: ParsedEvent; away: ParsedEve
   return null;
 }
 
+/** Swarm Double Chance selections. */
+const DOUBLE_CHANCE_EVENT_TYPES = ['1X', '12', 'X2'];
+
+/**
+ * Swarm's `1X12X2` market is Double Chance. It has three selections, so `pickThreeWay`'s positional
+ * fallback would read 1X / 12 / X2 as home / draw / away and show its prices under the 1 / X / 2
+ * columns — it must never stand in for the match result.
+ */
+function isDoubleChanceMarket(mk: Record<string, unknown>, events: ParsedEvent[]): boolean {
+  if (String(mk.type ?? '') === '1X12X2') return true;
+  if (/double chance/i.test(String(mk.name ?? ''))) return true;
+  return events.some((e) => DOUBLE_CHANCE_EVENT_TYPES.includes(e.type));
+}
+
 /**
  * Pick the first suitable match-winner market and map events to home / draw / away (or home / away for P1P2).
  */
@@ -625,6 +650,7 @@ function extractMatchResult1x2FromGame(g: Record<string, unknown>): MatchResult1
   for (const mk of sorted) {
     const evObj = (mk.event as Record<string, unknown>) ?? {};
     const events = parseGameEvents(evObj);
+    if (isDoubleChanceMarket(mk, events)) continue;
     const triple = pickThreeWay(events);
     if (triple) {
       const { home, draw, away } = triple;
@@ -691,6 +717,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
               name: ev.name,
               value: ev.price,
               base: ev.base,
+              order: ev.order,
             };
           });
           return {
@@ -699,6 +726,8 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
             type: mk.type,
             display_key: mk.display_key,
             base: mk.base,
+            group_name: mk.group_name,
+            order: mk.order,
             odds,
           };
         });
@@ -750,6 +779,7 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
                 name: ev.name,
                 value: ev.price,
                 base: ev.base,
+                order: ev.order,
               };
             });
             return {
@@ -758,6 +788,8 @@ function nestedToFlatRows(data: unknown): FlatGameRow[] {
               type: mk.type,
               display_key: mk.display_key,
               base: mk.base,
+              group_name: mk.group_name,
+              order: mk.order,
               odds,
             };
           });
@@ -840,8 +872,10 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
     }
     for (const reg of Object.values((sp.region as object) ?? {})) {
       const regionName = String((reg as { name?: unknown }).name ?? '');
+      const regionOrder = numOrUndefined((reg as { order?: unknown }).order);
       for (const comp of Object.values((reg as { competition?: object }).competition ?? {})) {
         const competitionName = String((comp as { name?: unknown }).name ?? '');
+        const competitionOrder = numOrUndefined((comp as { order?: unknown }).order);
         for (const gm of Object.values((comp as { game?: object }).game ?? {})) {
           const g = gm as Record<string, unknown>;
           fromRegion += 1;
@@ -858,6 +892,8 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
             sportName,
             regionName,
             competitionName,
+            regionOrder,
+            competitionOrder,
             marketsCount: Number(g.markets_count ?? 0),
             promoted: !!g.promoted,
             matchResult1x2: extractMatchResult1x2FromGame(g),

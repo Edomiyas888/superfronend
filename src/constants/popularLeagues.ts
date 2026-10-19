@@ -1,11 +1,14 @@
-/** Same order as finixbet `TopLeagues` — default selection is first (English Premier League). */
+/**
+ * Popular league chips, in display order — default selection is first (English Premier League),
+ * with the Champions League beside it.
+ */
 export const POPULAR_LEAGUE_KEYS = [
   'Premier League',
+  'UEFA Champions League',
   'Bundesliga',
   'La Liga',
   'Serie A',
   'Ligue 1',
-  'UEFA Champions League',
   'UEFA Europa League',
   'UEFA Europa Conference League',
   'FA Cup',

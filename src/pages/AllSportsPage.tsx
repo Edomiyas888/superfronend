@@ -1,10 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useSports } from '../contexts/SportsContext';
 import { SportIcon } from '../components/SportIcon';
+import { useSportLink } from '../hooks/useSportLink';
 
-/** Full-width list of all sports (same data as sidebar rail). */
+/**
+ * The Sports tab opens straight on Football's country list (the sport strip above switches
+ * sport). The grid of every sport remains only for a feed without football.
+ */
 export default function AllSportsPage() {
   const { sports, loading, error } = useSports();
+  const footballLink = useSportLink('Soccer');
+
+  // useSportLink falls back to '/sports' until football is in the feed — never redirect to ourselves.
+  if (footballLink !== '/sports') return <Navigate to={footballLink} replace />;
 
   return (
     <div>
