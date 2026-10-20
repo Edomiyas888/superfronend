@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroBannerArt, FooterIcon } from './HeroBannerArt';
-import fastKenoBannerArt from '../assets/fast-keno-banner.png';
-import fastSportsBannerArt from '../assets/fast-sports-banner.png';
+import fastKenoBannerArt from '../assets/fast-keno-banner.webp';
+import fastSportsBannerArt from '../assets/fast-sports-banner.webp';
 import championsLeagueBannerArt from '../assets/champions-league-banner.webp';
 import { useSportLink } from '../hooks/useSportLink';
 

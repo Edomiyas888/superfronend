@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import appLogo from '../assets/app-logo.png';
+import appLogo from '../assets/app-logo.webp';
 import { useSessionStore } from '../features/auth/sessionStore';
 import { fetchBalance } from '../features/wallet/walletApi';
 import SportsSidebar from './SportsSidebar';

@@ -143,7 +143,6 @@
   width: 68%;
   height: 68%;
   border-radius: 50%;
-  filter: blur(10px);
   opacity: 0.55;
   pointer-events: none;
 }

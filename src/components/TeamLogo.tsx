@@ -39,6 +39,7 @@ export default function TeamLogo({ teamId, name, className, fallbackClassName }:
       alt=""
       className={className}
       referrerPolicy="no-referrer"
+      loading="lazy"
       decoding="async"
       onError={() => setSrcIdx((i) => i + 1)}
     />

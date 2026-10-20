@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import PremierLeagueTrophyIcon from './PremierLeagueTrophyIcon';
 import fastKenoLogo from '../assets/fast-keno-logo-user.png';
-import liveIcon from '../assets/home-live.png';
-import betSlipsIcon from '../assets/home-bet-slips.png';
+import liveIcon from '../assets/home-live.webp';
+import betSlipsIcon from '../assets/home-bet-slips.webp';
 
 const actions = [
   {

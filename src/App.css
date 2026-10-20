@@ -4125,6 +4125,9 @@ a.b365-btn-header-login {
   width: 100%;
   border-bottom: 1px solid var(--b365-border);
   background: #1e1e1e;
+  /* Off-screen rows skip layout/paint until scrolled near; height is remembered once rendered. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 116px;
 }
 
 .b365-mm-cell {
@@ -6430,15 +6433,9 @@ html.tma body {
   0%,
   100% {
     transform: scale(1);
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.35) inset,
-      0 2px 10px rgba(255, 214, 10, 0.45);
   }
   50% {
     transform: scale(1.06);
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.45) inset,
-      0 4px 16px rgba(255, 214, 10, 0.65);
   }
 }
 
