@@ -124,6 +124,8 @@ export default function MatchDetailPage() {
       initialPrice: price,
       isLive: detail.isLive,
       dateofmatch: Math.floor(detail.startTs),
+      sportName: detail.sportName,
+      sportAlias: detail.sportAlias,
     };
     addSelection(k, ev);
   };

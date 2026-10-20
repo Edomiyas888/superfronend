@@ -41,7 +41,7 @@ export default function BetslipSelectionOdds({
   return (
     <div className="b365-betslip-odds">
       <span className="b365-betslip-odds-label">
-        {marketName} · {pick}
+        {marketName}: <strong>{pick}</strong>
       </span>
       <div
         className={[

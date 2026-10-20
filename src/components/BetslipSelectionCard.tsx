@@ -1,5 +1,5 @@
-import BetslipLiveLine from './BetslipLiveLine';
 import BetslipSelectionOdds from './BetslipSelectionOdds';
+import { SportIcon } from './SportIcon';
 import type { BetslipEventLike } from '../api/placeBet';
 import type { LiveGameDisplay } from '../utils/matchLiveDisplay';
 
@@ -14,7 +14,8 @@ export default function BetslipSelectionCard({ selectionKey, event, liveInfo, on
   const initial = event.initialPrice ?? event.price;
   const pendingChange =
     Boolean(event.priceChanged) && Math.abs(event.price - initial) > 0.001;
-  const showLive = event.isLive || liveInfo?.isLive;
+  const showLive = Boolean(event.isLive || liveInfo?.isLive);
+  const hasScore = liveInfo?.homeScore != null && liveInfo?.awayScore != null;
 
   return (
     <div
@@ -27,12 +28,37 @@ export default function BetslipSelectionCard({ selectionKey, event, liveInfo, on
         .join(' ')}
     >
       <div className="b365-betslip-selection-head">
-        <div className="b365-betslip-pick-title">{event.title}</div>
-        {pendingChange ? (
-          <span className="b365-betslip-selection-badge">Updated</span>
-        ) : null}
+        <SportIcon
+          alias={event.sportAlias ?? ''}
+          name={event.sportName ?? ''}
+          className="b365-betslip-selection-sport"
+        />
+        <div className="b365-betslip-pick-title">
+          <span className="b365-betslip-team">{event.teamone}</span>
+          {hasScore ? (
+            <span className="b365-betslip-score">
+              {liveInfo?.homeScore} : {liveInfo?.awayScore}
+            </span>
+          ) : (
+            <span className="b365-betslip-vs">v</span>
+          )}
+          <span className="b365-betslip-team">{event.teamtwo}</span>
+        </div>
+        <div className="b365-betslip-selection-side">
+          {pendingChange ? <span className="b365-betslip-selection-badge">Updated</span> : null}
+          {showLive ? <span className="b365-betslip-live-badge">Live</span> : null}
+          <button
+            type="button"
+            className="b365-betslip-remove"
+            onClick={() => onRemove(selectionKey)}
+            aria-label={`Remove ${event.teamone} v ${event.teamtwo}`}
+          >
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
       </div>
-      {showLive ? <BetslipLiveLine live={liveInfo} /> : null}
       <BetslipSelectionOdds
         marketName={event.marketName}
         pick={event.pick}
@@ -41,9 +67,6 @@ export default function BetslipSelectionCard({ selectionKey, event, liveInfo, on
         priceChanged={event.priceChanged}
         suspended={event.suspended}
       />
-      <button type="button" className="b365-btn-ghost" onClick={() => onRemove(selectionKey)}>
-        Remove
-      </button>
     </div>
   );
 }

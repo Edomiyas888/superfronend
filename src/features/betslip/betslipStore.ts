@@ -14,6 +14,24 @@ import { MAX_POSSIBLE_WIN, MIN_STAKE } from '../../config/bettingLimits';
 export type SelectionKey = string;
 
 const BETSLIP_STORAGE_KEY = 'superbet_betslip';
+const ACCEPT_ODDS_STORAGE_KEY = 'superbet_accept_odds_changes';
+
+function loadAcceptOddsChanges(): boolean {
+  try {
+    return localStorage.getItem(ACCEPT_ODDS_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function saveAcceptOddsChanges(on: boolean) {
+  try {
+    if (on) localStorage.setItem(ACCEPT_ODDS_STORAGE_KEY, '1');
+    else localStorage.removeItem(ACCEPT_ODDS_STORAGE_KEY);
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
 
 type PersistedBetslip = {
   stake: number;
@@ -114,6 +132,8 @@ type BetslipState = {
   placeMessage: string | null;
   correctionPending: OddsCorrectionChange[] | null;
   correctionsAccepted: boolean;
+  /** "Agree to odds changes" — place at the current price without a separate accept step. */
+  acceptOddsChanges: boolean;
   selectionError: string | null;
   addSelection: (key: SelectionKey, ev: BetslipEventLike) => boolean;
   removeSelection: (key: SelectionKey) => void;
@@ -125,6 +145,7 @@ type BetslipState = {
   updateSelectionPrice: (key: SelectionKey, price: number, suspended?: boolean) => void;
   setLiveDisplay: (gameId: number | string, display: LiveGameDisplay | null) => void;
   acceptCorrections: () => void;
+  setAcceptOddsChanges: (on: boolean) => void;
   toSlipPayload: () => BetslipLike;
   placeBet: (bones?: number) => Promise<void>;
 };
@@ -138,6 +159,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
   placeMessage: null,
   correctionPending: null,
   correctionsAccepted: true,
+  acceptOddsChanges: loadAcceptOddsChanges(),
   selectionError: null,
 
   addSelection: (key, ev) => {
@@ -287,17 +309,31 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     });
   },
 
+  setAcceptOddsChanges: (on) => {
+    saveAcceptOddsChanges(on);
+    set({ acceptOddsChanges: on });
+  },
+
   toSlipPayload: (): BetslipLike => {
     const s = get();
     const count = Object.keys(s.events).length;
+    const events: Record<string, BetslipEventLike> = {};
+    for (const [key, ev] of Object.entries(s.events)) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { sportName, sportAlias, ...rest } = ev;
+      events[key] = rest;
+    }
     return {
       type: count > 1 ? BETSLIP_TYPE_MULTIPLE : BETSLIP_TYPE_SINGLE,
-      events: { ...s.events },
+      events,
       stake: s.stake,
     };
   },
 
   placeBet: async (bones = 0) => {
+    if (get().acceptOddsChanges && get().correctionPending?.length) {
+      get().acceptCorrections();
+    }
     const slip = get().toSlipPayload();
     if (Object.keys(slip.events).length === 0) {
       set({ placeStatus: 'error', placeMessage: 'Add at least one selection.' });
@@ -367,7 +403,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     set({ placeStatus: 'loading', placeMessage: null });
     try {
       const result = await placeBetSlip(slip, useSessionStore.getState().getAuthHeader(), {
-        acceptCorrection: correctionsAccepted,
+        acceptCorrection: correctionsAccepted || get().acceptOddsChanges,
         bones,
       });
 

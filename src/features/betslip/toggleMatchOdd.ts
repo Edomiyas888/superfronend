@@ -35,6 +35,7 @@ export function toggleMatchOdd(
     initialPrice: pick.price,
     isLive: g.isLive,
     dateofmatch: Math.floor(g.startTs),
+    sportName: g.sportName,
   };
   addSelection(k, ev);
 }

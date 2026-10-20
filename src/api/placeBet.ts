@@ -36,6 +36,9 @@ export type BetslipEventLike = {
   isLive?: boolean;
   dateofmatch: number;
   singleStake?: number;
+  /** Display only (betslip sport icon) — stripped from the place-bet payload. */
+  sportName?: string;
+  sportAlias?: string;
 };
 
 export type OddsCorrectionChange = {

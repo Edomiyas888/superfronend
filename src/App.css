@@ -111,7 +111,7 @@ a.b365-btn-header-login {
 }
 
 .b365-betslip-rail-inner {
-  padding: 10px 12px 24px;
+  padding: 0 0 24px;
   position: sticky;
   top: 0;
 }
@@ -293,33 +293,6 @@ a.b365-btn-header-login {
 }
 
 /* ——— Betslip rail ——— */
-.b365-betslip-tabs {
-  display: flex;
-  border-bottom: 2px solid var(--b365-green);
-  margin-bottom: 12px;
-}
-
-.b365-betslip-tab {
-  flex: 1;
-  text-align: center;
-  padding: 8px 4px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--b365-text-muted);
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.b365-betslip-tab.active {
-  color: var(--b365-text);
-  border-bottom-color: var(--b365-yellow);
-}
-
 .b365-betslip-subtabs {
   display: flex;
   gap: 6px;
@@ -374,10 +347,9 @@ a.b365-btn-header-login {
 
 .b365-betslip-selection {
   background: var(--b365-surface);
-  border: 1px solid var(--b365-border);
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--b365-radius);
+  overflow: hidden;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -388,9 +360,55 @@ a.b365-btn-header-login {
 
 .b365-betslip-selection-head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.b365-betslip-selection-sport {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: var(--b365-text);
+}
+
+.b365-betslip-selection-side {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
   gap: 8px;
+  align-self: stretch;
+  padding: 0 6px 0 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.b365-betslip-selection-side .b365-betslip-live-badge {
+  font-size: 10px;
+  font-style: italic;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--b365-accent);
+}
+
+.b365-betslip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: var(--b365-radius-sm);
+  background: transparent;
+  color: var(--b365-text-muted);
+  cursor: pointer;
+}
+
+.b365-betslip-remove:hover {
+  color: var(--b365-text);
+  background: var(--b365-surface-2);
 }
 
 .b365-betslip-selection-badge {
@@ -408,16 +426,33 @@ a.b365-btn-header-login {
 }
 
 .b365-betslip-pick-title {
-  font-size: 13px;
-  font-weight: 600;
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+  row-gap: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--b365-text);
 }
 
-.b365-betslip-pick-meta {
-  font-size: 11px;
-  color: var(--b365-text-muted);
-  margin: 4px 0 8px;
+.b365-betslip-team {
+  overflow-wrap: anywhere;
+}
+
+.b365-betslip-score {
+  color: var(--b365-green);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.b365-betslip-vs {
+  color: var(--b365-text-dim);
+  font-weight: 500;
 }
 
 .b365-betslip-odds {
@@ -425,18 +460,22 @@ a.b365-btn-header-login {
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
   column-gap: 10px;
-  row-gap: 2px;
   align-items: center;
-  margin: 6px 0 8px;
-  min-height: 36px;
+  padding: 10px 12px 8px;
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .b365-betslip-odds-label {
   grid-column: 1;
   grid-row: 1;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--b365-text-muted);
   line-height: 1.3;
+}
+
+.b365-betslip-odds-label strong {
+  color: var(--b365-text);
+  font-weight: 600;
 }
 
 .b365-betslip-odds-value-wrap {
@@ -446,10 +485,10 @@ a.b365-btn-header-login {
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-  min-width: 56px;
-  padding: 4px 8px;
+  min-width: 48px;
+  padding: 2px 6px;
+  margin-right: -6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
   border: 1px solid transparent;
   align-self: center;
 }
@@ -512,8 +551,8 @@ a.b365-btn-header-login {
 }
 
 .b365-betslip-odds-value {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--b365-text);
   min-width: 2.5ch;
@@ -525,13 +564,12 @@ a.b365-btn-header-login {
   grid-row: 2;
   font-size: 10px;
   color: var(--b365-text-muted);
-  opacity: 0;
-  min-height: 14px;
   line-height: 14px;
-  transition: opacity 0.2s ease;
+  display: none;
 }
 
 .b365-betslip-odds-prev--visible {
+  display: block;
   opacity: 0.85;
 }
 
@@ -581,56 +619,457 @@ a.b365-btn-header-login {
   margin-top: 8px;
 }
 
-.b365-betslip-return {
-  font-size: 12px;
-  color: var(--b365-text-muted);
-  margin: 8px 0;
-}
-
-.b365-betslip-correction {
-  background: rgba(255, 193, 7, 0.12);
-  border: 1px solid rgba(255, 193, 7, 0.35);
-  border-radius: 6px;
-  padding: 8px 10px;
-  margin-bottom: 10px;
-  font-size: 12px;
-}
-
-.b365-betslip-correction p {
-  margin: 0 0 8px;
-}
-
-.b365-betslip-price-changed {
-  color: #e6a817;
-  font-weight: 600;
-}
-
-.b365-betslip-hint {
-  font-size: 11px;
-  margin: 4px 0 0;
-}
-
 .b365-betslip-selection--suspended {
   opacity: 0.65;
 }
 
-.b365-betslip-actions {
+/* ——— Bet slip panel (rail + drawer) ——— */
+.b365-slip {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--b365-bg);
+}
+
+.b365-slip-head {
+  display: flex;
+  align-items: stretch;
+  min-height: 52px;
+  background: var(--b365-header-surface);
+  border-bottom: 1px solid var(--b365-border);
+  flex-shrink: 0;
+}
+
+.b365-slip-gear,
+.b365-slip-collapse {
+  flex-shrink: 0;
+  width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--b365-text-muted);
+  cursor: pointer;
+}
+
+.b365-slip-gear:hover,
+.b365-slip-gear.active,
+.b365-slip-collapse:hover {
+  color: var(--b365-text);
+}
+
+.b365-slip-tabs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.b365-slip-tab {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 8px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  color: var(--b365-text-muted);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.b365-slip-tab--plain {
+  text-transform: none;
+  font-weight: 600;
+}
+
+.b365-slip-tab.active {
+  color: var(--b365-text);
+  background: var(--b365-surface);
+  border-bottom-color: var(--b365-green);
+}
+
+.b365-slip-count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--b365-radius-sm);
+  background: var(--b365-green);
+  color: #0a0a0b;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-slip-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  background: var(--b365-header-surface);
+  border-bottom: 1px solid var(--b365-border);
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-slip-settings-title {
+  flex-basis: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--b365-text-dim);
+}
+
+.b365-slip-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--b365-text);
+  cursor: pointer;
+}
+
+.b365-slip-radio input {
+  accent-color: var(--b365-green);
+  margin: 0;
+}
+
+.b365-slip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.b365-slip-types {
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+  border-radius: var(--b365-radius);
+  background: var(--b365-surface);
+}
+
+.b365-slip-type {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 4px;
+  border: none;
+  border-radius: var(--b365-radius-sm);
+  background: transparent;
+  color: var(--b365-text-muted);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: default;
+}
+
+.b365-slip-type:disabled {
+  color: var(--b365-text-dim);
+}
+
+.b365-slip-type.active {
+  background: var(--b365-surface-2);
+  color: var(--b365-text);
+  font-weight: 700;
+}
+
+.b365-slip-selections {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 8px;
 }
 
-.b365-betslip-actions-row {
-  display: flex;
+.b365-slip-remove-all {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  color: var(--b365-text);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.b365-betslip-actions-row .b365-btn-primary,
-.b365-betslip-actions-row .b365-btn-secondary {
+.b365-slip-remove-all span {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.b365-slip-remove-all:hover {
+  color: var(--b365-error);
+}
+
+.b365-slip-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: var(--b365-radius);
+  background: var(--b365-surface);
+}
+
+.b365-slip-stake {
+  display: flex;
+  margin-bottom: 6px;
+  padding: 3px;
+  border: 1px solid var(--b365-border-light);
+  border-radius: var(--b365-radius);
+  background: var(--b365-bg);
+}
+
+.b365-slip-max {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: var(--b365-radius-sm);
+  background: transparent;
+  color: var(--b365-text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.b365-slip-max:hover:not(:disabled) {
+  background: var(--b365-surface-2);
+}
+
+.b365-slip-max:disabled {
+  color: var(--b365-text-dim);
+  cursor: not-allowed;
+}
+
+.b365-slip-stake-field {
+  flex: 1.2;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: var(--b365-radius-sm);
+  background: var(--b365-surface-2);
+  cursor: text;
+}
+
+.b365-slip-stake-field:focus-within {
+  box-shadow: inset 0 0 0 1px var(--b365-green);
+}
+
+.b365-slip-stake-currency {
+  font-size: 14px;
+  color: var(--b365-text-muted);
+}
+
+.b365-slip-stake-input {
   flex: 1;
   min-width: 0;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  color: var(--b365-text);
+  font-family: inherit;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.b365-slip-stake-input::-webkit-outer-spin-button,
+.b365-slip-stake-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.b365-slip-stake-input:focus {
+  outline: none;
+}
+
+.b365-slip-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--b365-text-muted);
+}
+
+.b365-slip-summary-odds {
+  color: var(--b365-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-slip-summary-row--win {
+  text-transform: uppercase;
+}
+
+.b365-slip-summary-row--win span:last-child {
+  color: var(--b365-green);
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-slip-agree {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 2px;
+  font-size: 14px;
+  color: var(--b365-text);
+  cursor: pointer;
+  position: relative;
+}
+
+.b365-slip-agree input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.b365-slip-agree-box {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--b365-radius-sm);
+  border: 1px solid var(--b365-border-light);
+  background: var(--b365-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.b365-slip-agree input:checked + .b365-slip-agree-box {
+  background: var(--b365-green);
+  border-color: var(--b365-green);
+}
+
+.b365-slip-agree input:checked + .b365-slip-agree-box::after {
+  content: '';
+  width: 7px;
+  height: 12px;
+  margin-top: -3px;
+  border: solid #0a0a0b;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+.b365-slip-agree input:focus-visible + .b365-slip-agree-box {
+  outline: 2px solid var(--b365-green);
+  outline-offset: 2px;
+}
+
+.b365-slip-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+.b365-slip-share {
+  flex-shrink: 0;
+  width: 56px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--b365-border-light);
+  border-radius: var(--b365-radius);
+  background: transparent;
+  color: var(--b365-text);
+  cursor: pointer;
+}
+
+.b365-slip-share:hover {
+  background: var(--b365-surface);
+}
+
+.b365-slip-place {
+  flex: 1;
+  height: 52px;
+  border: none;
+  border-radius: var(--b365-radius);
+  background: var(--b365-green);
+  color: #0a0a0b;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.b365-slip-place:hover:not(:disabled) {
+  background: var(--b365-green-hover);
+}
+
+.b365-slip-place:disabled {
+  background: var(--b365-green-darkest);
+  color: rgba(245, 245, 247, 0.45);
+  cursor: not-allowed;
+}
+
+.b365-slip-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--b365-text-muted);
+}
+
+.b365-slip-notice--error {
+  color: var(--b365-error);
+}
+
+.b365-slip-notice--success {
+  color: var(--b365-green);
+}
+
+.b365-slip-notice-dismiss {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border: none;
+  background: transparent;
+  color: var(--b365-text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.b365-drawer-panel--slip {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.b365-drawer-panel--slip .b365-slip-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .b365-betslip-accept-odds {
