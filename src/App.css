@@ -2834,6 +2834,31 @@ a.b365-btn-header-login {
   line-height: 1.35;
 }
 
+.b365-my-bets-leg--won {
+  border-color: rgba(20, 128, 94, 0.45);
+  box-shadow: inset 3px 0 0 #34d399;
+}
+
+.b365-my-bets-leg--lost {
+  border-color: rgba(232, 34, 42, 0.4);
+  box-shadow: inset 3px 0 0 #f87171;
+}
+
+.b365-my-bets-leg__score {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--b365-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-my-bets-leg--won .b365-my-bets-leg__score {
+  color: #6ee7b7;
+}
+
+.b365-my-bets-leg--lost .b365-my-bets-leg__score {
+  color: #fca5a5;
+}
+
 .b365-my-bets-leg__market {
   font-size: 12px;
   font-weight: 600;
@@ -2920,6 +2945,12 @@ a.b365-btn-header-login {
   color: #93c5fd;
   background: rgba(100, 210, 255, 0.1);
   border-color: rgba(100, 210, 255, 0.25);
+}
+
+.b365-my-bets-leg-status--awaiting {
+  color: #e9d5ff;
+  background: rgba(168, 85, 247, 0.14);
+  border-color: rgba(168, 85, 247, 0.35);
 }
 
 .b365-my-bets-leg-status--void {

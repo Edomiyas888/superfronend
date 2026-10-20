@@ -6,6 +6,7 @@ import {
   formatBetSelectionText,
 } from '../features/bets/formatBetSelection';
 import {
+  formatFinalScore,
   resolveSelectionStatuses,
   selectionStatusClass,
   slipStatusClass,
@@ -173,13 +174,18 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
                         ? 'lost'
                         : 'pending');
                 const { market, pick } = formatBetSelectionParts(sel);
+                const finalScore = resolve?.live?.isLive ? null : formatFinalScore(sel);
                 return (
-                  <li key={`${sel.gameId}-${sel.eventId}-${i}`} className="b365-my-bets-leg">
+                  <li
+                    key={`${sel.gameId}-${sel.eventId}-${i}`}
+                    className={`b365-my-bets-leg b365-my-bets-leg--${legStatus}`}
+                  >
                     <div className="b365-my-bets-leg__main">
                       <span className="b365-my-bets-leg__match">{sel.matchTitle || 'Match'}</span>
                       {resolve?.live?.isLive ? (
                         <BetslipLiveLine live={resolve.live} className="b365-betslip-live-line b365-my-bets-leg__live" />
                       ) : null}
+                      {finalScore ? <span className="b365-my-bets-leg__score">{finalScore}</span> : null}
                       <span className="b365-my-bets-leg__market">
                         {market ? (
                           <>

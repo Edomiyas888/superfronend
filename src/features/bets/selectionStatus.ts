@@ -4,7 +4,8 @@ import type { PlacedBetRow } from './betsApi';
 import { liveDisplayFromMatchDetail } from '../../utils/matchLiveDisplay';
 import type { LiveGameDisplay } from '../../utils/matchLiveDisplay';
 
-export type SelectionStatus = 'won' | 'lost' | 'live' | 'pending' | 'void';
+/** 'awaiting' — full time, waiting for the official result before won/lost. */
+export type SelectionStatus = 'won' | 'lost' | 'live' | 'pending' | 'void' | 'awaiting';
 
 export type SelectionResolve = {
   status: SelectionStatus;
@@ -25,10 +26,21 @@ function statusLabel(status: SelectionStatus): string {
   if (status === 'lost') return 'Lost';
   if (status === 'live') return 'Live';
   if (status === 'void') return 'Void';
+  if (status === 'awaiting') return 'Awaiting';
   return 'Pending';
 }
 
 export { statusLabel };
+
+/** "FT 4 - 3 · HT 2 - 2" for a finished leg, or null when no score is known. */
+export function formatFinalScore(sel: PlacedBetRow['selections'][number]): string | null {
+  const ft = sel.score;
+  if (!ft) return null;
+  const ht = sel.halfTimeScore;
+  const parts = [`FT ${ft.home} - ${ft.away}`];
+  if (ht) parts.push(`HT ${ht.home} - ${ht.away}`);
+  return parts.join(' · ');
+}
 
 function infoFromLiveGame(g: GameView): GameScoreInfo {
   return {
@@ -195,5 +207,6 @@ export function selectionStatusClass(status: SelectionStatus): string {
   if (status === 'lost') return 'b365-my-bets-leg-status--lost';
   if (status === 'live') return 'b365-my-bets-leg-status--live';
   if (status === 'void') return 'b365-my-bets-leg-status--void';
+  if (status === 'awaiting') return 'b365-my-bets-leg-status--awaiting';
   return 'b365-my-bets-leg-status--pending';
 }

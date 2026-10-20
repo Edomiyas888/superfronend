@@ -10,6 +10,8 @@ type PaginatedSlips = {
   totalPages: number;
 };
 
+export type MatchScore = { home: number; away: number };
+
 export type PlacedBetRow = {
   id: string;
   coupon: string;
@@ -30,7 +32,10 @@ export type PlacedBetRow = {
     pick?: string;
     odds?: number;
     matchTitle?: string;
-    legStatus?: 'won' | 'lost' | 'live' | 'pending' | 'void';
+    legStatus?: 'won' | 'lost' | 'live' | 'pending' | 'void' | 'awaiting';
+    /** Full-time score once the fixture has a result. */
+    score?: MatchScore | null;
+    halfTimeScore?: MatchScore | null;
   }[];
   createdAt: string;
 };
