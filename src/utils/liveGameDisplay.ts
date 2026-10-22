@@ -3,8 +3,15 @@
  * Mirrors patterns from finix `LiveMatchesTable.jsx` / `game.info` usage.
  */
 
+/** Swarm moves fixtures into the live feed shortly before kickoff with `info.current_game_state: "notstarted"`. */
+export function gameNotStartedInFeed(g: Record<string, unknown>): boolean {
+  const state = String(normalizeGameInfo(g.info)?.current_game_state ?? '').trim().toLowerCase();
+  return state === 'notstarted' || state === 'not_started';
+}
+
 /** True when Swarm reports the fixture as live or in progress. */
 export function gameIsLiveInFeed(g: Record<string, unknown>): boolean {
+  if (gameNotStartedInFeed(g)) return false;
   return Boolean(g.is_live) || Number(g.type) === 1 || Boolean(g.is_started);
 }
 
@@ -59,6 +66,7 @@ export function extractScoresFromGameMarkets(g: Record<string, unknown>): { home
 }
 
 export function formatLiveMatchTimeText(g: Record<string, unknown>): string {
+  if (gameNotStartedInFeed(g)) return '';
   const text = String(g.text_info ?? '').trim();
   if (text.length > 1) return text;
   const info = normalizeGameInfo(g.info);

@@ -26,6 +26,7 @@ export function formatMatchListClock(g: GameView, liveContext: boolean): string 
       }
       if (normalized) return normalized;
     }
+    if (!g.isLive) return formatKickoffTime(g.startTs);
     return 'Live';
   }
   return formatKickoffTime(g.startTs);
