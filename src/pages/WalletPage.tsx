@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useSessionStore } from '../features/auth/sessionStore';
 import TelebirrDepositFlow from '../features/wallet/TelebirrDepositFlow';
+import FreeBetCard from '../features/freeBet/FreeBetCard';
 import {
   fetchBalance,
   fetchWalletTransactions,
@@ -88,6 +89,7 @@ export default function WalletPage() {
     walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
       ? null
       : Number(walletQ.data?.nonWithdrawable ?? 0);
+  const bonusBalance = walletQ.data?.status === 'live' ? Number(walletQ.data.bonusBalance ?? 0) : 0;
 
   const setTab = (next: WalletTab) => {
     setSearchParams(next === 'deposit' ? {} : { tab: next });
@@ -114,6 +116,13 @@ export default function WalletPage() {
     const amt = parseWalletAmount();
     if (amt == null) {
       setWalletErr('Enter a positive amount.');
+      return;
+    }
+    const freeBet = walletQ.data?.freeBet;
+    if (freeBet?.winningsLocked) {
+      setWalletErr(
+        `Deposit at least ${freeBet.rules.unlockDeposit} ${currency} to unlock withdrawal of your free bet winnings.`
+      );
       return;
     }
     if (withdrawable != null && amt > withdrawable) {
@@ -179,12 +188,24 @@ export default function WalletPage() {
                     <strong>{nonWithdrawable.toFixed(2)} {currency}</strong>
                   </div>
                 ) : null}
+                {bonusBalance > 0 ? (
+                  <div className="b365-wallet-balance-split__row b365-wallet-balance-split__row--bonus">
+                    <span>Free bet (sports only)</span>
+                    <strong>{bonusBalance.toFixed(2)} {currency}</strong>
+                  </div>
+                ) : null}
               </div>
             ) : null}
             <p className="b365-wallet-hero__hint">
               Deposits must be played before withdrawal · Winnings are withdrawable after settlement
             </p>
           </section>
+
+          <FreeBetCard
+            freeBet={walletQ.data?.freeBet}
+            currency={currency}
+            onDeposit={() => setTab('deposit')}
+          />
 
           <nav className="b365-wallet-segments" aria-label="Wallet actions">
             <button

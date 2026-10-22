@@ -7296,3 +7296,242 @@ html.tma body {
 .b365-region-comp__games {
   padding: 0 0 6px;
 }
+
+/* ── Welcome free bet ───────────────────────────────────────────── */
+
+.b365-slip-freebet {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--b365-radius);
+  border: 1px dashed rgba(200, 255, 0, 0.45);
+  background: rgba(200, 255, 0, 0.05);
+}
+
+.b365-slip-freebet--on {
+  border-style: solid;
+  border-color: var(--b365-yellow);
+  background: rgba(200, 255, 0, 0.08);
+}
+
+.b365-slip-freebet-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.b365-slip-freebet-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.b365-slip-freebet-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--b365-border);
+  transition: background 0.15s ease;
+}
+
+.b365-slip-freebet-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--b365-text);
+  transition: transform 0.15s ease;
+}
+
+.b365-slip-freebet-toggle input:checked + .b365-slip-freebet-switch {
+  background: var(--b365-yellow);
+}
+
+.b365-slip-freebet-toggle input:checked + .b365-slip-freebet-switch::after {
+  transform: translateX(14px);
+  background: var(--b365-bg-deep);
+}
+
+.b365-slip-freebet-toggle input:focus-visible + .b365-slip-freebet-switch {
+  outline: 2px solid var(--b365-yellow);
+  outline-offset: 2px;
+}
+
+.b365-slip-freebet-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-slip-freebet-label strong {
+  font-size: 13px;
+  color: var(--b365-text);
+}
+
+.b365-slip-freebet-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-slip-freebet-checks li {
+  display: flex;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+
+.b365-slip-freebet-checks li::before {
+  content: '○';
+  flex-shrink: 0;
+  color: var(--b365-text-dim);
+}
+
+.b365-slip-freebet-checks li.ok {
+  color: var(--b365-text);
+}
+
+.b365-slip-freebet-checks li.ok::before {
+  content: '✓';
+  color: var(--b365-green);
+}
+
+.b365-slip-freebet-terms {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--b365-text-dim);
+}
+
+.b365-freebet-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 14px;
+  border-radius: var(--b365-radius);
+  border: 1px solid rgba(200, 255, 0, 0.35);
+  background: linear-gradient(135deg, rgba(200, 255, 0, 0.12) 0%, rgba(50, 217, 88, 0.06) 100%);
+}
+
+.b365-freebet-card--quiet {
+  border-color: var(--b365-border);
+  background: var(--b365-surface);
+}
+
+.b365-freebet-card--won {
+  border-color: var(--b365-green);
+}
+
+.b365-freebet-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.b365-freebet-card__tag,
+.b365-my-bets-freebet {
+  align-self: flex-start;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--b365-yellow);
+  color: var(--b365-bg-deep);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.b365-my-bets-freebet {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.b365-freebet-card__expiry {
+  font-size: 12px;
+  color: var(--b365-text-muted);
+}
+
+.b365-freebet-card__amount {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--b365-text);
+}
+
+.b365-freebet-card__rules {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--b365-text-muted);
+}
+
+.b365-freebet-card__line {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--b365-text-muted);
+}
+
+.b365-freebet-card__cta {
+  align-self: stretch;
+  text-align: center;
+  text-decoration: none;
+}
+
+.b365-wallet-balance-split__row--bonus {
+  color: var(--b365-yellow);
+}
+
+.b365-freebet-welcome {
+  text-align: center;
+}
+
+.b365-freebet-welcome__gift {
+  margin: 4px 0 0;
+  font-size: 44px;
+  line-height: 1;
+}
+
+.b365-freebet-welcome__title {
+  margin: 10px 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--b365-text);
+}
+
+.b365-freebet-welcome__lead {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--b365-text-muted);
+}
+
+.b365-freebet-welcome__rules {
+  margin: 0 0 16px;
+  padding: 12px 12px 12px 30px;
+  border-radius: var(--b365-radius);
+  background: rgba(255, 255, 255, 0.05);
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--b365-text-muted);
+}
+
+.b365-freebet-welcome__cta {
+  width: 100%;
+}

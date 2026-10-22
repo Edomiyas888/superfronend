@@ -17,6 +17,8 @@ export type PlacedBetRow = {
   coupon: string;
   stake: number;
   possibleWin: number;
+  /** Welcome free bet: stake is not returned and possibleWin is already net and capped. */
+  isFreeBet?: boolean;
   status: string;
   settlementStatus: 'open' | 'won' | 'lost' | 'void';
   winAmount: number;

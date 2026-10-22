@@ -87,6 +87,7 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
         <div className="b365-my-bets-acc__summary-main">
           <div className="b365-my-bets-acc__title-row">
             <span className="b365-my-bets-acc__title">Bet Slip {bet.coupon}</span>
+            {bet.isFreeBet ? <span className="b365-my-bets-freebet">Free bet</span> : null}
             <span className={`b365-my-bets-status ${slipStatusClassName(bet.settlementStatus, isSettling)}`}>
               {slipStatusLabel(bet.settlementStatus, isSettling)}
             </span>
@@ -99,7 +100,9 @@ export default function BetSlipAccordion({ bet, defaultOpen = false }: Props) {
             </span>
             <span className="b365-my-bets-acc__metric-divider" aria-hidden />
             <span className="b365-my-bets-acc__metric">
-              <span className="b365-my-bets-acc__metric-label">Possible win</span>
+              <span className="b365-my-bets-acc__metric-label">
+                {bet.isFreeBet ? 'Win (stake not returned)' : 'Possible win'}
+              </span>
               <span className="b365-my-bets-acc__metric-value b365-my-bets-acc__metric-value--win">
                 {bet.possibleWin.toFixed(2)}
               </span>

@@ -134,6 +134,8 @@ type BetslipState = {
   correctionsAccepted: boolean;
   /** "Agree to odds changes" — place at the current price without a separate accept step. */
   acceptOddsChanges: boolean;
+  /** Stake the welcome free bet instead of cash (server applies its amount and rules). */
+  useFreeBet: boolean;
   selectionError: string | null;
   addSelection: (key: SelectionKey, ev: BetslipEventLike) => boolean;
   removeSelection: (key: SelectionKey) => void;
@@ -146,6 +148,7 @@ type BetslipState = {
   setLiveDisplay: (gameId: number | string, display: LiveGameDisplay | null) => void;
   acceptCorrections: () => void;
   setAcceptOddsChanges: (on: boolean) => void;
+  setUseFreeBet: (on: boolean) => void;
   toSlipPayload: () => BetslipLike;
   placeBet: (bones?: number) => Promise<void>;
 };
@@ -160,6 +163,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
   correctionPending: null,
   correctionsAccepted: true,
   acceptOddsChanges: loadAcceptOddsChanges(),
+  useFreeBet: false,
   selectionError: null,
 
   addSelection: (key, ev) => {
@@ -314,6 +318,8 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
     set({ acceptOddsChanges: on });
   },
 
+  setUseFreeBet: (on) => set({ useFreeBet: on, placeMessage: null }),
+
   toSlipPayload: (): BetslipLike => {
     const s = get();
     const count = Object.keys(s.events).length;
@@ -327,6 +333,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       type: count > 1 ? BETSLIP_TYPE_MULTIPLE : BETSLIP_TYPE_SINGLE,
       events,
       stake: s.stake,
+      ...(s.useFreeBet ? { freeBet: true } : {}),
     };
   },
 
@@ -373,7 +380,9 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       return;
     }
 
-    if (slip.stake < MIN_STAKE) {
+    // Free bets: the server sets the stake and caps the win, so cash limits don't apply.
+    const isFreeBet = slip.freeBet === true;
+    if (!isFreeBet && slip.stake < MIN_STAKE) {
       set({ placeStatus: 'error', placeMessage: `Minimum stake is ${MIN_STAKE}.` });
       return;
     }
@@ -392,7 +401,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
               : slip.stake;
           return acc + s * (ev.price || 1);
         }, 0);
-    if (possibleWin > MAX_POSSIBLE_WIN) {
+    if (!isFreeBet && possibleWin > MAX_POSSIBLE_WIN) {
       set({
         placeStatus: 'error',
         placeMessage: `Maximum return is ${MAX_POSSIBLE_WIN.toLocaleString('en-US')}. Reduce stake or remove selections.`,
@@ -450,6 +459,7 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
         events: {},
         correctionPending: null,
         correctionsAccepted: true,
+        useFreeBet: false,
       });
 
       window.dispatchEvent(new CustomEvent('superbet:wallet-changed'));

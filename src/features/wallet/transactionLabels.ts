@@ -14,6 +14,10 @@ const LABELS: Record<string, string> = {
   bet_stake: 'Bet placed',
   bet_win: 'Bet won',
   bet_void: 'Bet void refund',
+  free_bet_grant: 'Free bet received',
+  free_bet_stake: 'Free bet placed',
+  free_bet_refund: 'Free bet returned',
+  free_bet_expire: 'Free bet expired',
 };
 
 export function txTypeLabel(type: WalletTxType): string {
@@ -21,7 +25,13 @@ export function txTypeLabel(type: WalletTxType): string {
 }
 
 export function txIsCredit(type: WalletTxType): boolean {
-  return type === 'deposit' || type === 'bet_win' || type === 'bet_void';
+  return (
+    type === 'deposit' ||
+    type === 'bet_win' ||
+    type === 'bet_void' ||
+    type === 'free_bet_grant' ||
+    type === 'free_bet_refund'
+  );
 }
 
 export function txIcon(type: WalletTxType): string {
@@ -35,7 +45,12 @@ export function txIcon(type: WalletTxType): string {
     case 'bet_win':
       return '★';
     case 'bet_void':
+    case 'free_bet_refund':
       return '↩';
+    case 'free_bet_grant':
+    case 'free_bet_stake':
+    case 'free_bet_expire':
+      return '🎁';
     default:
       return '•';
   }

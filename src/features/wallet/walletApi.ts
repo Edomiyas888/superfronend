@@ -3,10 +3,35 @@ import { useSessionStore } from '../auth/sessionStore';
 import { getTelegramInitData, isTelegramMiniApp } from '../../lib/telegram/webApp';
 import { guardSession, readJsonSafe } from '../../api/sessionGuard';
 
+export type FreeBetStatus = 'active' | 'placed' | 'won' | 'lost' | 'expired' | 'revoked';
+
+export type FreeBetRules = {
+  minLegs: number;
+  minTotalOdds: number;
+  minLegOdds: number;
+  maxWin: number;
+  unlockDeposit: number;
+};
+
+/** Welcome free bet — `null` when the user never received one. */
+export type FreeBetInfo = {
+  status: FreeBetStatus;
+  amount: number;
+  expiresAt: string;
+  betSlipId: string | null;
+  winAmount: number;
+  /** Winnings stay unwithdrawable until a deposit of `rules.unlockDeposit`. */
+  winningsLocked: boolean;
+  rules: FreeBetRules;
+};
+
 export type WalletInfo = {
   balance: number | null;
   withdrawable: number | null;
   nonWithdrawable: number | null;
+  /** Free bet credit — sports accumulators only, never withdrawable. */
+  bonusBalance?: number;
+  freeBet?: FreeBetInfo | null;
   currency: string;
   /** `live` when the balance was loaded from the API; `error` on network or HTTP failure. */
   status: 'live' | 'error';
@@ -79,6 +104,8 @@ type BalanceJson = {
   balance?: number;
   withdrawable?: number;
   nonWithdrawable?: number;
+  bonusBalance?: number;
+  freeBet?: FreeBetInfo | null;
   currency?: string;
   error?: string;
   code?: string;
@@ -142,7 +169,10 @@ export async function fetchBalance(authHeaders: Record<string, string>): Promise
       ? data.nonWithdrawable
       : 0;
   const currency = typeof data.currency === 'string' ? data.currency : 'ETB';
-  return { balance, withdrawable, nonWithdrawable, currency, status: 'live' };
+  const bonusBalance =
+    typeof data.bonusBalance === 'number' && Number.isFinite(data.bonusBalance) ? data.bonusBalance : 0;
+  const freeBet = data.freeBet && typeof data.freeBet === 'object' ? data.freeBet : null;
+  return { balance, withdrawable, nonWithdrawable, bonusBalance, freeBet, currency, status: 'live' };
 }
 
 /**

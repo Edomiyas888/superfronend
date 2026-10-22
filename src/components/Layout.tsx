@@ -14,6 +14,7 @@ import BottomNav from './BottomNav';
 import AppFooter from './AppFooter';
 import { useBetslipOddsSync } from '../hooks/useBetslipOddsSync';
 import { useNavDrawerStore } from '../features/nav/navDrawerStore';
+import FreeBetWelcome from '../features/freeBet/FreeBetWelcome';
 
 function isHomeRoute(pathname: string): boolean {
   return pathname === '/' || pathname === '/sport-new';
@@ -175,6 +176,12 @@ export default function Layout() {
       <BetslipFab />
 
       <BetslipDrawer />
+
+      <FreeBetWelcome
+        username={loggedIn ? username : null}
+        freeBet={walletQ.data?.freeBet}
+        currency={balanceCurrency}
+      />
 
       <NavDrawer
         loggedIn={loggedIn}

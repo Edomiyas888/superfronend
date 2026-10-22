@@ -10,8 +10,6 @@ export type BetslipLike = {
   betterOddSelectionMode?: boolean;
   bonusBet?: boolean;
   freeBet?: boolean;
-  selectedFreeBetId?: string | number;
-  selectedFreeBetAmount?: number;
 };
 
 export type BetslipEventLike = {
@@ -57,6 +55,7 @@ export type PlaceBetResult = {
     possibleWin: number;
     slipId: string;
     balance: number;
+    isFreeBet?: boolean;
   }[];
   balance?: number;
   message?: string;

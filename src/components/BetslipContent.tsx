@@ -7,6 +7,12 @@ import BetslipMyBetsPanel from './BetslipMyBetsPanel';
 import BetslipSelectionCard from './BetslipSelectionCard';
 import { MAX_POSSIBLE_WIN, MIN_STAKE, formatLimit } from '../config/bettingLimits';
 import { formatOdds } from '../utils/formatOdds';
+import {
+  checkFreeBetSlip,
+  formatTimeLeft,
+  freeBetNetWin,
+  isFreeBetUsable,
+} from '../features/freeBet/freeBetRules';
 
 type MainTab = 'slip' | 'my-bets';
 
@@ -44,6 +50,8 @@ export default function BetslipContent({ onClose }: Props) {
   const setAcceptOddsChanges = useBetslipStore((s) => s.setAcceptOddsChanges);
   const selectionError = useBetslipStore((s) => s.selectionError);
   const clearSelectionError = useBetslipStore((s) => s.clearSelectionError);
+  const useFreeBet = useBetslipStore((s) => s.useFreeBet);
+  const setUseFreeBet = useBetslipStore((s) => s.setUseFreeBet);
   const { username, getAuthHeader } = useSessionStore();
   const loggedIn = !!username;
 
@@ -59,6 +67,15 @@ export default function BetslipContent({ onClose }: Props) {
     const t = window.setTimeout(() => setShareState('idle'), 2000);
     return () => window.clearTimeout(t);
   }, [shareState]);
+
+  const freeBet = walletQ.data?.freeBet ?? null;
+  const freeBetAvailable = loggedIn && isFreeBetUsable(freeBet);
+  const freeBetOn = useFreeBet && freeBetAvailable;
+
+  // Drop free bet mode once the free bet is used, expired or the user signed out.
+  useEffect(() => {
+    if (useFreeBet && !freeBetAvailable && (walletQ.data || !loggedIn)) setUseFreeBet(false);
+  }, [useFreeBet, freeBetAvailable, walletQ.data, loggedIn, setUseFreeBet]);
 
   const ids = Object.keys(events);
   const count = ids.length;
@@ -97,15 +114,22 @@ export default function BetslipContent({ onClose }: Props) {
         return acc + s * (ev.price || 1);
       }, 0);
 
+  const freeBetCheck =
+    freeBetOn && freeBet
+      ? checkFreeBetSlip(events, freeBet.rules, new Set(Object.keys(liveByGameId)))
+      : null;
+  const shownWin =
+    freeBetOn && freeBet ? freeBetNetWin(freeBet.amount, combinedOdds, freeBet.rules.maxWin) : possibleWin;
+
   const hasPendingCorrection =
     (correctionPending?.length ?? 0) > 0 && !correctionsAccepted && !acceptOddsChanges;
   const pendingCorrectionCount = correctionPending?.length ?? 0;
-  const stakeTooLow = stake > 0 && stake < MIN_STAKE;
-  const returnTooHigh = possibleWin > MAX_POSSIBLE_WIN;
-  const stakeTooHigh = balance != null && totalStake > balance;
+  const stakeTooLow = !freeBetOn && stake > 0 && stake < MIN_STAKE;
+  const returnTooHigh = !freeBetOn && possibleWin > MAX_POSSIBLE_WIN;
+  const stakeTooHigh = !freeBetOn && balance != null && totalStake > balance;
   const canPlace =
     placeStatus !== 'loading' &&
-    stake >= MIN_STAKE &&
+    (freeBetOn ? Boolean(freeBetCheck?.ok) : stake >= MIN_STAKE) &&
     loggedIn &&
     !hasPendingCorrection &&
     !stakeTooHigh &&
@@ -302,39 +326,89 @@ export default function BetslipContent({ onClose }: Props) {
               <span>Remove All</span>
             </button>
 
-            <div className="b365-slip-summary">
-              <div className="b365-slip-stake">
-                <button
-                  type="button"
-                  className="b365-slip-max"
-                  disabled={maxStake == null || maxStake < MIN_STAKE}
-                  onClick={() => maxStake != null && setStake(maxStake)}
-                >
-                  Max
-                </button>
-                <label className="b365-slip-stake-field">
-                  <span className="b365-slip-stake-currency">{currency}</span>
+            {freeBetAvailable && freeBet ? (
+              <div className={`b365-slip-freebet${freeBetOn ? ' b365-slip-freebet--on' : ''}`}>
+                <label className="b365-slip-freebet-toggle">
                   <input
-                    type="number"
-                    inputMode="decimal"
-                    min={MIN_STAKE}
-                    step={0.01}
-                    className="b365-slip-stake-input"
-                    aria-label="Stake"
-                    placeholder="0.00"
-                    value={stake || ''}
-                    onChange={(e) => setStake(parseFloat(e.target.value) || 0)}
+                    type="checkbox"
+                    checked={freeBetOn}
+                    onChange={(e) => setUseFreeBet(e.target.checked)}
                   />
+                  <span className="b365-slip-freebet-switch" aria-hidden="true" />
+                  <span className="b365-slip-freebet-label">
+                    <strong>
+                      Use {currency} {freeBet.amount.toFixed(0)} free bet
+                    </strong>
+                    <span>Expires in {formatTimeLeft(freeBet.expiresAt)}</span>
+                  </span>
                 </label>
+                {freeBetCheck ? (
+                  <>
+                    <ul className="b365-slip-freebet-checks" aria-label="Free bet rules">
+                      <li className={freeBetCheck.legsOk ? 'ok' : undefined}>
+                        {freeBetCheck.legs} / {freeBet.rules.minLegs} matches
+                      </li>
+                      <li className={freeBetCheck.totalOddsOk ? 'ok' : undefined}>
+                        Total odds {formatOdds(freeBetCheck.totalOdds)} / {freeBet.rules.minTotalOdds}
+                      </li>
+                      <li className={freeBetCheck.lowOddsTitles.length === 0 ? 'ok' : undefined}>
+                        {freeBetCheck.lowOddsTitles.length === 0
+                          ? `Every pick at ${freeBet.rules.minLegOdds.toFixed(2)}+ odds`
+                          : `Odds under ${freeBet.rules.minLegOdds.toFixed(2)}: ${freeBetCheck.lowOddsTitles.join(', ')}`}
+                      </li>
+                      {freeBetCheck.hasLive ? <li>Pre-match only: remove live games</li> : null}
+                    </ul>
+                    <p className="b365-slip-freebet-terms">
+                      Stake not returned · Max win {currency} {formatLimit(freeBet.rules.maxWin)} · Deposit{' '}
+                      {currency} {freeBet.rules.unlockDeposit} to withdraw winnings
+                    </p>
+                  </>
+                ) : null}
               </div>
+            ) : null}
+
+            <div className="b365-slip-summary">
+              {freeBetOn && freeBet ? (
+                <div className="b365-slip-summary-row">
+                  <span>Free bet stake</span>
+                  <span>
+                    {currency} {freeBet.amount.toFixed(2)}
+                  </span>
+                </div>
+              ) : (
+                <div className="b365-slip-stake">
+                  <button
+                    type="button"
+                    className="b365-slip-max"
+                    disabled={maxStake == null || maxStake < MIN_STAKE}
+                    onClick={() => maxStake != null && setStake(maxStake)}
+                  >
+                    Max
+                  </button>
+                  <label className="b365-slip-stake-field">
+                    <span className="b365-slip-stake-currency">{currency}</span>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={MIN_STAKE}
+                      step={0.01}
+                      className="b365-slip-stake-input"
+                      aria-label="Stake"
+                      placeholder="0.00"
+                      value={stake || ''}
+                      onChange={(e) => setStake(parseFloat(e.target.value) || 0)}
+                    />
+                  </label>
+                </div>
+              )}
               <div className="b365-slip-summary-row">
                 <span>Total odds</span>
                 <span className="b365-slip-summary-odds">{formatOdds(combinedOdds)}</span>
               </div>
               <div className="b365-slip-summary-row b365-slip-summary-row--win">
-                <span>Total win</span>
+                <span>{freeBetOn ? 'Free bet win' : 'Total win'}</span>
                 <span>
-                  {currency} {possibleWin.toFixed(2)}
+                  {currency} {shownWin.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -415,7 +489,7 @@ export default function BetslipContent({ onClose }: Props) {
                 disabled={!canPlace}
                 onClick={() => void placeBet(0)}
               >
-                {placeStatus === 'loading' ? 'Placing…' : 'Place Bet'}
+                {placeStatus === 'loading' ? 'Placing…' : freeBetOn ? 'Place Free Bet' : 'Place Bet'}
               </button>
             </div>
           </>
