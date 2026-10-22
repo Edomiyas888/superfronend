@@ -1,5 +1,8 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import fastKenoLogo from '../assets/fast-keno-logo-user.png';
+import { SUPPORT_TELEGRAM_HANDLE } from '../config/support';
+import SupportLink from './SupportLink';
+import TelegramGlyph from './TelegramGlyph';
 
 function useSportsNavActive(): boolean {
   const { pathname } = useLocation();
@@ -151,6 +154,17 @@ export default function BottomNav() {
             pathname={pathname}
           />
         ))}
+        <SupportLink
+          className="b365-bottom-nav-item b365-bottom-nav-item--support"
+          aria-label={`Support on Telegram, @${SUPPORT_TELEGRAM_HANDLE}`}
+        >
+          <span className="b365-bottom-nav-icon-wrap">
+            <span className="b365-bottom-nav-icon b365-bottom-nav-tg">
+              <TelegramGlyph size={15} />
+            </span>
+          </span>
+          <span className="b365-bottom-nav-label">Support</span>
+        </SupportLink>
       </div>
     </nav>
   );

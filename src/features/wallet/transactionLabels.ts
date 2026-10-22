@@ -34,24 +34,7 @@ export function txIsCredit(type: WalletTxType): boolean {
   );
 }
 
-export function txIcon(type: WalletTxType): string {
-  switch (type) {
-    case 'deposit':
-      return '↓';
-    case 'withdraw':
-      return '↑';
-    case 'bet_stake':
-      return '◆';
-    case 'bet_win':
-      return '★';
-    case 'bet_void':
-    case 'free_bet_refund':
-      return '↩';
-    case 'free_bet_grant':
-    case 'free_bet_stake':
-    case 'free_bet_expire':
-      return '🎁';
-    default:
-      return '•';
-  }
+/** `1290.5` → `1,290.50` */
+export function formatMoney(value: number): string {
+  return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

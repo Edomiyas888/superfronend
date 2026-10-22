@@ -132,6 +132,27 @@
   color: var(--b365-neon);
 }
 
+/* Telegram support — brand-blue badge so it reads as the Telegram logo, not a nav tab. */
+.b365-bottom-nav-tg {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #37aee2 0%, #229ed9 55%, #1a86ba 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(34, 158, 217, 0.35);
+}
+
+.b365-bottom-nav-tg svg {
+  width: 15px;
+  height: 15px;
+  margin-left: -1px;
+}
+
+.b365-bottom-nav-item--support:hover .b365-bottom-nav-tg,
+.b365-bottom-nav-item--support:focus-visible .b365-bottom-nav-tg {
+  box-shadow: 0 2px 12px rgba(34, 158, 217, 0.6);
+}
+
 @media (max-width: 380px) {
   .b365-bottom-nav__inner {
     padding: 6px 2px 8px;
@@ -150,6 +171,11 @@
   .b365-bottom-nav-keno-logo {
     height: 14px;
     max-width: 40px;
+  }
+
+  .b365-bottom-nav-tg {
+    width: 24px;
+    height: 24px;
   }
 }
 

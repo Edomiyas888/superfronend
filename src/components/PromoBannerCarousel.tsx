@@ -4,6 +4,7 @@ import { HeroBannerArt, FooterIcon } from './HeroBannerArt';
 import fastKenoBannerArt from '../assets/fast-keno-banner.webp';
 import fastSportsBannerArt from '../assets/fast-sports-banner.webp';
 import championsLeagueBannerArt from '../assets/champions-league-banner.webp';
+import premierLeagueBannerArt from '../assets/premier-league-banner.webp';
 import { useSportLink } from '../hooks/useSportLink';
 
 const AUTO_INTERVAL_MS = 6000;
@@ -61,6 +62,7 @@ function buildHeroSlides(championsLeagueLink: string): HeroSlide[] {
     title: ['Bet the', 'Premier League!'],
     subtitle: 'Every matchweek fixture, every market — all in one app.',
     art: 'epl',
+    artImage: premierLeagueBannerArt,
     footer: [
       { icon: 'odds', label: 'Top odds' },
       { icon: 'groups', label: 'All 20 clubs' },

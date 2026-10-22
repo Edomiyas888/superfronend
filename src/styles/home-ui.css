@@ -443,22 +443,26 @@
 }
 
 .b365-hero-banner--photo.b365-hero-banner--ucl .b365-hero-banner__bg-img {
-  object-position: 72% center;
+  object-position: 72% top;
+}
+
+.b365-hero-banner--photo.b365-hero-banner--epl {
+  background: #1a0028;
 }
 
 .b365-hero-banner--photo.b365-hero-banner--epl .b365-hero-banner__overlay {
   background: linear-gradient(
     90deg,
-    rgba(8, 14, 28, 0.96) 0%,
-    rgba(8, 14, 28, 0.84) 34%,
-    rgba(8, 14, 28, 0.48) 52%,
-    rgba(8, 14, 28, 0.12) 68%,
+    rgba(26, 0, 40, 0.96) 0%,
+    rgba(26, 0, 40, 0.84) 34%,
+    rgba(26, 0, 40, 0.46) 52%,
+    rgba(26, 0, 40, 0.1) 68%,
     transparent 84%
   );
 }
 
 .b365-hero-banner--photo.b365-hero-banner--epl .b365-hero-banner__bg-img {
-  object-position: 78% center;
+  object-position: 78% 30%;
 }
 
 .b365-hero-banner--epl .b365-hero-banner__badge {
@@ -471,7 +475,7 @@
 }
 
 .b365-hero-banner--epl .b365-hero-banner__sub {
-  color: rgba(224, 236, 255, 0.9);
+  color: rgba(244, 228, 255, 0.9);
 }
 
 .b365-hero-banner--photo .b365-hero-banner__title {

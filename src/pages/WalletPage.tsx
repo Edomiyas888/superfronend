@@ -1,42 +1,23 @@
+import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import { useSessionStore } from '../features/auth/sessionStore';
 import TelebirrDepositFlow from '../features/wallet/TelebirrDepositFlow';
 import FreeBetCard from '../features/freeBet/FreeBetCard';
-import {
-  fetchBalance,
-  fetchWalletTransactions,
-  withdrawWallet,
-} from '../features/wallet/walletApi';
-import {
-  txIcon,
-  txIsCredit,
-  txTypeLabel,
-  type WalletHistoryFilter,
-} from '../features/wallet/transactionLabels';
+import WalletBalanceCard from '../features/wallet/WalletBalanceCard';
+import WithdrawPanel from '../features/wallet/WithdrawPanel';
+import TransactionHistory from '../features/wallet/TransactionHistory';
+import { DepositIcon, HistoryIcon, LockIcon, WithdrawIcon } from '../features/wallet/WalletIcons';
+import TelegramGlyph from '../components/TelegramGlyph';
+import { fetchBalance } from '../features/wallet/walletApi';
 
 type WalletTab = 'deposit' | 'withdraw' | 'history';
 
-const HISTORY_FILTERS: { id: WalletHistoryFilter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'deposit', label: 'Deposits' },
-  { id: 'withdraw', label: 'Withdrawals' },
-  { id: 'bet_win', label: 'Bet won' },
-  { id: 'bets', label: 'Bets' },
+const TABS: { id: WalletTab; label: string; icon: JSX.Element }[] = [
+  { id: 'deposit', label: 'Deposit', icon: <DepositIcon size={17} /> },
+  { id: 'withdraw', label: 'Withdraw', icon: <WithdrawIcon size={17} /> },
+  { id: 'history', label: 'History', icon: <HistoryIcon size={17} /> },
 ];
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
 
 export default function WalletPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,63 +25,31 @@ export default function WalletPage() {
   const tab: WalletTab =
     tabParam === 'withdraw' || tabParam === 'history' ? tabParam : 'deposit';
 
-  const { username, getAuthHeader, isTelegramApp } = useSessionStore();
+  const { token, username, phone, getAuthHeader, isTelegramApp } = useSessionStore();
+  // Stable per token so child effects keyed on headers don't refire on every render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const authHeaders = useMemo(() => getAuthHeader(), [token]);
   const queryClient = useQueryClient();
   const loggedIn = !!username;
 
-  const [walletAmount, setWalletAmount] = useState('');
-  const [telebirrPhone, setTelebirrPhone] = useState('');
-  const [walletBusy, setWalletBusy] = useState(false);
-  const [walletErr, setWalletErr] = useState<string | null>(null);
-  const [walletSuccess, setWalletSuccess] = useState<string | null>(null);
-  const [historyType, setHistoryType] = useState<WalletHistoryFilter>('all');
-  const [historyPage, setHistoryPage] = useState(1);
-
   const walletQ = useQuery({
     queryKey: ['wallet', 'header'],
-    queryFn: () => fetchBalance(getAuthHeader()),
+    queryFn: () => fetchBalance(authHeaders),
     enabled: loggedIn,
     staleTime: 30_000,
-  });
-
-  const historyQ = useQuery({
-    queryKey: ['wallet', 'transactions', historyPage, historyType],
-    queryFn: () =>
-      fetchWalletTransactions(getAuthHeader(), {
-        page: historyPage,
-        limit: 20,
-        type: historyType === 'all' ? undefined : historyType,
-      }),
-    enabled: loggedIn,
-    staleTime: 30_000,
-    placeholderData: (prev) => prev,
   });
 
   const currency = walletQ.data?.currency ?? 'ETB';
-  const balance =
-    walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
-      ? null
-      : Number(walletQ.data?.balance ?? 0);
-  const withdrawable =
-    walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
-      ? null
-      : Number(walletQ.data?.withdrawable ?? walletQ.data?.balance ?? 0);
-  const nonWithdrawable =
-    walletQ.isPending || walletQ.isError || walletQ.data?.status === 'error'
-      ? null
-      : Number(walletQ.data?.nonWithdrawable ?? 0);
+  const balanceOk = !walletQ.isPending && !walletQ.isError && walletQ.data?.status !== 'error';
+  const balance = balanceOk ? Number(walletQ.data?.balance ?? 0) : null;
+  const withdrawable = balanceOk
+    ? Number(walletQ.data?.withdrawable ?? walletQ.data?.balance ?? 0)
+    : null;
+  const nonWithdrawable = balanceOk ? Number(walletQ.data?.nonWithdrawable ?? 0) : null;
   const bonusBalance = walletQ.data?.status === 'live' ? Number(walletQ.data.bonusBalance ?? 0) : 0;
 
   const setTab = (next: WalletTab) => {
-    setSearchParams(next === 'deposit' ? {} : { tab: next });
-    setWalletErr(null);
-    setWalletSuccess(null);
-  };
-
-  const parseWalletAmount = (): number | null => {
-    const n = Number.parseFloat(walletAmount.replace(',', '.'));
-    if (!Number.isFinite(n) || n <= 0) return null;
-    return Math.round(n * 100) / 100;
+    setSearchParams(next === 'deposit' ? {} : { tab: next }, { replace: true });
   };
 
   const invalidateWallet = async () => {
@@ -110,318 +59,114 @@ export default function WalletPage() {
     ]);
   };
 
-  const onWithdraw = async () => {
-    setWalletErr(null);
-    setWalletSuccess(null);
-    const amt = parseWalletAmount();
-    if (amt == null) {
-      setWalletErr('Enter a positive amount.');
-      return;
-    }
-    const freeBet = walletQ.data?.freeBet;
-    if (freeBet?.winningsLocked) {
-      setWalletErr(
-        `Deposit at least ${freeBet.rules.unlockDeposit} ${currency} to unlock withdrawal of your free bet winnings.`
-      );
-      return;
-    }
-    if (withdrawable != null && amt > withdrawable) {
-      setWalletErr(
-        nonWithdrawable != null && nonWithdrawable > 0
-          ? `Only winnings are withdrawable. You can withdraw up to ${withdrawable.toFixed(2)} ${currency}.`
-          : 'Amount exceeds your withdrawable balance.'
-      );
-      return;
-    }
-    setWalletBusy(true);
-    try {
-      const result = await withdrawWallet(getAuthHeader(), {
-        amount: amt,
-        telebirrPhone: telebirrPhone.trim() || undefined,
-      });
-      setWalletAmount('');
-      setWalletSuccess(result.message);
-      await invalidateWallet();
-    } catch (err) {
-      setWalletErr(err instanceof Error ? err.message : 'Withdraw failed.');
-    } finally {
-      setWalletBusy(false);
-    }
-  };
+  if (!loggedIn) {
+    return (
+      <div className="b365-wallet">
+        <h1 className="b365-page-title">Wallet</h1>
+        <div className="b365-wallet-guest">
+          <span className="b365-wallet-guest__icon">
+            <LockIcon size={24} />
+          </span>
+          <p className="b365-wallet-guest__title">Sign in to use your wallet</p>
+          <p>Deposit with Telebirr, withdraw your winnings and track every transaction.</p>
+          <Link to="/profile" className="b365-wallet-btn b365-wallet-btn--primary b365-wallet-btn--block">
+            Log in
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={`b365-wallet-page${loggedIn ? ' b365-wallet-page--logged-in' : ''}`}>
-      <div className="b365-breadcrumb">
-        <Link to="/">Home</Link>
-        <span aria-hidden>›</span>
-        <span>Wallet</span>
-      </div>
-
+    <div className="b365-wallet">
       <h1 className="b365-page-title">Wallet</h1>
 
-      {!loggedIn ? (
-        <div className="card b365-card b365-wallet-guest">
-          <p className="b365-muted" style={{ margin: 0 }}>
-            Sign in to deposit, withdraw, and view your transaction history.{' '}
-            <Link to="/profile">Log in</Link>
-          </p>
-        </div>
-      ) : (
-        <>
-          <section className="b365-wallet-hero" aria-label="Wallet balance">
-            <div className="b365-wallet-hero__top">
-              <span className="b365-wallet-hero__label">Total balance</span>
-              <span className="b365-wallet-hero__badge">{currency}</span>
-            </div>
-            <p className="b365-wallet-hero__amount">
-              {balance == null ? '—' : balance.toFixed(2)}
-            </p>
-            {balance != null && withdrawable != null && nonWithdrawable != null ? (
-              <div className="b365-wallet-balance-split">
-                <div className="b365-wallet-balance-split__row">
-                  <span>Withdrawable</span>
-                  <strong>{withdrawable.toFixed(2)} {currency}</strong>
-                </div>
-                {nonWithdrawable > 0 ? (
-                  <div className="b365-wallet-balance-split__row b365-wallet-balance-split__row--locked">
-                    <span>Non-withdrawable (deposit)</span>
-                    <strong>{nonWithdrawable.toFixed(2)} {currency}</strong>
-                  </div>
-                ) : null}
-                {bonusBalance > 0 ? (
-                  <div className="b365-wallet-balance-split__row b365-wallet-balance-split__row--bonus">
-                    <span>Free bet (sports only)</span>
-                    <strong>{bonusBalance.toFixed(2)} {currency}</strong>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-            <p className="b365-wallet-hero__hint">
-              Deposits must be played before withdrawal · Winnings are withdrawable after settlement
-            </p>
-          </section>
+      <WalletBalanceCard
+        currency={currency}
+        balance={balance}
+        withdrawable={withdrawable}
+        nonWithdrawable={nonWithdrawable}
+        bonusBalance={bonusBalance}
+        loading={walletQ.isPending}
+        error={walletQ.isError || walletQ.data?.status === 'error'}
+        refreshing={walletQ.isFetching && !walletQ.isPending}
+        onRefresh={() => void invalidateWallet()}
+      />
 
-          <FreeBetCard
-            freeBet={walletQ.data?.freeBet}
+      <FreeBetCard freeBet={walletQ.data?.freeBet} currency={currency} onDeposit={() => setTab('deposit')} />
+
+      <div className="b365-wallet-tabs" role="tablist" aria-label="Wallet">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            id={`wallet-tab-${t.id}`}
+            aria-selected={tab === t.id}
+            aria-controls="wallet-panel"
+            className={tab === t.id ? 'active' : ''}
+            onClick={() => setTab(t.id)}
+          >
+            {t.icon}
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <section
+        key={tab}
+        id="wallet-panel"
+        role="tabpanel"
+        aria-labelledby={`wallet-tab-${tab}`}
+        className="b365-wallet-panel"
+      >
+        {tab === 'deposit' ? (
+          isTelegramApp ? (
+            <TelebirrDepositFlow
+              authHeaders={authHeaders}
+              currency={currency}
+              onSuccess={() => {
+                void invalidateWallet();
+              }}
+            />
+          ) : (
+            <div className="b365-wallet-notice">
+              <span className="b365-wallet-notice__icon b365-wallet-notice__icon--tg">
+                <TelegramGlyph size={18} />
+              </span>
+              <div>
+                <p className="b365-wallet-notice__title">Deposit in Telegram</p>
+                <p>
+                  Deposits are only available in the Super Bet Telegram Mini App. Open the bot in Telegram and
+                  launch Super Bet from there to deposit.
+                </p>
+              </div>
+            </div>
+          )
+        ) : null}
+
+        {tab === 'withdraw' ? (
+          <WithdrawPanel
+            authHeaders={authHeaders}
             currency={currency}
+            withdrawable={withdrawable}
+            nonWithdrawable={nonWithdrawable}
+            freeBet={walletQ.data?.freeBet}
+            defaultPhone={phone}
+            onDeposit={() => setTab('deposit')}
+            onSuccess={invalidateWallet}
+          />
+        ) : null}
+
+        {tab === 'history' ? (
+          <TransactionHistory
+            authHeaders={authHeaders}
+            currency={currency}
+            enabled={loggedIn}
             onDeposit={() => setTab('deposit')}
           />
-
-          <nav className="b365-wallet-segments" aria-label="Wallet actions">
-            <button
-              type="button"
-              className={tab === 'deposit' ? 'active' : ''}
-              onClick={() => setTab('deposit')}
-            >
-              Deposit
-            </button>
-            <button
-              type="button"
-              className={tab === 'withdraw' ? 'active' : ''}
-              onClick={() => setTab('withdraw')}
-            >
-              Withdraw
-            </button>
-            <button
-              type="button"
-              className={tab === 'history' ? 'active' : ''}
-              onClick={() => setTab('history')}
-            >
-              History
-              {historyQ.data?.total ? (
-                <span className="b365-wallet-segments__count">{historyQ.data.total}</span>
-              ) : null}
-            </button>
-          </nav>
-
-          {tab === 'deposit' ? (
-            <section key="deposit" className="card b365-card b365-wallet-panel b365-wallet-panel--enter">
-              <header className="b365-wallet-panel__head">
-                <h2>Deposit via Telebirr</h2>
-                <p>Send money from Telebirr, then verify your payment here.</p>
-              </header>
-              {isTelegramApp ? (
-                <TelebirrDepositFlow
-                  authHeaders={getAuthHeader()}
-                  currency={currency}
-                  onSuccess={() => {
-                    void invalidateWallet();
-                  }}
-                />
-              ) : (
-                <p className="b365-muted" style={{ margin: 0 }}>
-                  Deposits are only available in the Super Bet Telegram Mini App. Open the bot in Telegram
-                  and launch Super Bet from there to deposit.
-                </p>
-              )}
-            </section>
-          ) : null}
-
-          {tab === 'withdraw' ? (
-            <section className="card b365-card b365-wallet-panel">
-              <header className="b365-wallet-panel__head">
-                <h2>Withdraw</h2>
-                <p>
-                  Request a withdrawal to your Telebirr account. Only winnings are withdrawable — deposited
-                  funds must be played first.
-                </p>
-              </header>
-              <label className="b365-field-label">
-                Telebirr phone number
-                <input
-                  type="tel"
-                  className="b365-input b365-wallet-input"
-                  value={telebirrPhone}
-                  onChange={(e) => setTelebirrPhone(e.target.value)}
-                  disabled={walletBusy}
-                  placeholder="09xxxxxxxx"
-                />
-              </label>
-              <label className="b365-field-label">
-                Amount ({currency})
-                <input
-                  type="number"
-                  className="b365-input b365-wallet-input"
-                  min={0}
-                  step={0.01}
-                  max={withdrawable ?? undefined}
-                  value={walletAmount}
-                  onChange={(e) => setWalletAmount(e.target.value)}
-                  disabled={walletBusy}
-                  placeholder="e.g. 100"
-                />
-              </label>
-              {withdrawable != null ? (
-                <button
-                  type="button"
-                  className="b365-wallet-quick-amt"
-                  onClick={() => setWalletAmount(String(withdrawable))}
-                  disabled={walletBusy || withdrawable <= 0}
-                >
-                  Withdraw full withdrawable balance ({withdrawable.toFixed(2)} {currency})
-                </button>
-              ) : null}
-              <div className="b365-wallet-actions">
-                <button
-                  type="button"
-                  className="b365-btn-primary b365-wallet-submit"
-                  disabled={walletBusy}
-                  onClick={() => void onWithdraw()}
-                >
-                  {walletBusy ? 'Submitting…' : 'Request withdrawal'}
-                </button>
-              </div>
-              {walletSuccess ? <p className="b365-success">{walletSuccess}</p> : null}
-              {walletErr ? <p className="b365-error">{walletErr}</p> : null}
-            </section>
-          ) : null}
-
-          {tab === 'history' ? (
-            <section className="card b365-card b365-wallet-panel">
-              <header className="b365-wallet-panel__head">
-                <h2>Transaction history</h2>
-                <p>Deposits, withdrawals, stakes, wins, and refunds.</p>
-              </header>
-
-              <div className="b365-wallet-filter-pills" role="tablist" aria-label="Filter transactions">
-                {HISTORY_FILTERS.map((f) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={historyType === f.id}
-                    className={historyType === f.id ? 'active' : ''}
-                    onClick={() => {
-                      setHistoryType(f.id);
-                      setHistoryPage(1);
-                    }}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-
-              {historyQ.isLoading ? (
-                <div className="b365-wallet-history-empty">
-                  <p className="b365-muted">Loading transactions…</p>
-                </div>
-              ) : historyQ.isError ? (
-                <div className="b365-wallet-history-empty">
-                  <p className="b365-error">{(historyQ.error as Error).message}</p>
-                </div>
-              ) : (historyQ.data?.items.length ?? 0) === 0 ? (
-                <div className="b365-wallet-history-empty">
-                  <p className="b365-wallet-history-empty__title">No transactions yet</p>
-                  <p className="b365-muted">
-                    Deposits, bets, and withdrawals will appear here.
-                  </p>
-                  <button type="button" className="b365-btn-secondary" onClick={() => setTab('deposit')}>
-                    Make a deposit
-                  </button>
-                </div>
-              ) : (
-                <ul className="b365-wallet-history-list">
-                  {historyQ.data!.items.map((tx) => {
-                    const credit = txIsCredit(tx.type);
-                    return (
-                      <li key={tx.id} className="b365-wallet-history-item">
-                        <span
-                          className={`b365-wallet-tx-icon ${credit ? 'b365-wallet-tx-icon--credit' : 'b365-wallet-tx-icon--debit'}`}
-                          aria-hidden
-                        >
-                          {txIcon(tx.type)}
-                        </span>
-                        <div className="b365-wallet-history-body">
-                          <div className="b365-wallet-history-main">
-                            <span className="b365-wallet-history-type">{txTypeLabel(tx.type)}</span>
-                            <strong
-                              className={
-                                credit ? 'b365-wallet-tx-amount--credit' : 'b365-wallet-tx-amount--debit'
-                              }
-                            >
-                              {credit ? '+' : '−'}
-                              {Number(tx.amount).toFixed(2)} {currency}
-                            </strong>
-                          </div>
-                          <div className="b365-wallet-history-meta">
-                            <span>{formatDate(tx.createdAt)}</span>
-                            <span>Balance {Number(tx.balanceAfter).toFixed(2)} {currency}</span>
-                          </div>
-                          {tx.note ? <p className="b365-wallet-history-note">{tx.note}</p> : null}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-
-              {historyQ.data && historyQ.data.totalPages > 1 ? (
-                <div className="b365-wallet-history-pagination">
-                  <button
-                    type="button"
-                    className="b365-btn-secondary"
-                    disabled={!historyQ.data.hasPrev}
-                    onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </button>
-                  <span className="b365-muted">
-                    Page {historyQ.data.page} of {historyQ.data.totalPages}
-                  </span>
-                  <button
-                    type="button"
-                    className="b365-btn-secondary"
-                    disabled={!historyQ.data.hasNext}
-                    onClick={() => setHistoryPage((p) => p + 1)}
-                  >
-                    Next
-                  </button>
-                </div>
-              ) : null}
-            </section>
-          ) : null}
-        </>
-      )}
+        ) : null}
+      </section>
     </div>
   );
 }

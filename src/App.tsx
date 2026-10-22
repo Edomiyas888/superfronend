@@ -16,6 +16,7 @@ import './styles/home-ui.css';
 import './styles/bottom-nav.css';
 import './styles/app-header.css';
 import './styles/odd-select-tick.css';
+import './styles/wallet.css';
 
 export default function App() {
   return (

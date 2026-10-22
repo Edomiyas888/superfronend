@@ -9,8 +9,21 @@ import {
   type TelebirrDepositSubmitResult,
 } from './walletApi';
 import { MIN_DEPOSIT } from '../../config/bettingLimits';
+import { formatMoney } from './transactionLabels';
+import { CheckIcon, CopyIcon, UploadIcon } from './WalletIcons';
 
 type Step = 1 | 2 | 3;
+
+const STEPS: { n: Step; label: string }[] = [
+  { n: 1, label: 'Amount' },
+  { n: 2, label: 'Pay' },
+  { n: 3, label: 'Confirm' },
+];
+
+const QUICK_AMOUNTS = [...new Set([MIN_DEPOSIT, 100, 200, 500, 1000])]
+  .filter((n) => n >= MIN_DEPOSIT)
+  .sort((a, b) => a - b)
+  .slice(0, 5);
 type ProofTab = 'screenshot' | 'ref';
 
 type Props = {
@@ -178,151 +191,178 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
 
   if (success) {
     return (
-      <div className="b365-telebirr-flow">
-        <div className="b365-telebirr-success">
-          <h3 className="b365-telebirr-success-title">Deposit submitted</h3>
-          <p>
-            Your request for <strong>{success.amount.toFixed(2)}</strong> {success.currency} is pending
-            manual review. We will credit your wallet after approval.
-          </p>
-          <dl className="b365-telebirr-receipt-dl">
+      <div className="b365-wallet-result">
+        <span className="b365-wallet-result__icon">
+          <CheckIcon size={28} />
+        </span>
+        <p className="b365-wallet-result__title">Deposit submitted</p>
+        <p className="b365-wallet-result__amount">
+          {formatMoney(success.amount)} {success.currency}
+        </p>
+        <p className="b365-wallet-result__text">
+          We&apos;re reviewing your payment and will credit your wallet once it&apos;s approved.
+        </p>
+        <dl className="b365-wallet-receipt">
+          <div>
+            <dt>Request ID</dt>
+            <dd>{success.id}</dd>
+          </div>
+          {success.telebirrRef ? (
             <div>
-              <dt>Request ID</dt>
-              <dd>{success.id}</dd>
+              <dt>Transaction no.</dt>
+              <dd>{success.telebirrRef}</dd>
             </div>
-            {success.telebirrRef ? (
-              <div>
-                <dt>Transaction no.</dt>
-                <dd>{success.telebirrRef}</dd>
-              </div>
-            ) : null}
-            <div>
-              <dt>Status</dt>
-              <dd>Pending review</dd>
-            </div>
-          </dl>
-          <button type="button" className="b365-btn-secondary" onClick={resetFlow}>
-            Make another deposit
-          </button>
-        </div>
+          ) : null}
+          <div>
+            <dt>Status</dt>
+            <dd>
+              <span className="b365-wallet-status b365-wallet-status--pending">Pending review</span>
+            </dd>
+          </div>
+        </dl>
+        <button type="button" className="b365-wallet-btn b365-wallet-btn--ghost" onClick={resetFlow}>
+          Make another deposit
+        </button>
       </div>
     );
   }
 
+  const copyButton = (field: 'phone' | 'name', value: string) => (
+    <button
+      type="button"
+      className={`b365-wallet-copy${copiedField === field ? ' is-copied' : ''}`}
+      onClick={() => void onCopy(field, value)}
+      aria-label={`Copy ${field === 'phone' ? 'Telebirr number' : 'recipient name'}`}
+    >
+      {copiedField === field ? <CheckIcon size={15} /> : <CopyIcon size={15} />}
+      {copiedField === field ? 'Copied' : 'Copy'}
+    </button>
+  );
+
   return (
-    <div className="b365-telebirr-flow">
-      <div className="b365-telebirr-steps" aria-label="Deposit steps">
-        <span className={step >= 1 ? 'active' : ''}>1. Amount</span>
-        <span className={step >= 2 ? 'active' : ''}>2. Pay</span>
-        <span className={step >= 3 ? 'active' : ''}>3. Submit proof</span>
-      </div>
+    <div className="b365-telebirr">
+      <ol className="b365-wallet-stepper" aria-label="Deposit steps">
+        {STEPS.map((s) => (
+          <li
+            key={s.n}
+            className={step > s.n ? 'is-done' : step === s.n ? 'is-current' : ''}
+            aria-current={step === s.n ? 'step' : undefined}
+          >
+            <span className="b365-wallet-stepper__dot">{step > s.n ? <CheckIcon size={13} /> : s.n}</span>
+            <span className="b365-wallet-stepper__label">{s.label}</span>
+          </li>
+        ))}
+      </ol>
 
-      <p className="b365-muted b365-telebirr-note">
-        Submit your transaction reference or screenshot. Deposits are credited after manual approval.
-      </p>
-      {infoErr ? <p className="b365-error">{infoErr}</p> : null}
-
-      {pendingRequests.length > 0 ? (
-        <div className="b365-telebirr-pending-list">
-          <h4 className="b365-telebirr-pending-title">Recent deposit requests</h4>
-          <ul>
-            {pendingRequests.map((row) => (
-              <li key={row.id}>
-                <span>{row.amount.toFixed(2)} {currency}</span>
-                <span className={`b365-telebirr-status b365-telebirr-status--${row.status}`}>
-                  {formatStatus(row.status)}
-                </span>
-                {row.rejectReason ? (
-                  <span className="b365-muted"> — {row.rejectReason}</span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      {infoErr ? <p className="b365-wallet-form__error">{infoErr}</p> : null}
 
       {step === 1 ? (
-        <div key="step-1" className="b365-telebirr-panel b365-telebirr-panel--enter">
-          <label className="b365-field-label">
-            Deposit amount ({currency})
-            <input
-              type="number"
-              className="b365-input"
-              min={MIN_DEPOSIT}
-              step={0.01}
-              value={amountInput}
-              onChange={(e) => setAmountInput(e.target.value)}
-              disabled={busy}
-              placeholder={`e.g. ${MIN_DEPOSIT}`}
-            />
+        <form
+          key="step-1"
+          className="b365-wallet-form b365-wallet-step"
+          onSubmit={(e) => {
+            e.preventDefault();
+            goToPayStep();
+          }}
+          noValidate
+        >
+          <label className="b365-wallet-field">
+            <span className="b365-wallet-field__label">How much do you want to deposit?</span>
+            <span className="b365-wallet-amount-input b365-wallet-amount-input--lg">
+              <input
+                type="number"
+                inputMode="decimal"
+                min={MIN_DEPOSIT}
+                step={0.01}
+                value={amountInput}
+                onChange={(e) => setAmountInput(e.target.value)}
+                disabled={busy}
+                placeholder="0.00"
+              />
+              <span className="b365-wallet-amount-input__currency">{currency}</span>
+            </span>
           </label>
-          <p className="b365-muted b365-telebirr-upload-hint">Minimum deposit is {MIN_DEPOSIT} {currency}.</p>
-          <button type="button" className="b365-btn-primary" disabled={busy} onClick={goToPayStep}>
+          <div className="b365-wallet-chips b365-wallet-chips--amounts" role="group" aria-label="Quick amounts">
+            {QUICK_AMOUNTS.map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={amount === n ? 'active' : ''}
+                aria-pressed={amount === n}
+                onClick={() => setAmountInput(String(n))}
+              >
+                {n.toLocaleString('en-US')}
+              </button>
+            ))}
+          </div>
+          <p className="b365-wallet-field__hint">
+            Minimum {MIN_DEPOSIT} {currency} · Paid with Telebirr · Credited after a quick review
+          </p>
+          <button
+            type="submit"
+            className="b365-wallet-btn b365-wallet-btn--primary b365-wallet-btn--block"
+            disabled={busy || amount == null}
+          >
             Continue
           </button>
-        </div>
+        </form>
       ) : null}
 
       {step === 2 ? (
-        <div key="step-2" className="b365-telebirr-panel b365-telebirr-panel--enter">
-          <p className="b365-telebirr-amount-reminder">
-            Send exactly <strong>{amount?.toFixed(2)}</strong> {currency} via Telebirr.
-          </p>
-
-          <div className="b365-telebirr-payee">
-            <div className="b365-telebirr-payee-row">
-              <div>
-                <span className="b365-muted">Recipient name</span>
-                <strong>{payeeName}</strong>
-              </div>
-              <button
-                type="button"
-                className={`b365-btn-secondary b365-telebirr-copy${copiedField === 'name' ? ' b365-telebirr-copy--copied' : ''}`}
-                onClick={() => void onCopy('name', payeeName)}
-              >
-                {copiedField === 'name' ? 'Copied' : 'Copy'}
-              </button>
-            </div>
-            <div className="b365-telebirr-payee-row">
-              <div>
-                <span className="b365-muted">Telebirr number</span>
-                <strong>{payeePhone}</strong>
-              </div>
-              <button
-                type="button"
-                className={`b365-btn-secondary b365-telebirr-copy${copiedField === 'phone' ? ' b365-telebirr-copy--copied' : ''}`}
-                onClick={() => void onCopy('phone', payeePhone)}
-              >
-                {copiedField === 'phone' ? 'Copied' : 'Copy'}
-              </button>
-            </div>
+        <div key="step-2" className="b365-wallet-step">
+          <div className="b365-wallet-send">
+            <span>Send exactly</span>
+            <strong>
+              {formatMoney(amount ?? 0)} <small>{currency}</small>
+            </strong>
+            <span>via Telebirr to</span>
           </div>
 
-          <ol className="b365-telebirr-instructions">
+          <dl className="b365-wallet-payee">
+            <div className="b365-wallet-payee__row">
+              <div>
+                <dt>Telebirr number</dt>
+                <dd className="b365-wallet-payee__phone">{payeePhone}</dd>
+              </div>
+              {copyButton('phone', payeePhone)}
+            </div>
+            <div className="b365-wallet-payee__row">
+              <div>
+                <dt>Recipient name</dt>
+                <dd>{payeeName}</dd>
+              </div>
+              {copyButton('name', payeeName)}
+            </div>
+          </dl>
+
+          <ol className="b365-wallet-howto">
             {(info?.instructions?.length ? info.instructions : [
               'Open the Telebirr app',
               'Choose Transfer Money',
               'Paste the recipient number and send the exact amount',
-              'Submit your transaction reference or upload a screenshot',
+              'Come back here and confirm your payment',
             ]).map((line) => (
               <li key={line}>{line}</li>
             ))}
           </ol>
 
-          <div className="b365-telebirr-actions">
-            <button type="button" className="b365-btn-secondary" disabled={busy} onClick={() => setStep(1)}>
+          <div className="b365-wallet-actions">
+            <button type="button" className="b365-wallet-btn b365-wallet-btn--ghost" disabled={busy} onClick={() => setStep(1)}>
               Back
             </button>
-            <button type="button" className="b365-btn-primary" disabled={busy} onClick={goToProofStep}>
-              I have paid
+            <button type="button" className="b365-wallet-btn b365-wallet-btn--primary" disabled={busy} onClick={goToProofStep}>
+              I&apos;ve paid
             </button>
           </div>
         </div>
       ) : null}
 
       {step === 3 ? (
-        <div key="step-3" className="b365-telebirr-panel b365-telebirr-panel--enter">
-          <div className="b365-telebirr-proof-tabs" role="tablist" aria-label="Proof type">
+        <div key="step-3" className="b365-wallet-step">
+          <p className="b365-wallet-step__lead">
+            Show us your payment of <strong>{formatMoney(amount ?? 0)} {currency}</strong>
+          </p>
+          <div className="b365-wallet-chips b365-wallet-chips--toggle" role="tablist" aria-label="Proof type">
             <button
               type="button"
               role="tab"
@@ -341,58 +381,93 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
               disabled={busy}
               onClick={() => setProofTab('ref')}
             >
-              Reference
+              Transaction no.
             </button>
           </div>
 
           {proofTab === 'screenshot' ? (
-            <>
-              <label className="b365-field-label">
-                Upload Telebirr success screenshot
-                <input
-                  type="file"
-                  className="b365-input b365-file-input"
-                  accept="image/jpeg,image/png,image/webp"
-                  disabled={busy}
-                  onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
-                />
-                {previewUrl ? (
-                  <img src={previewUrl} alt="Receipt preview" className="b365-telebirr-preview" />
-                ) : null}
-              </label>
-              <p className="b365-muted b365-telebirr-upload-hint">
-                Make sure the screenshot shows Successful, amount, recipient, and transaction number.
-              </p>
-            </>
+            <label className={`b365-wallet-drop${previewUrl ? ' has-file' : ''}`}>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={busy}
+                onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+              />
+              {previewUrl ? (
+                <>
+                  <img src={previewUrl} alt="Receipt preview" className="b365-wallet-drop__preview" />
+                  <span className="b365-wallet-drop__change">Tap to change</span>
+                </>
+              ) : (
+                <>
+                  <span className="b365-wallet-drop__icon">
+                    <UploadIcon size={22} />
+                  </span>
+                  <span className="b365-wallet-drop__title">Upload Telebirr screenshot</span>
+                  <span className="b365-wallet-drop__hint">
+                    It should show “Successful”, the amount, recipient and transaction number.
+                  </span>
+                </>
+              )}
+            </label>
           ) : (
-            <label className="b365-field-label">
-              Transaction reference
+            <label className="b365-wallet-field">
+              <span className="b365-wallet-field__label">Transaction number</span>
               <input
                 type="text"
-                className="b365-input"
+                className="b365-wallet-input"
                 value={refInput}
                 disabled={busy}
-                placeholder="10-character code or receipt URL"
+                autoCapitalize="characters"
+                placeholder="e.g. CJT4XXXXXX or receipt link"
                 onChange={(e) => setRefInput(e.target.value)}
               />
-              <p className="b365-muted b365-telebirr-upload-hint">
-                Copy the transaction number from your Telebirr success screen or paste the receipt link.
-              </p>
+              <span className="b365-wallet-field__hint">
+                Find it on your Telebirr success screen or SMS, or paste the receipt link.
+              </span>
             </label>
           )}
 
-          <div className="b365-telebirr-actions">
-            <button type="button" className="b365-btn-secondary" disabled={busy} onClick={() => setStep(2)}>
+          <div className="b365-wallet-actions">
+            <button type="button" className="b365-wallet-btn b365-wallet-btn--ghost" disabled={busy} onClick={() => setStep(2)}>
               Back
             </button>
-            <button type="button" className="b365-btn-primary" disabled={busy} onClick={() => void onSubmit()}>
-              {busy ? 'Submitting…' : 'Submit for review'}
+            <button
+              type="button"
+              className="b365-wallet-btn b365-wallet-btn--primary"
+              disabled={busy || (proofTab === 'ref' ? !refInput.trim() : !screenshot)}
+              onClick={() => void onSubmit()}
+            >
+              {busy ? 'Submitting…' : 'Submit deposit'}
             </button>
           </div>
         </div>
       ) : null}
 
-      {error ? <p className="b365-error">{error}</p> : null}
+      {error ? (
+        <p className="b365-wallet-form__error" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {pendingRequests.length > 0 ? (
+        <section className="b365-wallet-requests">
+          <h3>Recent deposit requests</h3>
+          <ul>
+            {pendingRequests.map((row) => (
+              <li key={row.id}>
+                <span className="b365-wallet-requests__amount">
+                  {formatMoney(row.amount)} {currency}
+                </span>
+                <span className={`b365-wallet-status b365-wallet-status--${row.status}`}>
+                  {formatStatus(row.status)}
+                </span>
+                {row.rejectReason ? <span className="b365-wallet-requests__reason">{row.rejectReason}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

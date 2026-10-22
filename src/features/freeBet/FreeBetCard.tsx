@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { FreeBetInfo } from '../wallet/walletApi';
+import { GiftIcon } from '../wallet/WalletIcons';
 import { formatTimeLeft, isFreeBetUsable } from './freeBetRules';
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
   onDeposit?: () => void;
 };
 
-/** Wallet page card for the welcome free bet; renders nothing once it no longer matters. */
+/** Wallet page banner for the welcome free bet; renders nothing once it no longer matters. */
 export default function FreeBetCard({ freeBet, currency, onDeposit }: Props) {
   if (!freeBet) return null;
   const { rules } = freeBet;
@@ -16,23 +17,30 @@ export default function FreeBetCard({ freeBet, currency, onDeposit }: Props) {
   if (isFreeBetUsable(freeBet)) {
     return (
       <section className="b365-freebet-card" aria-label="Free bet">
-        <div className="b365-freebet-card__head">
-          <span className="b365-freebet-card__tag">Free bet</span>
-          <span className="b365-freebet-card__expiry">Expires in {formatTimeLeft(freeBet.expiresAt)}</span>
+        <div className="b365-freebet-card__row">
+          <span className="b365-freebet-card__icon">
+            <GiftIcon size={20} />
+          </span>
+          <div className="b365-freebet-card__text">
+            <p className="b365-freebet-card__title">
+              {currency} {freeBet.amount.toFixed(0)} free bet
+            </p>
+            <p className="b365-freebet-card__sub">Expires in {formatTimeLeft(freeBet.expiresAt)}</p>
+          </div>
+          <Link to="/" className="b365-wallet-btn b365-wallet-btn--primary b365-wallet-btn--sm">
+            Use it
+          </Link>
         </div>
-        <p className="b365-freebet-card__amount">
-          {currency} {freeBet.amount.toFixed(2)}
-        </p>
-        <ul className="b365-freebet-card__rules">
-          <li>Sports accumulator with {rules.minLegs}+ matches</li>
-          <li>Total odds {rules.minTotalOdds}+, every pick {rules.minLegOdds.toFixed(2)}+</li>
-          <li>
-            Stake not returned · win up to {currency} {rules.maxWin.toLocaleString('en-US')}
-          </li>
-        </ul>
-        <Link to="/" className="b365-btn-primary b365-freebet-card__cta">
-          Build my free bet
-        </Link>
+        <details className="b365-freebet-card__rules">
+          <summary>How it works</summary>
+          <ul>
+            <li>Sports accumulator with {rules.minLegs}+ matches</li>
+            <li>Total odds {rules.minTotalOdds}+, every pick {rules.minLegOdds.toFixed(2)}+</li>
+            <li>
+              Stake not returned · win up to {currency} {rules.maxWin.toLocaleString('en-US')}
+            </li>
+          </ul>
+        </details>
       </section>
     );
   }
@@ -40,10 +48,15 @@ export default function FreeBetCard({ freeBet, currency, onDeposit }: Props) {
   if (freeBet.status === 'placed') {
     return (
       <section className="b365-freebet-card b365-freebet-card--quiet" aria-label="Free bet">
-        <p className="b365-freebet-card__line">
-          Your {currency} {freeBet.amount.toFixed(0)} free bet is running. Check it in{' '}
-          <Link to="/my-bets">My Bets</Link>.
-        </p>
+        <div className="b365-freebet-card__row">
+          <span className="b365-freebet-card__icon">
+            <GiftIcon size={20} />
+          </span>
+          <p className="b365-freebet-card__sub b365-freebet-card__text">
+            Your {currency} {freeBet.amount.toFixed(0)} free bet is running. Check it in{' '}
+            <Link to="/my-bets">My Bets</Link>.
+          </p>
+        </div>
       </section>
     );
   }
@@ -51,18 +64,28 @@ export default function FreeBetCard({ freeBet, currency, onDeposit }: Props) {
   if (freeBet.status === 'won' && freeBet.winningsLocked) {
     return (
       <section className="b365-freebet-card b365-freebet-card--won" aria-label="Free bet winnings">
-        <span className="b365-freebet-card__tag">Free bet won</span>
-        <p className="b365-freebet-card__amount">
-          {currency} {freeBet.winAmount.toFixed(2)}
-        </p>
-        <p className="b365-freebet-card__line">
-          Deposit at least {currency} {rules.unlockDeposit} to unlock withdrawal of your free bet winnings.
-        </p>
-        {onDeposit ? (
-          <button type="button" className="b365-btn-primary b365-freebet-card__cta" onClick={onDeposit}>
-            Deposit {currency} {rules.unlockDeposit}
-          </button>
-        ) : null}
+        <div className="b365-freebet-card__row">
+          <span className="b365-freebet-card__icon">
+            <GiftIcon size={20} />
+          </span>
+          <div className="b365-freebet-card__text">
+            <p className="b365-freebet-card__title">
+              You won {currency} {freeBet.winAmount.toFixed(2)}
+            </p>
+            <p className="b365-freebet-card__sub">
+              Deposit {currency} {rules.unlockDeposit}+ to unlock withdrawal.
+            </p>
+          </div>
+          {onDeposit ? (
+            <button
+              type="button"
+              className="b365-wallet-btn b365-wallet-btn--primary b365-wallet-btn--sm"
+              onClick={onDeposit}
+            >
+              Deposit
+            </button>
+          ) : null}
+        </div>
       </section>
     );
   }
