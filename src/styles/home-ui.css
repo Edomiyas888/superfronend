@@ -55,6 +55,14 @@
   margin-top: 4px;
 }
 
+/* Phones: page padding + card padding left the match list ~25px from each edge. */
+@media (max-width: 520px) {
+  .b365-home-block {
+    margin-inline: -6px;
+    padding: 12px 6px;
+  }
+}
+
 .b365-home-block .b365-page-title {
   margin: 0 0 10px;
   font-size: 0.95rem;
