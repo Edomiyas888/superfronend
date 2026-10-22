@@ -8,6 +8,7 @@ import SportsSidebar from './SportsSidebar';
 import BetslipContent from './BetslipContent';
 import BetslipDrawer from './BetslipDrawer';
 import BetslipFab from './BetslipFab';
+import SupportFab from './SupportFab';
 import NavDrawer from './NavDrawer';
 import BottomNav from './BottomNav';
 import AppFooter from './AppFooter';
@@ -168,6 +169,8 @@ export default function Layout() {
       <AppFooter />
 
       <BottomNav />
+
+      <SupportFab />
 
       <BetslipFab />
 

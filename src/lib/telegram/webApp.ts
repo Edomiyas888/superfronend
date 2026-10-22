@@ -48,6 +48,14 @@ export function getTelegramUserLabel(): string {
   return parts.join(' ') || 'Telegram user';
 }
 
+export function openTelegramLink(url: string) {
+  try {
+    WebApp.openTelegramLink(url);
+  } catch {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+}
+
 export function closeTelegramMiniApp() {
   try {
     WebApp.close();

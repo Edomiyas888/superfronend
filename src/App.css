@@ -1286,6 +1286,32 @@ a.b365-btn-header-login {
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+.b365-app-footer-support {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: rgba(34, 158, 217, 0.16);
+  border: 1px solid rgba(34, 158, 217, 0.45);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.b365-app-footer-support svg {
+  color: #229ed9;
+}
+
+.b365-app-footer-support:hover {
+  background: rgba(34, 158, 217, 0.26);
+  border-color: rgba(34, 158, 217, 0.7);
+}
+
 .b365-app-footer-meta {
   display: flex;
   flex-wrap: wrap;
@@ -5849,6 +5875,59 @@ a.b365-btn-header-login {
   background: rgba(232, 34, 42, 0.12);
   border-color: rgba(232, 34, 42, 0.35);
   color: var(--b365-accent-hover);
+}
+
+/* ——— Telegram support FAB (bottom-left, all viewports) ——— */
+.b365-support-fab {
+  position: fixed;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: calc(var(--b365-nav-h) + 12px + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  display: inline-flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #37aee2 0%, #229ed9 55%, #1a86ba 100%);
+  color: #fff;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.b365-support-fab svg {
+  margin-left: -2px;
+}
+
+.b365-support-fab:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.b365-support-fab:active {
+  transform: scale(0.97);
+}
+
+.b365-support-fab:focus-visible {
+  outline: 2px solid var(--b365-yellow);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-support-fab {
+    transition: none;
+  }
+
+  .b365-support-fab:hover,
+  .b365-support-fab:active {
+    transform: none;
+  }
 }
 
 /* ——— Bet slip FAB (mobile / tablet) ——— */

@@ -1,3 +1,7 @@
+import { SUPPORT_TELEGRAM_HANDLE } from '../config/support';
+import SupportLink from './SupportLink';
+import TelegramGlyph from './TelegramGlyph';
+
 export default function AppFooter() {
   const year = new Date().getFullYear();
 
@@ -11,6 +15,10 @@ export default function AppFooter() {
           <a href="#main">Terms</a>
           <a href="#main">Privacy</a>
         </nav>
+        <SupportLink className="b365-app-footer-support" aria-label={`Support on Telegram, @${SUPPORT_TELEGRAM_HANDLE}`}>
+          <TelegramGlyph size={16} />
+          <span>Support: @{SUPPORT_TELEGRAM_HANDLE}</span>
+        </SupportLink>
         <div className="b365-app-footer-meta">
           <span className="b365-app-footer-age" aria-label="Adults only">
             18+
