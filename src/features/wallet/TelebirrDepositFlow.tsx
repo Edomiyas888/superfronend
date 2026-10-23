@@ -190,17 +190,21 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
   const payeePhone = info?.recipientPhone ?? '0912345678';
 
   if (success) {
+    // Credited on the spot when the Telebirr payment SMS had already reached us.
+    const credited = success.status === 'approved';
     return (
       <div className="b365-wallet-result">
         <span className="b365-wallet-result__icon">
           <CheckIcon size={28} />
         </span>
-        <p className="b365-wallet-result__title">Deposit submitted</p>
+        <p className="b365-wallet-result__title">{credited ? 'Deposit confirmed' : 'Deposit submitted'}</p>
         <p className="b365-wallet-result__amount">
           {formatMoney(success.amount)} {success.currency}
         </p>
         <p className="b365-wallet-result__text">
-          We&apos;re reviewing your payment and will credit your wallet once it&apos;s approved.
+          {credited
+            ? 'Your payment was confirmed and added to your balance.'
+            : 'We\u2019re reviewing your payment and will credit your wallet once it\u2019s approved.'}
         </p>
         <dl className="b365-wallet-receipt">
           <div>
@@ -216,7 +220,9 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
           <div>
             <dt>Status</dt>
             <dd>
-              <span className="b365-wallet-status b365-wallet-status--pending">Pending review</span>
+              <span className={`b365-wallet-status b365-wallet-status--${success.status}`}>
+                {formatStatus(success.status)}
+              </span>
             </dd>
           </div>
         </dl>
