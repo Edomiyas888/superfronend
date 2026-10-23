@@ -25,6 +25,19 @@ export type FreeBetInfo = {
   rules: FreeBetRules;
 };
 
+/**
+ * Cash bonus (e.g. Happy Hour). Counted in the total but never withdrawable: it becomes
+ * cash once `wagerRemaining` hits 0 on bets where every pick is at `minOdds` or more.
+ */
+export type PromoBonus = {
+  balance: number;
+  wagerRemaining: number;
+  wagerTotal: number;
+  wagered: number;
+  multiplier: number;
+  minOdds: number;
+};
+
 export type WalletInfo = {
   balance: number | null;
   withdrawable: number | null;
@@ -32,6 +45,7 @@ export type WalletInfo = {
   /** Free bet credit — sports accumulators only, never withdrawable. */
   bonusBalance?: number;
   freeBet?: FreeBetInfo | null;
+  promo?: PromoBonus | null;
   currency: string;
   /** `live` when the balance was loaded from the API; `error` on network or HTTP failure. */
   status: 'live' | 'error';
@@ -106,6 +120,7 @@ type BalanceJson = {
   nonWithdrawable?: number;
   bonusBalance?: number;
   freeBet?: FreeBetInfo | null;
+  promo?: PromoBonus | null;
   currency?: string;
   error?: string;
   code?: string;
@@ -172,7 +187,8 @@ export async function fetchBalance(authHeaders: Record<string, string>): Promise
   const bonusBalance =
     typeof data.bonusBalance === 'number' && Number.isFinite(data.bonusBalance) ? data.bonusBalance : 0;
   const freeBet = data.freeBet && typeof data.freeBet === 'object' ? data.freeBet : null;
-  return { balance, withdrawable, nonWithdrawable, bonusBalance, freeBet, currency, status: 'live' };
+  const promo = data.promo && typeof data.promo === 'object' ? data.promo : null;
+  return { balance, withdrawable, nonWithdrawable, bonusBalance, freeBet, promo, currency, status: 'live' };
 }
 
 /**

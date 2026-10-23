@@ -54,10 +54,12 @@ export default function Layout() {
   const balanceCurrency = walletQ.data?.currency ?? 'ETB';
   const walletLoading = walletQ.isPending && loggedIn;
   const walletError = walletQ.isError || walletQ.data?.status === 'error';
+  // Total includes the cash bonus; it is never withdrawable, so it also counts as non-withdrawable.
+  const walletPromo = Number(walletQ.data?.promo?.balance ?? 0);
   const walletBalance =
     walletLoading || walletError || walletQ.data?.status === 'error'
       ? null
-      : Number(walletQ.data?.balance ?? 0);
+      : Number(walletQ.data?.balance ?? 0) + walletPromo;
   const walletWithdrawable =
     walletLoading || walletError || walletQ.data?.status === 'error'
       ? null
@@ -65,7 +67,7 @@ export default function Layout() {
   const walletNonWithdrawable =
     walletLoading || walletError || walletQ.data?.status === 'error'
       ? null
-      : Number(walletQ.data?.nonWithdrawable ?? 0);
+      : Number(walletQ.data?.nonWithdrawable ?? 0) + walletPromo;
   const balanceLabel =
     walletLoading
       ? `… ${balanceCurrency}`

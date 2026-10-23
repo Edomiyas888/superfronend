@@ -8,6 +8,8 @@ type Props = {
   withdrawable: number | null;
   nonWithdrawable: number | null;
   bonusBalance: number;
+  /** Cash bonus — part of the total, shown on its own because it is never withdrawable. */
+  promoBalance: number;
   loading: boolean;
   error: boolean;
   refreshing: boolean;
@@ -20,6 +22,7 @@ export default function WalletBalanceCard({
   withdrawable,
   nonWithdrawable,
   bonusBalance,
+  promoBalance,
   loading,
   error,
   refreshing,
@@ -66,6 +69,12 @@ export default function WalletBalanceCard({
             <dt>To play through</dt>
             <dd>{formatMoney(nonWithdrawable)}</dd>
           </div>
+          {promoBalance > 0 ? (
+            <div className="b365-wallet-stat b365-wallet-stat--bonus">
+              <dt>Bonus</dt>
+              <dd>{formatMoney(promoBalance)}</dd>
+            </div>
+          ) : null}
           {bonusBalance > 0 ? (
             <div className="b365-wallet-stat b365-wallet-stat--bonus">
               <dt>Free bet</dt>

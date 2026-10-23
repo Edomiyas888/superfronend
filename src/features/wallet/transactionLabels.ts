@@ -18,6 +18,8 @@ const LABELS: Record<string, string> = {
   free_bet_stake: 'Free bet placed',
   free_bet_refund: 'Free bet returned',
   free_bet_expire: 'Free bet expired',
+  bonus_credit: 'Bonus received',
+  bonus_convert: 'Bonus unlocked',
 };
 
 export function txTypeLabel(type: WalletTxType): string {
@@ -30,7 +32,9 @@ export function txIsCredit(type: WalletTxType): boolean {
     type === 'bet_win' ||
     type === 'bet_void' ||
     type === 'free_bet_grant' ||
-    type === 'free_bet_refund'
+    type === 'free_bet_refund' ||
+    type === 'bonus_credit' ||
+    type === 'bonus_convert'
   );
 }
 

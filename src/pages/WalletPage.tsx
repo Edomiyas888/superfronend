@@ -5,6 +5,7 @@ import { useSessionStore } from '../features/auth/sessionStore';
 import TelebirrDepositFlow from '../features/wallet/TelebirrDepositFlow';
 import FreeBetCard from '../features/freeBet/FreeBetCard';
 import HappyHourCard from '../features/promo/HappyHourCard';
+import BonusBalanceCard from '../features/wallet/BonusBalanceCard';
 import WalletBalanceCard from '../features/wallet/WalletBalanceCard';
 import WithdrawPanel from '../features/wallet/WithdrawPanel';
 import TransactionHistory from '../features/wallet/TransactionHistory';
@@ -42,7 +43,9 @@ export default function WalletPage() {
 
   const currency = walletQ.data?.currency ?? 'ETB';
   const balanceOk = !walletQ.isPending && !walletQ.isError && walletQ.data?.status !== 'error';
-  const balance = balanceOk ? Number(walletQ.data?.balance ?? 0) : null;
+  const promo = balanceOk ? (walletQ.data?.promo ?? null) : null;
+  const promoBalance = promo?.balance ?? 0;
+  const balance = balanceOk ? Number(walletQ.data?.balance ?? 0) + promoBalance : null;
   const withdrawable = balanceOk
     ? Number(walletQ.data?.withdrawable ?? walletQ.data?.balance ?? 0)
     : null;
@@ -88,12 +91,14 @@ export default function WalletPage() {
         withdrawable={withdrawable}
         nonWithdrawable={nonWithdrawable}
         bonusBalance={bonusBalance}
+        promoBalance={promoBalance}
         loading={walletQ.isPending}
         error={walletQ.isError || walletQ.data?.status === 'error'}
         refreshing={walletQ.isFetching && !walletQ.isPending}
         onRefresh={() => void invalidateWallet()}
       />
 
+      <BonusBalanceCard promo={promo} currency={currency} />
       <HappyHourCard onDeposit={() => setTab('deposit')} />
       <FreeBetCard freeBet={walletQ.data?.freeBet} currency={currency} onDeposit={() => setTab('deposit')} />
 
