@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSessionStore } from '../features/auth/sessionStore';
 import TelebirrDepositFlow from '../features/wallet/TelebirrDepositFlow';
 import FreeBetCard from '../features/freeBet/FreeBetCard';
+import HappyHourCard from '../features/promo/HappyHourCard';
 import WalletBalanceCard from '../features/wallet/WalletBalanceCard';
 import WithdrawPanel from '../features/wallet/WithdrawPanel';
 import TransactionHistory from '../features/wallet/TransactionHistory';
@@ -93,6 +94,7 @@ export default function WalletPage() {
         onRefresh={() => void invalidateWallet()}
       />
 
+      <HappyHourCard onDeposit={() => setTab('deposit')} />
       <FreeBetCard freeBet={walletQ.data?.freeBet} currency={currency} onDeposit={() => setTab('deposit')} />
 
       <div className="b365-wallet-tabs" role="tablist" aria-label="Wallet">
