@@ -1,4 +1,6 @@
-/* Atlas Keno ball draw animation — scoped to keno shell only */
+/* Atlas Keno ball draw animation — scoped to keno shell only.
+   Values mirror Atlas's mobile stylesheet (root font-size 12px there, so rem values are
+   converted to px here: 1.2rem = 14.4px, 3.6rem = 43.2px, ...). */
 
 .keno-shell .keno-animation-wrap {
   width: 100%;
@@ -10,16 +12,15 @@
 .keno-shell #game_animation {
   overflow: hidden;
   display: block;
-  width: 100%;
+  width: calc(100% - 8px);
   height: auto;
-  margin: 0 auto 8px;
+  margin: 0 auto;
   position: relative;
   background-image: url(https://cdn-atlas-v.com/games/keno/img/gameplay_bg.svg?v=2);
   background-repeat: no-repeat;
   background-size: contain;
   background-position: 50% 50%;
-  padding: 4px 0 40% 0;
-  box-sizing: border-box;
+  padding: 5px 0 38%;
 }
 
 .keno-shell #game_animation::before {
@@ -52,47 +53,19 @@
   background: linear-gradient(0deg, #1b1e1f 0%, rgba(27, 30, 31, 0) 100%);
 }
 
-.keno-shell .top_message {
-  position: relative;
-  z-index: 4;
-  text-align: center;
-  font-family: 'Roboto Condensed', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #5fdb94;
-  margin: 0 0 4px;
-  text-transform: uppercase;
-}
-
-.keno-shell #waiting_text_cont {
-  color: #e2e2e2;
-  font-family: 'Roboto Condensed', sans-serif;
-  font-weight: 700;
-  font-size: 1.9rem;
-  line-height: 2.3rem;
-  text-align: center;
-  position: absolute;
-  width: 100%;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  pointer-events: none;
-}
-
 .keno-shell .balls_counter {
   display: block;
   color: #70f7a6d9;
   text-align: right;
   position: absolute;
-  top: 35px;
+  top: -1px;
   right: 9px;
   padding: 0;
   width: 60px;
   z-index: 3;
-  font-family: 'DS-Digital', 'MyCustomFont', sans-serif;
+  font-family: 'DS-Digital', sans-serif;
   font-weight: bold;
-  font-size: 1.45rem;
+  font-size: 14.4px;
   line-height: 17px;
   pointer-events: none;
 }
@@ -108,6 +81,60 @@
   width: 20px;
 }
 
+/* Result popup: shown one second after the 20th ball lands */
+.keno-shell .game_result_popup {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 500px;
+  z-index: 5;
+  display: none;
+  pointer-events: none;
+}
+
+.keno-shell .game_result_popup_win {
+  display: none;
+  padding: 0;
+}
+
+.keno-shell .game_result_popup_win_ttl {
+  color: #fff;
+  font-family: 'SF Pro Display', sans-serif;
+  font-weight: 900;
+  font-size: 21.6px;
+  line-height: 21.6px;
+  text-align: center;
+}
+
+.keno-shell .game_result_popup_win_amount {
+  color: #5fdb94;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 28.8px;
+  line-height: 28.8px;
+  text-align: center;
+}
+
+.keno-shell .game_result_popup_lost {
+  display: none;
+  padding: 5% 0;
+  color: #5fdb94;
+  font-family: 'SF Pro Display', sans-serif;
+  font-weight: 900;
+  font-size: 28.8px;
+  line-height: 28.8px;
+  text-align: center;
+}
+
+.keno-shell .game_result_popup.win,
+.keno-shell .game_result_popup.win .game_result_popup_win,
+.keno-shell .game_result_popup.lost,
+.keno-shell .game_result_popup.lost .game_result_popup_lost {
+  display: block;
+}
+
 .keno-shell .game_animation_row1,
 .keno-shell .game_animation_row2 {
   top: 0;
@@ -116,7 +143,6 @@
   height: 100%;
   position: absolute;
   z-index: 2;
-  overflow: visible;
 }
 
 .keno-shell .anim_ball_cont {
@@ -145,24 +171,14 @@
   color: #e2e2e2;
   font-family: 'Roboto Condensed', sans-serif;
   font-weight: 700;
-  font-size: 4.2rem;
+  font-size: 43.2px;
   line-height: 0;
   text-align: center;
   position: absolute;
   width: 100%;
   left: 0;
   top: 50%;
-  transform: translateY(-50%);
   z-index: 3;
-}
-
-.keno-shell .anim_ball.green-text span {
-  color: #4ded02;
-  font-weight: bold;
-}
-
-.keno-shell .anim_ball.green-text {
-  background: radial-gradient(circle, #087b67 0%, #03493f 59%, #0d4239 60%, #47736b 77%, #6be2a8 78%);
 }
 
 .keno-shell .anim_ball::after {
@@ -202,6 +218,15 @@
   height: 40%;
   border-radius: 50%;
   background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.49) 100%);
+}
+
+/* A drawn number that is on one of my tickets this round */
+.keno-shell .anim_ball.active {
+  background: radial-gradient(circle, #087b67 0%, #03493f 59%, #0d4239 60%, #47736b 77%, #6be2a8 78%);
+}
+
+.keno-shell .anim_ball.active span {
+  color: #70f7a6;
 }
 
 .keno-shell .show.anim_ball {
@@ -279,81 +304,44 @@
   animation: keno_ball_move10 0.5s 1 linear forwards;
 }
 
-.keno-shell #game_animation .anim_ball_cont.new-ball {
-  position: absolute !important;
-  top: 0 !important;
-  left: 40% !important;
-  width: 20% !important;
-  z-index: 10;
-  transform: none !important;
-  animation: keno_new_ball_entry 0.6s ease-in-out forwards !important;
+/* Balls drawn before the player opened the page: jump straight to the end state */
+.keno-shell .anim_ball_cont.instant,
+.keno-shell .anim_ball_cont.instant .anim_ball,
+.keno-shell .game_animation_row1.instant {
+  animation-duration: 0s;
+  animation-delay: 0s;
 }
 
-.keno-shell #game_animation .anim_ball_cont.new-ball.delay20 {
-  position: absolute !important;
-  top: 0 !important;
-  left: 40% !important;
-  width: 15% !important;
-  z-index: 10;
-  animation: keno_new_ball_entry 0.6s ease-in-out forwards !important;
-  animation-delay: 500ms !important;
-}
-
-.keno-shell #game_animation .move.anim_ball_cont20.disable-animation {
-  position: absolute !important;
-  top: 36% !important;
-  left: 85.5% !important;
-  width: 20% !important;
-  z-index: 3;
-  transform: scale(0.4) !important;
-  animation: none !important;
-  opacity: 1 !important;
-}
-
-/* Countdown timer (betting phase) — Atlas mobile */
+/* Countdown timer (betting phase) — Atlas mobile .game_timer */
 .keno-play-column .game_timer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  max-width: 100%;
+  padding: 3px 11px;
+  box-sizing: border-box;
   text-align: center;
-  position: relative;
-  z-index: 3;
-  margin: 0 auto;
-  padding: 1px 10px;
-  width: min(280px, 86%);
-  min-height: 20px;
   color: #fff;
-  font-family: 'DS-Digital', 'MyCustomFont', sans-serif;
+  font-family: 'DS-Digital', sans-serif;
   font-weight: bold;
-  font-size: 1.55em;
-  line-height: 20px;
+  font-size: 18px;
+  line-height: 22px;
   background-image: url(https://cdn-atlas-v.com/games/keno/img/timer_bg.svg);
   background-size: contain;
   background-repeat: no-repeat;
   background-position: 50% 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  pointer-events: none;
   white-space: nowrap;
 }
 
-.keno-shell .game_timer_min,
-.keno-shell .game_timer_sec {
+.keno-play-column .game_timer_sec {
   display: inline-block;
-  min-width: 1.4ch;
-  text-align: center;
+  width: 24px;
+  text-align: left;
   color: inherit;
-  font-family: inherit;
-  font-weight: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-.keno-shell .game_timer_sep {
-  display: inline-block;
-  color: inherit;
-  font-family: inherit;
-  font-weight: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  opacity: 0.95;
+  font: inherit;
 }
 
 @keyframes keno_ball_bg_rotation {
@@ -373,86 +361,74 @@
   100% { top: 28%; }
 }
 
-@keyframes keno_new_ball_entry {
-  0% { top: 20px; opacity: 0; transform: translateX(-50%) scale(1.2); }
-  30% { transform: translateX(-50%) scale(0.8); opacity: 1; }
-  60% { transform: translateX(-50%) scale(0.6); }
-  100% { top: 36%; opacity: 1; transform: translateX(-50%) scale(0.4); }
-}
-
-/* Mobile ball positions (Atlas default) */
+/* Mobile slot positions (Atlas mobile stylesheet) */
 @keyframes keno_ball_move1 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: -4.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: -5%; }
 }
 @keyframes keno_ball_move2 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 5.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 5%; }
 }
 @keyframes keno_ball_move3 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 15.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 15%; }
 }
 @keyframes keno_ball_move4 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 25.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 25%; }
 }
 @keyframes keno_ball_move5 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 35.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 35%; }
 }
 @keyframes keno_ball_move6 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 45.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 45%; }
 }
 @keyframes keno_ball_move7 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 55.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 55%; }
 }
 @keyframes keno_ball_move8 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 65.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 65%; }
 }
 @keyframes keno_ball_move9 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 75.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 75%; }
 }
 @keyframes keno_ball_move10 {
   0% { top: 0; }
-  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 85.5%; }
+  100% { opacity: 1; transform: scale(0.4); top: 36%; left: 85%; }
 }
 
+/* Desktop: Atlas desktop sizes and slot positions */
 @media (min-width: 900px) {
-  .keno-shell .keno-animation-wrap {
-    max-width: 100%;
-  }
-
-  .keno-play-column .game_timer {
-    font-size: 2.2em;
-    line-height: 1.15;
-    padding: 4px 0;
-    width: min(300px, 72%);
-  }
-
   .keno-shell #game_animation {
     padding-bottom: 36%;
+  }
+
+  .keno-shell .anim_ball_cont {
+    width: 15%;
+    padding: 7.5% 0;
   }
 
   .keno-shell .anim_ball span {
     font-size: 5.6rem;
   }
 
-  .keno-shell .top_message {
-    font-size: 1.7rem;
-  }
-
   .keno-shell .balls_counter {
-    top: 42px;
+    top: 6px;
     right: 14px;
     width: 110px;
     font-size: 3rem;
+    line-height: normal;
   }
 
+  .keno-shell .balls_counter span {
+    width: auto;
+  }
 
   @keyframes keno_ball_move1 {
     100% { opacity: 1; transform: scale(0.4); top: 36%; left: -2.5%; }
@@ -483,11 +459,5 @@
   }
   @keyframes keno_ball_move10 {
     100% { opacity: 1; transform: scale(0.4); top: 36%; left: 87.5%; }
-  }
-}
-
-@media (max-width: 420px) {
-  .keno-shell .anim_ball span {
-    font-size: 3rem;
   }
 }

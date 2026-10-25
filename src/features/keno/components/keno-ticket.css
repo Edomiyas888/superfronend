@@ -6,110 +6,105 @@
   width: 100%;
 }
 
+/* Ticket rows — Atlas .table_row / .bet_nms / .table_row_halff (mobile, rem at 12px) */
 .keno-ticket-card {
   position: relative;
   background: #283134;
-  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 6px;
-  padding: 7px 7px 7px;
+  padding: 5px;
   margin-bottom: 6px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 4px 10px rgba(0, 0, 0, 0.18);
 }
 
 .keno-ticket-card--won {
-  border-color: rgba(113, 205, 149, 0.45);
+  background: rgba(60, 162, 102, 0.4);
 }
 
-.keno-ticket-card__title {
-  margin: 0 0 6px;
-  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 1.08rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #71cd95;
-}
-
+.keno-ticket-card__title,
 .keno-ticket-card__title .MuiTypography-root {
-  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 1.08rem;
+  color: #51b579;
+  font-family: 'Roboto Condensed', sans-serif;
   font-weight: 700;
-  line-height: 1.2;
-  color: #71cd95;
-}
-
-.keno-ticket-card__title--player {
-  color: #71cd95;
+  font-size: 15.6px;
+  line-height: 15.6px;
+  text-align: left;
 }
 
 .keno-ticket-card__numbers {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 2px;
-  width: 100%;
-  margin-bottom: 6px;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 3px;
+  margin-top: 5px;
 }
 
 .keno-ticket-card__number {
-  aspect-ratio: 1 / 1;
-  min-height: 22px;
+  width: 100%;
+  padding: 17.6px 0 15.1px;
   border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #1f2729;
+  background: rgb(20 25 26 / 43%);
+  color: #d7d9db;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 16.8px;
+  line-height: 0;
+  text-align: center;
 }
 
 .keno-ticket-card__number--filled {
-  background: linear-gradient(180deg, #3b464c 0%, #252d32 100%);
+  background: #35434b;
 }
 
 .keno-ticket-card__number--matched {
-  background: #4caf50;
+  background: #51b579;
+  color: #fff;
+}
+
+/* Live round (Game tab): a number lights up 0.8s after its ball pops up, as in Atlas */
+.keno-ticket-card--live .keno-ticket-card__number--matched {
+  background: #35434b;
+  color: #d7d9db;
+  animation: keno_tick_nums_light 0.2s linear 0.8s forwards;
+}
+
+@keyframes keno_tick_nums_light {
+  0% { background: #35434b; }
+  100% { background: #51b579; color: #fff; }
 }
 
 .keno-ticket-card__number-text {
-  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 0.96rem;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1;
+  font: inherit;
+  color: inherit;
 }
 
 .keno-ticket-card__footer {
   display: flex;
-  align-items: stretch;
-  width: 100%;
-  min-height: 28px;
-  border-radius: 3px;
-  overflow: hidden;
-  background: #1f2729;
+  flex-wrap: nowrap;
+  gap: 3px;
+  margin-top: 5px;
 }
 
 .keno-ticket-card__footer-bet,
 .keno-ticket-card__footer-status {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  padding: 5px 6px;
-  font-family: 'Roboto Condensed', 'Rubik', sans-serif;
-  font-size: 1.02rem;
+  width: 100%;
+  min-height: 14.4px;
+  padding: 5px;
+  border-radius: 3px;
+  background: rgb(20 25 26 / 43%);
+  color: #d7d9db;
+  font-family: 'Roboto Condensed', sans-serif;
   font-weight: 700;
-  line-height: 1.2;
-}
-
-.keno-ticket-card__footer-bet {
-  color: #ffffff;
+  font-size: 14.4px;
+  line-height: 14.4px;
+  text-align: left;
 }
 
 .keno-ticket-card__footer-status {
-  justify-content: flex-end;
-  color: #f1c40f;
+  text-align: right;
+  color: #ffe833;
 }
 
 .keno-ticket-card__footer-status--won {
-  color: #f1c40f;
+  color: #51b579;
 }
 
 .keno-ticket-fairness {

@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/features/keno/contexts/AuthContext';
 import Header from '@/features/keno/components/appbar';
-import KenoMiniAppBar from '@/features/keno/components/KenoMiniAppBar';
 import KenoSplashScreen from '@/features/keno/components/KenoSplashScreen';
 import KenoGameDisplay from '@/features/keno/components/KenoGameDisplay';
 import { useKenoGameState } from '@/features/keno/hooks/useKenoGameState';
@@ -37,7 +36,6 @@ function KenoPageContent() {
     >
       <div className="desktop_background" aria-hidden="true" />
       <div className="keno-shell__game">
-        <KenoMiniAppBar />
         <Header roundNo={game.roundNo} />
         <KenoGameDisplay game={game} />
       </div>

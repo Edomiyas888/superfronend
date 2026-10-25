@@ -1,6 +1,6 @@
 import React, { useState, useMemo, Suspense, useCallback, useEffect } from 'react';
 import { lazy } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
+import { Box } from '@mui/material';
 import NeonCountdown from './countdownTimer';
 import KenoGrid from './selectNumbers';
 import './keno-layout.css';
@@ -9,8 +9,9 @@ import './keno-tabs-content.css';
 import './font.css';
 import KenoAnimation from './kenoiAnim';
 import { t } from '../utils/translator';
-import { kenoPayouts } from '../utils/kenoPayouts';
+import { kenoPayouts, KENO_MAX_WIN } from '../utils/kenoPayouts';
 import { filterUnconfirmedPendingBets } from '../utils/kenoBetMatch';
+import { useKenoDrawPlayback } from '../hooks/useKenoDrawPlayback';
 
 function TabPanel({ children, value, index }) {
   if (value !== index) return null;
@@ -20,6 +21,13 @@ function TabPanel({ children, value, index }) {
     </div>
   );
 }
+
+const TABS = [
+  { key: 'game', label: 'Game' },
+  { key: 'history', label: 'History' },
+  { key: 'results', label: 'Results' },
+  { key: 'statistics', label: 'Statistics' },
+];
 
 const HistoryTabContent = lazy(() => import('../tabs/Historytab'));
 const GameTabContent = lazy(() => import('../tabs/GameTabContent'));
@@ -43,7 +51,13 @@ export default function KenoGameDisplay({ game }) {
 
   const [tabIndex, setTabIndex] = useState(0);
   const [pendingBets, setPendingBets] = useState([]);
-  const isDrawing = countdown === 0;
+  // `phase` is authoritative; the countdown fallback covers a server that only reports it.
+  const isDrawing =
+    phase === 'drawing' || (phase !== 'betting' && countdown === 0 && calledNumbers.length > 0);
+  const playback = useKenoDrawPlayback(roundNo, calledNumbers, isDrawing);
+  // Tickets light up in step with the balls, and wins only show once the result popup does.
+  const drawnNumbers = isDrawing ? playback.drawnNumbers : calledNumbers;
+  const winsRevealed = !isDrawing || playback.resultReady;
 
   useEffect(() => {
     setPendingBets((prev) => {
@@ -52,7 +66,13 @@ export default function KenoGameDisplay({ game }) {
     });
   }, [selfBets]);
 
-  const handleTabChange = useCallback((_event, newValue) => setTabIndex(newValue), []);
+  // Tickets the server accepted but never echoed belong to a finished round once a new one starts.
+  useEffect(() => {
+    setPendingBets((prev) => {
+      const next = prev.filter((bet) => bet.status === 'pending');
+      return next.length === prev.length ? prev : next;
+    });
+  }, [roundNo]);
 
   const calculateHistoricalPayout = useCallback((bet) => {
     const roundData = roundsData[bet.round];
@@ -70,10 +90,21 @@ export default function KenoGameDisplay({ game }) {
   const combinedOtherBets = useMemo(() => [...otherBets, ...fakePlayers], [otherBets, fakePlayers]);
 
   const calculatePayout = useCallback((bet) => {
+    if (!winsRevealed) return 0;
     const matches = bet.selectedNumbers.filter((num) => calledNumbers.includes(num)).length;
     const payout = kenoPayouts[bet.selectedNumbers.length]?.[matches] * bet.betAmount;
-    return Math.min(payout || 0, 250000);
-  }, [calledNumbers]);
+    return Math.min(payout || 0, KENO_MAX_WIN);
+  }, [calledNumbers, winsRevealed]);
+
+  const myNumbers = useMemo(
+    () => new Set(selfBets.flatMap((bet) => (bet.selectedNumbers ?? []).map(Number))),
+    [selfBets],
+  );
+
+  const totalWinnings = useMemo(
+    () => selfBets.reduce((sum, bet) => sum + calculatePayout(bet), 0),
+    [selfBets, calculatePayout],
+  );
 
   const myTotalStake = useMemo(
     () => selfBets.reduce((sum, bet) => sum + (Number(bet.betAmount) || 0), 0),
@@ -101,15 +132,22 @@ export default function KenoGameDisplay({ game }) {
     return freq;
   }, [roundsData]);
 
+  const hasFrequencyData = useMemo(
+    () => Object.values(numberFrequencies).some((count) => count > 0),
+    [numberFrequencies],
+  );
+
   const topThreeNumbers = useMemo(() => {
+    if (!hasFrequencyData) return [];
     const sorted = Object.entries(numberFrequencies).sort(([, a], [, b]) => b - a);
     return sorted.slice(0, 5).map(([num]) => Number(num));
-  }, [numberFrequencies]);
+  }, [numberFrequencies, hasFrequencyData]);
 
   const coldThreeNumbers = useMemo(() => {
+    if (!hasFrequencyData) return [];
     const sorted = Object.entries(numberFrequencies).sort(([, a], [, b]) => a - b);
     return sorted.slice(0, 5).map(([num]) => Number(num));
-  }, [numberFrequencies]);
+  }, [numberFrequencies, hasFrequencyData]);
 
   const openRules = () => {
     window.dispatchEvent(new CustomEvent('keno:open-rules'));
@@ -141,23 +179,34 @@ export default function KenoGameDisplay({ game }) {
               />
             </>
           ) : (
-            <KenoAnimation calledNumbers={calledNumbers} selfBets={selfBets} />
+            <KenoAnimation
+              drawnNumbers={playback.drawnNumbers}
+              movedCount={playback.movedCount}
+              instantCount={playback.instantCount}
+              resultReady={playback.resultReady}
+              myNumbers={myNumbers}
+              hasTickets={selfBets.length > 0}
+              totalWinnings={totalWinnings}
+            />
           )}
         </div>
       </div>
 
-      <Tabs
-        className="keno-nav-tabs"
-        value={tabIndex}
-        onChange={handleTabChange}
-        variant="standard"
-        slotProps={{ indicator: { style: { display: 'none' } } }}
-      >
-        <Tab className="keno-nav-tabs__item keno-nav-tabs__item--game" label={t('Game')} id="tab-0" />
-        <Tab className="keno-nav-tabs__item keno-nav-tabs__item--history" label={t('History')} id="tab-1" />
-        <Tab className="keno-nav-tabs__item keno-nav-tabs__item--results" label={t('Results')} id="tab-2" />
-        <Tab className="keno-nav-tabs__item keno-nav-tabs__item--statistics" label={t('Statistics')} id="tab-3" />
-      </Tabs>
+      <div className="keno-nav-tabs tabs" role="tablist">
+        {TABS.map((tab, index) => (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            id={`tab-${index}`}
+            aria-selected={tabIndex === index}
+            className={`tab_itm keno-nav-tabs__item--${tab.key}${tabIndex === index ? ' active' : ''}`}
+            onClick={() => setTabIndex(index)}
+          >
+            {t(tab.label)}
+          </button>
+        ))}
+      </div>
 
       {tabIndex === 0 ? (
         <div className="keno-stats-bar">
@@ -179,13 +228,14 @@ export default function KenoGameDisplay({ game }) {
             showSummary={false}
             roundNo={roundNo}
             selfBets={selfBets}
-            calledNumbers={calledNumbers}
+            calledNumbers={drawnNumbers}
             roundsData={roundsData}
             userId={userId}
             calculatePayout={calculatePayout}
             combinedOtherBets={combinedOtherBets}
             displayedTotalPlayers={displayedTotalPlayers}
             pendingBets={pendingBets}
+            roundSettled={isDrawing && playback.resultReady}
           />
         </TabPanel>
         <TabPanel value={tabIndex} index={1}>

@@ -4,15 +4,18 @@ import ChooseNumbersCard from './chooseNumbers';
 import './keno-bet-bar.css';
 import './keno-grid.css';
 import TicketCheckerDialog from './TicketCheckerDialog';
-import { KENO_MIN_BET, kenoPayouts, getMaxMultiplierForPicks } from '../utils/kenoPayouts';
+import { KENO_MIN_BET, KENO_MAX_BET } from '../utils/kenoPayouts';
 import { normalizeNumbers } from '../utils/ticketCode';
 import { useAuth } from '../contexts/AuthContext';
 import { useSessionStore } from '@/features/auth/sessionStore';
 import { placeKenoBet } from '@/features/keno/api/kenoApi';
 import { filterUnconfirmedPendingBets } from '../utils/kenoBetMatch';
+import { t } from '../utils/translator';
 
 const TOTAL_NUMBERS = 80;
 const COLUMNS = 10;
+// Atlas shows "BET ACCEPTED" for half a second after the server confirms a ticket.
+const ACCEPTED_FLASH_MS = 500;
 
 const KenoGrid = ({
   roundsData,
@@ -37,6 +40,8 @@ const KenoGrid = ({
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [ticketCheckOpen, setTicketCheckOpen] = useState(false);
   const [scannedTicketCode, setScannedTicketCode] = useState('');
+  // 'idle' | 'wait' (request in flight) | 'accept' (just confirmed)
+  const [betUiState, setBetUiState] = useState('idle');
 
   const visiblePendingBets = useMemo(
     () => filterUnconfirmedPendingBets(pendingBets, selfBets),
@@ -44,6 +49,21 @@ const KenoGrid = ({
   );
 
   const ticketCount = visiblePendingBets.length + (selfBets?.length || 0);
+
+  // Tickets shown in the carousel: confirmed ones plus those the server accepted but hasn't echoed yet.
+  const placedTickets = useMemo(
+    () =>
+      [...(selfBets ?? []), ...visiblePendingBets.filter((bet) => bet.status === 'accepted')].sort(
+        (a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0),
+      ),
+    [selfBets, visiblePendingBets],
+  );
+
+  useEffect(() => {
+    if (betUiState !== 'accept') return undefined;
+    const timer = setTimeout(() => setBetUiState('idle'), ACCEPTED_FLASH_MS);
+    return () => clearTimeout(timer);
+  }, [betUiState]);
 
   useEffect(() => {
     let scanBuffer = '';
@@ -79,13 +99,13 @@ const KenoGrid = ({
 
   const handleBlur = () => {
     let newValue = Number(betAmount);
-    if (newValue > 30000) newValue = 30000;
+    if (newValue > KENO_MAX_BET) newValue = KENO_MAX_BET;
     if (newValue < KENO_MIN_BET || Number.isNaN(newValue)) newValue = KENO_MIN_BET;
     setBetAmount(String(newValue));
   };
 
   const increaseBet = () => {
-    setBetAmount(String(Math.min(Number(betAmount) + 1, 30000)));
+    setBetAmount(String(Math.min(Number(betAmount) + 1, KENO_MAX_BET)));
   };
 
   const decreaseBet = () => {
@@ -141,14 +161,17 @@ const KenoGrid = ({
         selectedNumbers: numbers,
       });
 
-      setPendingBets((prev) => prev.filter((b) => b.timestamp !== pendingBet.timestamp));
-
       if (result.success) {
+        // Keep it as an accepted ticket until the server echoes it back in selfBets.
+        setPendingBets((prev) =>
+          prev.map((b) => (b.timestamp === pendingBet.timestamp ? { ...b, status: 'accepted' } : b)),
+        );
         void refreshBalance?.();
         window.dispatchEvent(new Event('superbet:wallet-changed'));
         return true;
       }
 
+      setPendingBets((prev) => prev.filter((b) => b.timestamp !== pendingBet.timestamp));
       setSnackbarMessage(result.message || 'Failed to place bet');
       setSnackbarOpen(true);
       return false;
@@ -191,12 +214,9 @@ const KenoGrid = ({
     }
 
     setSelectedNumbers([]);
-    void placeBet(numbersToBet, amountToBet);
+    setBetUiState('wait');
+    void placeBet(numbersToBet, amountToBet).then((ok) => setBetUiState(ok ? 'accept' : 'idle'));
   };
-
-  const numberOfPicks = selectedNumbers.length;
-  const payoutMultiplier = getMaxMultiplierForPicks(numberOfPicks);
-  const possibleWin = Math.min(Number(betAmount) * payoutMultiplier, 250000);
 
   const gridRows = useMemo(() => {
     const rows = [];
@@ -209,94 +229,110 @@ const KenoGrid = ({
   const getCellClass = (number) => {
     const classes = ['bet_board_itm'];
     if (selectedNumbers.includes(number)) classes.push('selected');
-    if (topThree.includes(number)) classes.push('hot');
-    else if (coldThree.includes(number)) classes.push('cold');
+    if (topThree.includes(number)) classes.push('max');
+    else if (coldThree.includes(number)) classes.push('min');
     return classes.join(' ');
   };
 
   return (
       <>
         <ChooseNumbersCard
-            numberOfPicks={numberOfPicks}
-            selectedNumbers={selectedNumbers}
-            betAmount={Number(betAmount) || 0}
-            possibleWin={possibleWin}
-            onHelpClick={onHelpClick}
-          />
+          placedTickets={placedTickets}
+          selectedNumbers={selectedNumbers}
+          betAmount={Number(betAmount) || 0}
+          onHelpClick={onHelpClick}
+        />
 
-        <div className="keno-board-wrap">
-          <div className="bet_board">
-            <div className="bet_board_cont">
-              {gridRows.map((row) => (
-                <div className="bet_board_row" key={row[0]}>
-                  {row.map((number) => (
-                    <div
-                      key={number}
-                      className={getCellClass(number)}
-                      onClick={() => toggleNumber(number)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') toggleNumber(number);
-                      }}
-                    >
-                      {number}
-                    </div>
-                  ))}
+        <div className="bet_board_cont" id="bet_board_cont">
+          {gridRows.map((row) => (
+            <div className="bet_board_row" key={row[0]}>
+              {row.map((number) => (
+                <div
+                  key={number}
+                  className={getCellClass(number)}
+                  onClick={() => toggleNumber(number)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') toggleNumber(number);
+                  }}
+                >
+                  {number}
                 </div>
               ))}
             </div>
-          </div>
+          ))}
         </div>
 
-        <div className="keno-bet-controls">
-          <div className="keno-bet-row">
-            <div className="keno-bet-row__amount-bar">
-              <button type="button" className="keno-bet-row__step" onClick={decreaseBet} aria-label="Decrease bet">
-                −
+        <div className="bet_input">
+          <div className="bet_input_row">
+            <div className="bet_input_top">
+              <div className="bet_input_ui">
+                <button type="button" className="bet_input_btn_m" onClick={decreaseBet} aria-label="Decrease bet">
+                  <svg viewBox="0 0 40 40" aria-hidden="true">
+                    <rect x="8" y="18" width="24" height="5" rx="2.5" fill="#fff" opacity="0.6" />
+                  </svg>
+                </button>
+                <input
+                  className="bet_input_bar"
+                  type="number"
+                  inputMode="decimal"
+                  value={betAmount}
+                  onChange={(e) => setBetAmount(e.target.value)}
+                  onBlur={handleBlur}
+                  aria-label="Bet amount"
+                />
+                <button type="button" className="bet_input_btn_m" onClick={increaseBet} aria-label="Increase bet">
+                  <svg viewBox="0 0 40 40" aria-hidden="true">
+                    <g fill="#fff" opacity="0.6">
+                      <rect x="8" y="18" width="24" height="5" rx="2.5" />
+                      <rect x="17.5" y="8.5" width="5" height="24" rx="2.5" />
+                    </g>
+                  </svg>
+                </button>
+              </div>
+              <button
+                type="button"
+                className="bet_input_btn double_bet"
+                onClick={() => setBetAmount((prev) => String(Math.min(Number(prev) * 2, KENO_MAX_BET)))}
+              >
+                <span>X2</span>
               </button>
-              <input
-                className="keno-bet-row__amount"
-                type="number"
-                value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value)}
-                onBlur={handleBlur}
-                aria-label="Bet amount"
-              />
-              <button type="button" className="keno-bet-row__step" onClick={increaseBet} aria-label="Increase bet">
-                +
+              <button
+                type="button"
+                className="bet_input_btn"
+                onClick={() => {
+                  if (balance !== null) setBetAmount(String(Math.min(balance, KENO_MAX_BET)));
+                }}
+                disabled={balance === null || balance < KENO_MIN_BET}
+              >
+                <span>MAX</span>
               </button>
             </div>
+          </div>
+          <div className="bet_input_row">
             <button
               type="button"
-              className="keno-bet-row__quick"
-              onClick={() => setBetAmount((prev) => String(Math.min(Number(prev) * 2, 20000)))}
+              className={[
+                'bet_set_btn',
+                selectedNumbers.length > 0 && ticketCount < 18 ? 'active' : '',
+                betUiState !== 'idle' ? betUiState : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={handleBet}
+              disabled={betUiState !== 'idle' || selectedNumbers.length === 0 || ticketCount >= 18}
             >
-              X2
-            </button>
-            <button
-              type="button"
-              className="keno-bet-row__quick"
-              onClick={() => {
-                if (balance !== null) setBetAmount(String(Math.min(balance, 30000)));
-              }}
-              disabled={balance === null || balance < 2}
-            >
-              MAX
+              <span className="bet_set_btn_txt">{t('BET')}</span>
+              <span className="bet_set_btn_wait">{t('WAIT...')}</span>
+              <span className="bet_set_btn_accept">
+                <svg width="20" height="15" viewBox="0 0 35 25.871" aria-hidden="true">
+                  <path d="M1.768 11.089l9.352 9.352L29.797 1.768" fill="none" stroke="#fff" strokeWidth="5" />
+                </svg>
+                {t('BET ACCEPTED')}
+              </span>
             </button>
           </div>
-
-          <button
-            type="button"
-            className="keno-bet-submit"
-            onClick={handleBet}
-            disabled={
-              selectedNumbers.length === 0 ||
-              ticketCount >= 18
-            }
-          >
-            BET
-          </button>
         </div>
 
       <Snackbar
