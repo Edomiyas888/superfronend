@@ -84,19 +84,18 @@ export default function BetslipContent({ onClose }: Props) {
   const currency = walletQ.data?.currency ?? 'ETB';
   const isAccumulator = count > 1;
 
-  // Cash bonus can top up the stake only when every pick meets its minimum odds
-  // (the API enforces the same rule).
-  const promo = walletQ.data?.promo ?? null;
-  const promoBalance = promo?.balance ?? 0;
-  const bonusOddsOk =
-    promo != null && ids.length > 0 && ids.every((id) => (events[id]?.price ?? 0) >= promo.minOdds - 1e-9);
-  const balance = cashBalance == null ? null : cashBalance + (bonusOddsOk ? promoBalance : 0);
-
   const combinedOdds = ids.reduce((acc, id) => {
     const ev = events[id];
     if (!ev) return acc;
     return acc * (ev.price || 1);
   }, 1);
+
+  // Cash bonus can top up the stake only when the total odds, rounded as shown, are above
+  // its threshold (the API enforces the same rule).
+  const promo = walletQ.data?.promo ?? null;
+  const promoBalance = promo?.balance ?? 0;
+  const bonusOddsOk = promo != null && ids.length > 0 && Math.round(combinedOdds * 100) / 100 > promo.minOdds;
+  const balance = cashBalance == null ? null : cashBalance + (bonusOddsOk ? promoBalance : 0);
 
   const totalStake = isAccumulator
     ? stake
@@ -433,7 +432,7 @@ export default function BetslipContent({ onClose }: Props) {
               <p className="b365-slip-notice b365-slip-notice--error">
                 Insufficient balance ({balance?.toFixed(2)} available).
                 {promo && promoBalance > 0 && !bonusOddsOk && cashBalance != null && totalStake > cashBalance
-                  ? ` Your ${currency} ${promoBalance.toFixed(2)} bonus can only be used when every pick is ${promo.minOdds.toFixed(2)}+ odds.`
+                  ? ` Your ${currency} ${promoBalance.toFixed(2)} bonus can only be used on bets with total odds above ${promo.minOdds.toFixed(2)}.`
                   : ''}
               </p>
             ) : null}

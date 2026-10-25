@@ -27,7 +27,7 @@ export type FreeBetInfo = {
 
 /**
  * Cash bonus (e.g. Happy Hour). Counted in the total but never withdrawable: it becomes
- * cash once `wagerRemaining` hits 0 on bets where every pick is at `minOdds` or more.
+ * cash once `wagerRemaining` hits 0 on bets whose total odds are above `minOdds`.
  */
 export type PromoBonus = {
   balance: number;

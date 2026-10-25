@@ -25,7 +25,7 @@ export default function BonusBalanceCard({ promo, currency }: Props) {
             Bonus balance · {currency} {formatMoney(promo.balance)}
           </p>
           <p className="b365-freebet-card__sub">
-            Bet {currency} {formatMoney(promo.wagerRemaining)} more at odds {odds}+ to unlock it as cash
+            Bet {currency} {formatMoney(promo.wagerRemaining)} more at total odds above {odds} to unlock it as cash
           </p>
         </div>
       </div>
@@ -49,7 +49,7 @@ export default function BonusBalanceCard({ promo, currency }: Props) {
         <ul>
           <li>Your bonus is part of your total balance and can be used on sports bets</li>
           <li>Cash is used first; the bonus covers the rest</li>
-          <li>Only bets where every pick is {odds}+ odds can use the bonus or count toward unlocking it</li>
+          <li>Only bets with total odds above {odds} can use the bonus or count toward unlocking it</li>
           <li>
             Bet {promo.multiplier}× your bonus in total and whatever is left becomes withdrawable cash
           </li>
