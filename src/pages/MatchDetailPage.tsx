@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { restGetMatchOdds } from '../api/restSports';
+import { matchClosedReason } from '../api/bettable';
 import { useBetslipStore, keyFor } from '../features/betslip/betslipStore';
 import TeamLogo from '../components/TeamLogo';
 import LiveMatchAnimation from '../components/LiveMatchAnimation';
@@ -40,6 +41,7 @@ export default function MatchDetailPage() {
   });
 
   const detail = q.data;
+  const closedReason = detail ? matchClosedReason(detail) : null;
 
   /** Tabs with the number of cards (a market with all its lines counts once) under each. */
   const filterChips = useMemo(() => {
@@ -192,139 +194,151 @@ export default function MatchDetailPage() {
             />
           ) : null}
 
-          {topMarkets.length > 0 && !searching ? (
-            <section className="b365-md-top-markets" aria-label="Top markets">
-              <h2 className="b365-md-top-markets__title">Top Markets</h2>
-              <div className="b365-md-top-markets__list">
-                {topMarkets.map((m) => (
-                  <div key={m.id} className="b365-md-top-market">
-                    <h3 className="b365-md-top-market__name">{marketDisplayName(m)}</h3>
-                    <MarketOddsGrid market={m} isSelected={isSelected} onPick={toggleOdd} />
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          <section className="b365-md-markets" aria-label="Betting markets">
-            <div className="b365-md-toolbar">
-              <h2 className="b365-md-toolbar__title">Markets</h2>
-              <p className="b365-md-toolbar__hint">
-                {searching
-                  ? `${marketCards.length} market${marketCards.length === 1 ? '' : 's'} matching “${search.trim()}”`
-                  : 'Search or pick a tab, then expand a market'}
-              </p>
-            </div>
-
-            <div className="b365-md-search">
-              <svg className="b365-md-search__icon" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2" />
-                <path d="M16 16l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <input
-                type="search"
-                className="b365-input b365-md-search__input"
-                placeholder="Search markets or selections…"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  // A global search is the useful default — narrowing again is one tap away.
-                  if (e.target.value.trim()) setFilter(ALL_TAB);
-                }}
-                aria-label="Search betting markets"
-              />
-              {searching ? (
-                <button
-                  type="button"
-                  className="b365-md-search__clear"
-                  onClick={() => setSearch('')}
-                  aria-label="Clear market search"
-                >
-                  ×
-                </button>
-              ) : null}
-            </div>
-
-            <div className="b365-md-filters" role="tablist" aria-label="Market categories">
-              {filterChips.map(({ tab, count }) => (
-                <button
-                  key={tab}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeFilter === tab}
-                  className={`b365-md-filter-chip ${activeFilter === tab ? 'b365-md-filter-chip--active' : ''}`}
-                  onClick={() => setFilter(tab)}
-                >
-                  {tab}
-                  <span className="b365-md-filter-chip__count">{count}</span>
-                </button>
-              ))}
-            </div>
-
-            {selectionError ? (
-              <p className="b365-error b365-md-selection-error" role="alert">
-                {selectionError}
-              </p>
-            ) : null}
-
-            {marketCards.length === 0 ? (
-              <p className="b365-md-empty b365-muted">
-                {searching
-                  ? `No markets match “${search.trim()}”.`
-                  : 'No markets in this category.'}
-              </p>
-            ) : (
-              <div className="b365-md-acc-list">
-                {marketCards.map((card, i) => {
-                  const open = isCardOpen(card.key, i);
-                  const first = card.markets[0];
-                  const lines = card.markets.length;
-                  const selections = first?.events.length ?? 0;
-                  const picked = card.markets.some((m) => m.events.some((e) => isSelected(m, e)));
-                  const domId = first?.id ?? i;
-                  return (
-                    <section key={card.key} className={`b365-md-acc${picked ? ' b365-md-acc--picked' : ''}`}>
-                      <button
-                        type="button"
-                        className="b365-md-acc__summary"
-                        aria-expanded={open}
-                        id={`b365-md-acc-h-${domId}`}
-                        onClick={() => toggleAccordion(card.key, i)}
-                      >
-                        <span className="b365-md-acc__title">{card.title}</span>
-                        <span className="b365-md-acc__meta">
-                          {lines > 1
-                            ? `${lines} lines`
-                            : `${selections} ${selections === 1 ? 'selection' : 'selections'}`}
-                        </span>
-                        <span className={`b365-md-acc__chev ${open ? 'b365-md-acc__chev--open' : ''}`} aria-hidden />
-                      </button>
-                      <div
-                        className="b365-md-acc__body"
-                        id={`b365-md-acc-p-${domId}`}
-                        role="region"
-                        aria-labelledby={`b365-md-acc-h-${domId}`}
-                        hidden={!open}
-                      >
-                        {open ? (
-                          // Every line as its own row of the usual buttons: "Over 2.5 | 1.77", "Under 2.5 | 1.98".
-                          <div className={lines > 1 ? 'b365-md-line-rows' : undefined}>
-                            {card.markets.map((m) => (
-                              <MarketOddsGrid key={m.id} market={m} isSelected={isSelected} onPick={toggleOdd} />
-                            ))}
-                          </div>
-                        ) : null}
+          {closedReason || detail.markets.length === 0 ? (
+            <p className="b365-md-empty b365-muted" role="status">
+              {closedReason === 'closed'
+                ? 'This match has started and is no longer open for betting.'
+                : closedReason === 'suspended'
+                  ? 'Betting on this match is suspended right now. Odds will reopen shortly.'
+                  : 'No markets are open on this match right now.'}
+            </p>
+          ) : (
+            <>
+              {topMarkets.length > 0 && !searching ? (
+                <section className="b365-md-top-markets" aria-label="Top markets">
+                  <h2 className="b365-md-top-markets__title">Top Markets</h2>
+                  <div className="b365-md-top-markets__list">
+                    {topMarkets.map((m) => (
+                      <div key={m.id} className="b365-md-top-market">
+                        <h3 className="b365-md-top-market__name">{marketDisplayName(m)}</h3>
+                        <MarketOddsGrid market={m} isSelected={isSelected} onPick={toggleOdd} />
                       </div>
-                    </section>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              <section className="b365-md-markets" aria-label="Betting markets">
+                <div className="b365-md-toolbar">
+                  <h2 className="b365-md-toolbar__title">Markets</h2>
+                  <p className="b365-md-toolbar__hint">
+                    {searching
+                      ? `${marketCards.length} market${marketCards.length === 1 ? '' : 's'} matching “${search.trim()}”`
+                      : 'Search or pick a tab, then expand a market'}
+                  </p>
+                </div>
+
+                <div className="b365-md-search">
+                  <svg className="b365-md-search__icon" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2" />
+                    <path d="M16 16l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  <input
+                    type="search"
+                    className="b365-input b365-md-search__input"
+                    placeholder="Search markets or selections…"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      // A global search is the useful default — narrowing again is one tap away.
+                      if (e.target.value.trim()) setFilter(ALL_TAB);
+                    }}
+                    aria-label="Search betting markets"
+                  />
+                  {searching ? (
+                    <button
+                      type="button"
+                      className="b365-md-search__clear"
+                      onClick={() => setSearch('')}
+                      aria-label="Clear market search"
+                    >
+                      ×
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="b365-md-filters" role="tablist" aria-label="Market categories">
+                  {filterChips.map(({ tab, count }) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeFilter === tab}
+                      className={`b365-md-filter-chip ${activeFilter === tab ? 'b365-md-filter-chip--active' : ''}`}
+                      onClick={() => setFilter(tab)}
+                    >
+                      {tab}
+                      <span className="b365-md-filter-chip__count">{count}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {selectionError ? (
+                  <p className="b365-error b365-md-selection-error" role="alert">
+                    {selectionError}
+                  </p>
+                ) : null}
+
+                {marketCards.length === 0 ? (
+                  <p className="b365-md-empty b365-muted">
+                    {searching
+                      ? `No markets match “${search.trim()}”.`
+                      : 'No markets in this category.'}
+                  </p>
+                ) : (
+                  <div className="b365-md-acc-list">
+                    {marketCards.map((card, i) => {
+                      const open = isCardOpen(card.key, i);
+                      const first = card.markets[0];
+                      const lines = card.markets.length;
+                      const selections = first?.events.length ?? 0;
+                      const picked = card.markets.some((m) => m.events.some((e) => isSelected(m, e)));
+                      const domId = first?.id ?? i;
+                      return (
+                        <section key={card.key} className={`b365-md-acc${picked ? ' b365-md-acc--picked' : ''}`}>
+                          <button
+                            type="button"
+                            className="b365-md-acc__summary"
+                            aria-expanded={open}
+                            id={`b365-md-acc-h-${domId}`}
+                            onClick={() => toggleAccordion(card.key, i)}
+                          >
+                            <span className="b365-md-acc__title">{card.title}</span>
+                            <span className="b365-md-acc__meta">
+                              {lines > 1
+                                ? `${lines} lines`
+                                : `${selections} ${selections === 1 ? 'selection' : 'selections'}`}
+                            </span>
+                            <span className={`b365-md-acc__chev ${open ? 'b365-md-acc__chev--open' : ''}`} aria-hidden />
+                          </button>
+                          <div
+                            className="b365-md-acc__body"
+                            id={`b365-md-acc-p-${domId}`}
+                            role="region"
+                            aria-labelledby={`b365-md-acc-h-${domId}`}
+                            hidden={!open}
+                          >
+                            {open ? (
+                              // Every line as its own row of the usual buttons: "Over 2.5 | 1.77", "Under 2.5 | 1.98".
+                              <div className={lines > 1 ? 'b365-md-line-rows' : undefined}>
+                                {card.markets.map((m) => (
+                                  <MarketOddsGrid key={m.id} market={m} isSelected={isSelected} onPick={toggleOdd} />
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </>
       )}
 
-      {!q.isLoading && !detail && <p className="b365-muted">Match not found.</p>}
+      {!q.isLoading && !detail && <p className="b365-muted">This match is no longer available.</p>}
     </div>
   );
 }

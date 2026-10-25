@@ -356,9 +356,16 @@ export const useBetslipStore = create<BetslipState>((set, get) => ({
       return;
     }
 
+    // A started match can only be bet on while it is live; the API confirms live odds.
     const nowSec = Math.floor(Date.now() / 1000);
+    const { liveByGameId } = get();
     const hasStaleSelection = Object.values(slip.events).some(
-      (ev) => ev.suspended || (Number.isFinite(ev.dateofmatch) && ev.dateofmatch <= nowSec)
+      (ev) =>
+        ev.suspended ||
+        (Number.isFinite(ev.dateofmatch) &&
+          ev.dateofmatch <= nowSec &&
+          !ev.isLive &&
+          !liveByGameId[String(ev.gameId)]?.isLive)
     );
     if (hasStaleSelection) {
       set({

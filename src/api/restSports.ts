@@ -2,6 +2,7 @@ import { swarmPost, unwrapData } from './http';
 import { MATCH_RESULT_TYPES, P1XP2_MARKET_TYPES } from './marketConstants';
 import { liveDisplayFieldsFromRawGame, gameIsLiveInFeed, normalizeGameInfo } from '../utils/liveGameDisplay';
 import { pickTeamIdFromGame } from '../utils/teamLogos';
+import { isOpenPrice, keepBettableGames, keepOpenMarkets } from './bettable';
 import type { SwarmResponse } from './swarmTypes';
 import type { FlatGameRow, GameView, LiveLastEvent, MarketView, MatchDetailView, MatchResult1x2Odds } from './types';
 import {
@@ -175,8 +176,9 @@ function nestFromFlatRows(data: FlatGameRow[]): MatchDetailView | null {
     sportName: g.sport_name,
     regionName: g.region_name,
     competitionName: g.competition_name,
-    markets,
+    markets: keepOpenMarkets(markets),
     sportAlias: g.sport_alias,
+    isBlocked: !!g.is_blocked,
     live: liveBlock,
   };
 }
@@ -249,7 +251,7 @@ export async function restGetMatchesForSport(
   const data = unwrapData(res);
   const tree = unwrapGameTreePayload(data);
   swarmLog('restGetMatchesForSport → unwrapped', summarizeSwarmData(data));
-  const games = flattenGamesFromNestedSport(tree, 'matchesForSport');
+  const games = keepBettableGames(flattenGamesFromNestedSport(tree, 'matchesForSport'));
   swarmLog('restGetMatchesForSport → flattened game rows', games.length);
   return games;
 }
@@ -317,7 +319,7 @@ export async function restGetUpcomingMatches(opts?: {
   const tree = unwrapGameTreePayload(data);
   swarmLog('restGetUpcomingMatches → unwrapped', summarizeSwarmData(data));
   swarmLog('restGetUpcomingMatches → after subscription unwrap', summarizeSwarmData(tree));
-  const games = flattenGamesFromNestedSport(tree, 'upcoming');
+  const games = keepBettableGames(flattenGamesFromNestedSport(tree, 'upcoming'));
   swarmLog('restGetUpcomingMatches → flattened game rows', games.length);
   return games;
 }
@@ -488,7 +490,7 @@ export async function restGetLiveGames(opts?: { sportAlias?: string | null }): P
     },
   });
   const data = unwrapData(res);
-  return flattenGamesFromNestedSport(unwrapGameTreePayload(data), 'liveGames');
+  return keepBettableGames(flattenGamesFromNestedSport(unwrapGameTreePayload(data), 'liveGames'));
 }
 
 /** Finix `TopMatches` — promoted fixtures with P1/X/P2 markets. Optional `sportAlias` (e.g. `Soccer`). */
@@ -531,7 +533,7 @@ export async function restGetPromotedMatches(opts?: { sportAlias?: string }): Pr
     },
   });
   const data = unwrapData(res);
-  return flattenGamesFromNestedSport(unwrapGameTreePayload(data), 'promoted');
+  return keepBettableGames(flattenGamesFromNestedSport(unwrapGameTreePayload(data), 'promoted'));
 }
 
 type ParsedEvent = { id: number; name: string; price: number; type: string };
@@ -654,7 +656,7 @@ function extractMatchResult1x2FromGame(g: Record<string, unknown>): MatchResult1
     const triple = pickThreeWay(events);
     if (triple) {
       const { home, draw, away } = triple;
-      if (![home, draw, away].every((e) => Number.isFinite(e.price) && e.price > 0 && Number.isFinite(e.id))) {
+      if (![home, draw, away].every((e) => isOpenPrice(e.price) && Number.isFinite(e.id))) {
         continue;
       }
 
@@ -671,7 +673,7 @@ function extractMatchResult1x2FromGame(g: Record<string, unknown>): MatchResult1
     const pair = pickTwoWay(events);
     if (!pair) continue;
     const { home, away } = pair;
-    if (![home, away].every((e) => Number.isFinite(e.price) && e.price > 0 && Number.isFinite(e.id))) {
+    if (![home, away].every((e) => isOpenPrice(e.price) && Number.isFinite(e.id))) {
       continue;
     }
 

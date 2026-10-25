@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { restGetMatchOdds } from '../api/restSports';
 import { useBetslipStore } from '../features/betslip/betslipStore';
 import { liveDisplayFromMatchDetail } from '../utils/matchLiveDisplay';
+import { isOpenPrice, matchClosedReason } from '../api/bettable';
 
 const POLL_MS = 10_000;
 
@@ -40,7 +41,17 @@ export function useBetslipOddsSync() {
         } catch {
           continue;
         }
-        if (!detail) continue;
+
+        // Gone from the feed (finished), kicked off without live coverage, or suspended:
+        // every pick on it is suspended until it comes back.
+        if (!detail || matchClosedReason(detail)) {
+          for (const id of currentIds) {
+            const ev = currentEvents[id];
+            if (ev && Number(ev.gameId) === gameId && !ev.suspended) updateSelectionPrice(id, ev.price, true);
+          }
+          if (!detail) setLiveDisplay(gameId, null);
+          continue;
+        }
 
         const liveDisplay = liveDisplayFromMatchDetail(detail);
         setLiveDisplay(gameId, liveDisplay.isLive ? liveDisplay : null);
@@ -56,7 +67,7 @@ export function useBetslipOddsSync() {
           }
 
           const event = market.events.find((e) => Number(e.id) === Number(ev.eventId));
-          if (!event || !Number.isFinite(event.price) || event.price <= 1) {
+          if (!event || !isOpenPrice(event.price)) {
             if (!ev.suspended) updateSelectionPrice(id, ev.price, true);
             continue;
           }

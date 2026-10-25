@@ -83,6 +83,8 @@ export default function BetslipContent({ onClose }: Props) {
   const cashBalance = walletQ.data?.balance ?? null;
   const currency = walletQ.data?.currency ?? 'ETB';
   const isAccumulator = count > 1;
+  // Live bets are held a few seconds by the API while it confirms the odds.
+  const hasLivePick = ids.some((id) => events[id]?.isLive || liveByGameId[String(events[id]?.gameId)]?.isLive);
 
   const combinedOdds = ids.reduce((acc, id) => {
     const ev = events[id];
@@ -504,7 +506,13 @@ export default function BetslipContent({ onClose }: Props) {
                 disabled={!canPlace}
                 onClick={() => void placeBet(0)}
               >
-                {placeStatus === 'loading' ? 'Placing…' : freeBetOn ? 'Place Free Bet' : 'Place Bet'}
+                {placeStatus === 'loading'
+                  ? hasLivePick
+                    ? 'Confirming live odds…'
+                    : 'Placing…'
+                  : freeBetOn
+                    ? 'Place Free Bet'
+                    : 'Place Bet'}
               </button>
             </div>
           </>

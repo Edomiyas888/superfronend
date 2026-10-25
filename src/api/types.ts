@@ -144,6 +144,8 @@ export type MatchDetailView = {
   competitionName: string;
   markets: MarketView[];
   sportAlias?: string;
+  /** Swarm `is_blocked` — the operator has suspended betting on the match. */
+  isBlocked?: boolean;
   /** Present for in-play fixtures when API returns animation fields */
   live?: {
     lastEvent: LiveLastEvent | null;
