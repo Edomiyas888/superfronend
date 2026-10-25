@@ -50,6 +50,7 @@ export default function BonusBalanceCard({ promo, currency }: Props) {
           <li>Your bonus is part of your total balance and can be used on sports bets</li>
           <li>Cash is used first; the bonus covers the rest</li>
           <li>Only bets with total odds above {odds} can use the bonus or count toward unlocking it</li>
+          <li>While your bonus is running, you can bet on only one outcome of each match</li>
           <li>
             Bet {promo.multiplier}× your bonus in total and whatever is left becomes withdrawable cash
           </li>
