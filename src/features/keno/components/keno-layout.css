@@ -3,8 +3,9 @@
   z-index: 1;
   width: 100%;
   max-width: 100%;
-  margin: -2px 0 0;
-  padding: 0 0 12px;
+  margin: 0;
+  /* clears the 36px header that overlays the top of the page, as in Atlas */
+  padding: 36px 0 12px;
   box-sizing: border-box;
   background: rgba(27, 30, 31, 0.94);
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
@@ -27,14 +28,11 @@
   padding: 0;
 }
 
+/* Zero-height anchor: the timer overlaps the header and the card's top margin, like Atlas */
 .keno-timer-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  margin: 0 0 2px;
   position: relative;
-  z-index: 2;
+  height: 0;
+  z-index: 3;
 }
 
 .keno-draw-id {
@@ -58,13 +56,6 @@
   text-align: right;
 }
 
-.keno-shell .keno-game-stage--drawing {
-  padding-bottom: 22px;
-}
-
-.keno-shell .keno-game-stage--drawing .keno-play-column {
-  margin-top: -2px;
-}
 
 .keno-shell .keno-game-stage--drawing .keno-draw-id {
   bottom: 4px;
@@ -90,12 +81,7 @@
 
 @media (min-width: 900px) {
   .keno-game-display {
-    margin-top: 2px;
     border-radius: 0 0 10px 10px;
-  }
-
-  .keno-game-stage {
-    padding-top: 2px;
   }
 
   .keno-tab-panel-wrap {

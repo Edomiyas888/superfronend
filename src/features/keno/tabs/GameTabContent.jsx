@@ -15,6 +15,7 @@ const GameTabContent = React.memo(({
   combinedOtherBets,
   displayedTotalPlayers,
   pendingBets = [],
+  roundSettled = false,
   showSummary = false,
   roundNo = null,
 }) => {
@@ -59,6 +60,8 @@ const GameTabContent = React.memo(({
           bet={bet}
           calledNumbers={calledNumbers}
           calculatePayout={calculatePayout}
+          live
+          settled={roundSettled}
           isPending={bet.status === 'pending'}
         />
       </div>
@@ -83,6 +86,8 @@ const GameTabContent = React.memo(({
           bet={bet}
           calledNumbers={calledNumbers}
           calculatePayout={calculatePayout}
+          live
+          settled={roundSettled}
         />
       </div>
     );

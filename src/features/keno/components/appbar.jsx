@@ -1,29 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import { IconButton } from "@mui/material";
-import Typography from "@mui/material/Typography";
 import Logo from '../../../../reference/safarigames-assets/images/image.png';
 import RulesOverlay from './riles';
-import MenuIcon from '@mui/icons-material/Menu';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonIcon from '@mui/icons-material/Person';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import { Select, MenuItem, useMediaQuery, useTheme } from '@mui/material';
+import { Select, MenuItem } from '@mui/material';
 import { t, getCurrentLanguage, setCurrentLanguage } from '../utils/translator';
 import { useAuth } from '../contexts/AuthContext';
+import { formatKenoMoney } from '../utils/formatKenoMoney';
 import './keno-header.css';
 import './font.css';
-
-function formatBalance(balance) {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(balance);
-}
 
 const StatusPill = ({
   currentUser,
@@ -31,7 +19,6 @@ const StatusPill = ({
   roundNo,
   onRulesClick,
   onLoginClick,
-  isDesktop,
 }) => {
   if (!currentUser) {
     return (
@@ -43,34 +30,16 @@ const StatusPill = ({
 
   return (
     <>
-      <Box className="keno-header__pill-left">
-        {isDesktop ? (
-          <>
-            <Box className="keno-header__user-chip">
-              <PersonIcon sx={{ color: '#71cd95', fontSize: '0.9rem' }} />
-              <Typography
-                variant="body2"
-                sx={{ color: '#71cd95', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap' }}
-              >
-                {currentUser.displayName || currentUser.email?.split('@')[0]}
-              </Typography>
-            </Box>
-            <span className="keno-header__divider" aria-hidden="true" />
-          </>
-        ) : null}
-        <Box className="keno-header__balance">
-          <span className="keno-header__balance-amount">{formatBalance(userBalance)}</span>
-          <span className="keno-header__balance-currency">ETB</span>
-        </Box>
+      <Box className="header_center_left">
+        <span className="header_credit">
+          {formatKenoMoney(userBalance ?? 0)} <span>ETB</span>
+        </span>
       </Box>
 
-      <span className="keno-header__pill-split" aria-hidden="true" />
-
-      <Box className="keno-header__pill-right">
+      <Box className="header_center_right">
         {roundNo ? (
-          <button type="button" className="keno-header__game-id-inline" onClick={onRulesClick}>
-            <span>ID: {roundNo}</span>
-            <VerifiedUserIcon className="keno-header__verified" fontSize="inherit" />
+          <button type="button" className="game_id" onClick={onRulesClick}>
+            ID: <span className="game_id_num">{roundNo}</span>
           </button>
         ) : null}
       </Box>
@@ -80,8 +49,6 @@ const StatusPill = ({
 
 const Header = ({ roundNo = null }) => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [lang, setLang] = useState(getCurrentLanguage());
   const { currentUser, userBalance, logout } = useAuth();
@@ -101,6 +68,11 @@ const Header = ({ roundNo = null }) => {
     window.location.reload();
   };
 
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate('/');
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -116,21 +88,25 @@ const Header = ({ roundNo = null }) => {
 
   return (
     <>
-      <AppBar position="static" className="keno-header">
-        <Toolbar disableGutters className="keno-header__toolbar">
+      <header className="keno-header">
+        <div className="keno-header__toolbar">
           <Box className="keno-header__brand">
-            <img src={Logo} alt="Fast Keno" className="keno-header__brand-img" />
+            <button type="button" className="keno-header__back" aria-label="Back" onClick={handleBack}>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <img src={Logo} alt="Fast Keno" className="header_logo_mobile" />
           </Box>
 
           <Box className="keno-header__center">
-            <Box className={`keno-header__status-pill${!currentUser ? ' keno-header__status-pill--center' : ''}`}>
+            <Box className={`header_center${!currentUser ? ' header_center--guest' : ''}`}>
               <StatusPill
                 currentUser={currentUser}
                 userBalance={userBalance}
                 roundNo={roundNo}
                 onRulesClick={handleOpenOverlay}
                 onLoginClick={() => navigate('/profile')}
-                isDesktop={isDesktop}
               />
             </Box>
           </Box>
@@ -189,12 +165,16 @@ const Header = ({ roundNo = null }) => {
               )}
             </Box>
 
-            <IconButton onClick={handleOpenOverlay} className="keno-header__menu-btn" aria-label="Menu">
-              <MenuIcon />
-            </IconButton>
+            <button type="button" onClick={handleOpenOverlay} className="settings_icon" aria-label="Menu">
+              <svg className="menu_open" viewBox="0 0 15 14" aria-hidden="true">
+                <rect width="15" height="2" rx="1" y="0" fill="#71ce96" />
+                <rect width="15" height="2" rx="1" y="6" fill="#71ce96" />
+                <rect width="15" height="2" rx="1" y="12" fill="#71ce96" />
+              </svg>
+            </button>
           </Box>
-        </Toolbar>
-      </AppBar>
+        </div>
+      </header>
       <RulesOverlay open={overlayOpen} handleClose={handleCloseOverlay} />
     </>
   );

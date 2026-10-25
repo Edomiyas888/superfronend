@@ -1,5 +1,6 @@
 export const KENO_MIN_BET = 2;
 export const KENO_MAX_BET = 30_000;
+export const KENO_MAX_WIN = 250_000;
 
 export const kenoPayouts = {
   1: { 1: 3.6 },

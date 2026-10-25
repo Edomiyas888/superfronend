@@ -7,6 +7,8 @@ import { useKenoWebSocket } from '@/api/config';
 
 const POLL_MS = 1000;
 const FALLBACK_POLL_MS = 5000;
+// The API occasionally answers with an older round; drop a few of those before trusting them.
+const MAX_STALE_SKIPS = 3;
 
 function withMyBets(state: KenoPublicState, userId: string | null): KenoPublicState {
   if (!userId) {
@@ -30,9 +32,17 @@ export function useKenoGameState() {
   useEffect(() => {
     let cancelled = false;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
+    let latestRound: number | null = null;
+    let staleSkips = 0;
 
     const applyState = (data: KenoPublicState) => {
       if (cancelled) return;
+      if (latestRound != null && data.roundNo < latestRound && staleSkips < MAX_STALE_SKIPS) {
+        staleSkips += 1;
+        return;
+      }
+      latestRound = data.roundNo;
+      staleSkips = 0;
       setState(withMyBets(data, userId));
       setError(null);
     };

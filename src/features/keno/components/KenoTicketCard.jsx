@@ -1,6 +1,7 @@
 import React from 'react';
 import { CircularProgress } from '@mui/material';
-import { kenoPayouts } from '../utils/kenoPayouts';
+import { formatKenoMoney } from '../utils/formatKenoMoney';
+import { t } from '../utils/translator';
 import './keno-ticket.css';
 
 export default function KenoTicketCard({
@@ -9,15 +10,18 @@ export default function KenoTicketCard({
   calledNumbers,
   calculatePayout,
   isPending = false,
+  live = false,
+  settled = false,
   unsettledLabel = 'Waiting',
 }) {
   const payoutAmount = calculatePayout(bet);
   const hasWon = payoutAmount > 0;
-  const matches = bet.selectedNumbers.filter((num) => calledNumbers.includes(num))?.length;
-  const odd = kenoPayouts[bet.selectedNumbers?.length]?.[matches];
+  // Live round (Game tab), as in Atlas: "Waiting" until the result, then the win amount or nothing.
+  let status = hasWon ? `Won ${payoutAmount.toFixed(2)} ETB` : unsettledLabel;
+  if (live) status = settled ? (hasWon ? formatKenoMoney(payoutAmount) : '') : t('Waiting');
 
   return (
-    <div className={`keno-ticket-card${hasWon ? ' keno-ticket-card--won' : ''}`}>
+    <div className={`keno-ticket-card${live ? ' keno-ticket-card--live' : ''}${hasWon ? ' keno-ticket-card--won' : ''}`}>
       <div className="keno-ticket-card__title">{title}</div>
 
       <div className="keno-ticket-card__numbers">
@@ -49,11 +53,10 @@ export default function KenoTicketCard({
 
       <div className="keno-ticket-card__footer">
         <div className="keno-ticket-card__footer-bet">
-          Bet {bet.betAmount}
-          {hasWon && odd >= 1 ? ` x${odd}` : ''}
+          {t('Bet')} {bet.betAmount}
         </div>
         <div className={`keno-ticket-card__footer-status${hasWon ? ' keno-ticket-card__footer-status--won' : ''}`}>
-          {hasWon ? `Won ${payoutAmount.toFixed(2)} ETB` : unsettledLabel}
+          {status}
         </div>
       </div>
 
