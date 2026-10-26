@@ -35,7 +35,7 @@ export default function InvitePromoCard() {
           <>
             <p className="b365-invite-card__title">ጓደኛ ይጋብዙ፣ ይሸለሙ 🎁</p>
             <p className="b365-invite-card__sub">
-              ለእያንዳንዱ ጓደኛ {s.rewardPerFriend} ብር · 5 ጓደኞች = ወርቃማ ጎማ 🎡
+              ከጓደኛዎ ዲፖዚት {s.rewardPercent}% ቦነስ · 5 ጓደኞች = ወርቃማ ጎማ 🎡
             </p>
             <span className="b365-invite-card__dots" aria-label={`${rewarded} of 5`}>
               {Array.from({ length: 5 }, (_, i) => (

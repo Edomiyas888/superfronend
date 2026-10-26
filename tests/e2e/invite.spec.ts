@@ -4,7 +4,7 @@ const summary = {
   phoneVerified: true,
   code: 'AB3K9XQ',
   link: 'https://t.me/SuperBetBot?start=ref_AB3K9XQ',
-  rewardPerFriend: 10,
+  rewardPercent: 10,
   earned: 30,
   counts: { joined: 5, rewarded: 3, waiting: 2, held: 0 },
   milestones: [

@@ -21,7 +21,8 @@ export type ReferralSummary = {
   phoneVerified: boolean;
   code: string | null;
   link: string | null;
-  rewardPerFriend: number;
+  /** Percent of each friend's deposits (when they qualify) paid to the inviter. */
+  rewardPercent: number;
   earned: number;
   counts: { joined: number; rewarded: number; waiting: number; held: number };
   milestones: ReferralMilestone[];

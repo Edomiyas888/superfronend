@@ -38,7 +38,7 @@ function GoldenFive({ rewarded }: { rewarded: number }) {
       </div>
       <p className="b365-gold5__next">
         {rewarded >= 5
-          ? '👑 ሱፐር ወኪል ነዎት! ለእያንዳንዱ አዲስ ጓደኛ 15 ብር'
+          ? '🏆 ወርቃማ 5 ተከፍቷል! ወደ 10 ጓደኞች ይቀጥሉ · Next: 10 friends'
           : `${5 - done} ተጨማሪ ጓደኞች ብቻ — ወርቃማውን ጎማ ይክፈቱ! 🎡`}
       </p>
     </div>
@@ -88,10 +88,11 @@ export default function InvitePage() {
         <div>
           <h1 className="b365-spin__title">ጓደኛ ይጋብዙ፣ ይሸለሙ</h1>
           <p className="b365-invite__lead">
-            ጓደኛዎ ስልኩን አረጋግጦ <b>100 ብር</b> ሲያስገባ <b>{s?.rewardPerFriend ?? 10} ብር ቦነስ</b> ያገኛሉ!
+            ጓደኛዎ ስልኩን አረጋግጦ <b>100 ብር</b> ሲያስገባ ከሚያስገባው <b>{s?.rewardPercent ?? 10}% ቦነስ</b> ያገኛሉ!
           </p>
           <p className="b365-spin__muted b365-invite__en">
-            Get a {s?.rewardPerFriend ?? 10} ETB bonus for every friend who verifies their phone and deposits 100 ETB.
+            Get {s?.rewardPercent ?? 10}% of your friend&apos;s deposits as bonus once they verify their phone and deposit
+            100 ETB.
           </p>
         </div>
       </header>
@@ -148,7 +149,7 @@ export default function InvitePage() {
               <li className={s.counts.rewarded >= 1 ? 'is-done' : ''}>
                 <span className="b365-invite__lvl">1</span>
                 <span>
-                  ለእያንዳንዱ ጓደኛ <b>{s.rewardPerFriend} ብር</b> ቦነስ
+                  ለእያንዳንዱ ጓደኛ ከዲፖዚቱ <b>{s.rewardPercent}%</b> ቦነስ
                 </span>
               </li>
               {s.milestones.map((m) => (
@@ -157,7 +158,6 @@ export default function InvitePage() {
                   <span>
                     <b>{m.bonus.toLocaleString('en-US')} ብር</b> ቦነስ
                     {m.goldenSpins ? ` + ${m.goldenSpins} ወርቃማ ስፒን 🎡` : ''}
-                    {m.level === 5 ? ' + 👑 ሱፐር ወኪል (15 ብር/ጓደኛ)' : ''}
                   </span>
                   {m.reached ? <span className="b365-invite__tick">✓</span> : null}
                 </li>
@@ -205,6 +205,7 @@ export default function InvitePage() {
         <summary>ደንቦች · Rules</summary>
         <ul>
           <li>A friend counts when they open Super Bet from your link, verify their phone, and deposit 100 ETB in total within 30 days</li>
+          <li>You get 10% of everything they have deposited at that moment, once per friend</li>
           <li>Every reward is bonus balance: bet it through at total odds above 2 to unlock it as cash</li>
           <li>Friends using your own phone or Telegram account don&apos;t count</li>
           <li>More than 20 friends in one day are reviewed before they pay</li>
