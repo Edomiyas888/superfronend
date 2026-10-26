@@ -35,6 +35,8 @@ export type KenoPublicState = {
 export type PlaceKenoBetPayload = {
   betAmount: number;
   selectedNumbers: number[];
+  /** Pay with a free ticket (the server fixes the stake) instead of the balance. */
+  freeTicket?: boolean;
 };
 
 export type PlaceKenoBetResult = {

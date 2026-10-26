@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Snackbar } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import ChooseNumbersCard from './chooseNumbers';
 import './keno-bet-bar.css';
 import './keno-grid.css';
@@ -9,6 +10,7 @@ import { normalizeNumbers } from '../utils/ticketCode';
 import { useAuth } from '../contexts/AuthContext';
 import { useSessionStore } from '@/features/auth/sessionStore';
 import { placeKenoBet } from '@/features/keno/api/kenoApi';
+import { fetchBalance } from '@/features/wallet/walletApi';
 import { filterUnconfirmedPendingBets } from '../utils/kenoBetMatch';
 import { t } from '../utils/translator';
 
@@ -42,6 +44,17 @@ const KenoGrid = ({
   const [scannedTicketCode, setScannedTicketCode] = useState('');
   // 'idle' | 'wait' (request in flight) | 'accept' (just confirmed)
   const [betUiState, setBetUiState] = useState('idle');
+
+  // Free tickets (Spin & Win prize) ride on the shared wallet query.
+  const walletQ = useQuery({
+    queryKey: ['wallet', 'header'],
+    queryFn: () => fetchBalance(getAuthHeader()),
+    enabled: Boolean(currentUser),
+    staleTime: 30_000,
+  });
+  const freeTickets = walletQ.data?.kenoFreeTickets ?? null;
+  const [useFreeTicket, setUseFreeTicket] = useState(true);
+  const freeOn = Boolean(freeTickets) && useFreeTicket;
 
   const visiblePendingBets = useMemo(
     () => filterUnconfirmedPendingBets(pendingBets, selfBets),
@@ -120,7 +133,7 @@ const KenoGrid = ({
     });
   };
 
-  const placeBet = async (numbers, amount) => {
+  const placeBet = async (numbers, amount, freeTicket = false) => {
     if (!currentUser) {
       setSnackbarMessage('Please login to place a bet');
       setSnackbarOpen(true);
@@ -140,7 +153,7 @@ const KenoGrid = ({
       return false;
     }
 
-    if (Number(amount) > balance) {
+    if (!freeTicket && Number(amount) > balance) {
       setSnackbarMessage(`Insufficient balance. You have ${balance.toFixed(2)} ETB`);
       setSnackbarOpen(true);
       return false;
@@ -159,6 +172,7 @@ const KenoGrid = ({
       const result = await placeKenoBet(getAuthHeader(), {
         betAmount: Number(amount),
         selectedNumbers: numbers,
+        freeTicket,
       });
 
       if (result.success) {
@@ -167,6 +181,7 @@ const KenoGrid = ({
           prev.map((b) => (b.timestamp === pendingBet.timestamp ? { ...b, status: 'accepted' } : b)),
         );
         void refreshBalance?.();
+        if (freeTicket) void walletQ.refetch();
         window.dispatchEvent(new Event('superbet:wallet-changed'));
         return true;
       }
@@ -187,7 +202,7 @@ const KenoGrid = ({
     if (ticketCount >= 18) return;
 
     const numbersToBet = [...selectedNumbers];
-    const amountToBet = betAmount;
+    const amountToBet = freeOn ? freeTickets.stake : betAmount;
 
     if (!numbersToBet.length) {
       setSnackbarMessage('Please select at least one number');
@@ -201,13 +216,13 @@ const KenoGrid = ({
       return;
     }
 
-    if (Number(amountToBet) < KENO_MIN_BET) {
+    if (!freeOn && Number(amountToBet) < KENO_MIN_BET) {
       setSnackbarMessage(`Minimum bet is ${KENO_MIN_BET} ETB`);
       setSnackbarOpen(true);
       return;
     }
 
-    if (Number(amountToBet) > balance) {
+    if (!freeOn && Number(amountToBet) > balance) {
       setSnackbarMessage(`Insufficient balance. You have ${balance.toFixed(2)} ETB`);
       setSnackbarOpen(true);
       return;
@@ -215,7 +230,7 @@ const KenoGrid = ({
 
     setSelectedNumbers([]);
     setBetUiState('wait');
-    void placeBet(numbersToBet, amountToBet).then((ok) => setBetUiState(ok ? 'accept' : 'idle'));
+    void placeBet(numbersToBet, amountToBet, freeOn).then((ok) => setBetUiState(ok ? 'accept' : 'idle'));
   };
 
   const gridRows = useMemo(() => {
@@ -239,7 +254,7 @@ const KenoGrid = ({
         <ChooseNumbersCard
           placedTickets={placedTickets}
           selectedNumbers={selectedNumbers}
-          betAmount={Number(betAmount) || 0}
+          betAmount={freeOn ? freeTickets.stake : Number(betAmount) || 0}
           onHelpClick={onHelpClick}
         />
 
@@ -265,7 +280,29 @@ const KenoGrid = ({
         </div>
 
         <div className="bet_input">
-          <div className="bet_input_row">
+          {freeTickets ? (
+            <button
+              type="button"
+              className={`keno-free-ticket${freeOn ? ' is-on' : ''}`}
+              aria-pressed={freeOn}
+              onClick={() => setUseFreeTicket((v) => !v)}
+            >
+              <span className="keno-free-ticket__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                  <path
+                    d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"
+                    fill="currentColor"
+                  />
+                  <path d="M14 6v12" stroke="#0a0a0b" strokeWidth="1.4" strokeDasharray="2 2" />
+                </svg>
+              </span>
+              <span className="keno-free-ticket__text">
+                <b>Free ticket</b> · {freeTickets.count} left · {freeTickets.stake} ETB each
+              </span>
+              <span className="keno-free-ticket__switch" aria-hidden="true" />
+            </button>
+          ) : null}
+          <div className={`bet_input_row${freeOn ? ' is-free' : ''}`}>
             <div className="bet_input_top">
               <div className="bet_input_ui">
                 <button type="button" className="bet_input_btn_m" onClick={decreaseBet} aria-label="Decrease bet">
@@ -277,7 +314,8 @@ const KenoGrid = ({
                   className="bet_input_bar"
                   type="number"
                   inputMode="decimal"
-                  value={betAmount}
+                  value={freeOn ? freeTickets.stake : betAmount}
+                  disabled={freeOn}
                   onChange={(e) => setBetAmount(e.target.value)}
                   onBlur={handleBlur}
                   aria-label="Bet amount"
@@ -323,7 +361,7 @@ const KenoGrid = ({
               onClick={handleBet}
               disabled={betUiState !== 'idle' || selectedNumbers.length === 0 || ticketCount >= 18}
             >
-              <span className="bet_set_btn_txt">{t('BET')}</span>
+              <span className="bet_set_btn_txt">{freeOn ? t('BET FREE') : t('BET')}</span>
               <span className="bet_set_btn_wait">{t('WAIT...')}</span>
               <span className="bet_set_btn_accept">
                 <svg width="20" height="15" viewBox="0 0 35 25.871" aria-hidden="true">

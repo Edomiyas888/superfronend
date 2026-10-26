@@ -11,6 +11,7 @@ import {
 import { MIN_DEPOSIT } from '../../config/bettingLimits';
 import { formatMoney } from './transactionLabels';
 import { CheckIcon, CopyIcon, UploadIcon } from './WalletIcons';
+import SpinDepositHint from '../spin/SpinDepositHint';
 
 type Step = 1 | 2 | 3;
 
@@ -304,6 +305,7 @@ export default function TelebirrDepositFlow({ authHeaders, currency, onSuccess }
           <p className="b365-wallet-field__hint">
             Minimum {MIN_DEPOSIT} {currency} · Paid with Telebirr · Credited after a quick review
           </p>
+          <SpinDepositHint amount={amount} currency={currency} onSetAmount={(n) => setAmountInput(String(n))} />
           <button
             type="submit"
             className="b365-wallet-btn b365-wallet-btn--primary b365-wallet-btn--block"

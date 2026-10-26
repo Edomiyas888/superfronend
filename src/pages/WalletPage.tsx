@@ -5,7 +5,9 @@ import { useSessionStore } from '../features/auth/sessionStore';
 import TelebirrDepositFlow from '../features/wallet/TelebirrDepositFlow';
 import FreeBetCard from '../features/freeBet/FreeBetCard';
 import HappyHourCard from '../features/promo/HappyHourCard';
+import SpinPromoCard from '../features/spin/SpinPromoCard';
 import BonusBalanceCard from '../features/wallet/BonusBalanceCard';
+import KenoFreeTicketsCard from '../features/wallet/KenoFreeTicketsCard';
 import WalletBalanceCard from '../features/wallet/WalletBalanceCard';
 import WithdrawPanel from '../features/wallet/WithdrawPanel';
 import TransactionHistory from '../features/wallet/TransactionHistory';
@@ -60,6 +62,7 @@ export default function WalletPage() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['wallet', 'header'] }),
       queryClient.invalidateQueries({ queryKey: ['wallet', 'transactions'] }),
+      queryClient.invalidateQueries({ queryKey: ['promo', 'spins'] }),
     ]);
   };
 
@@ -99,7 +102,9 @@ export default function WalletPage() {
       />
 
       <BonusBalanceCard promo={promo} currency={currency} />
+      <KenoFreeTicketsCard tickets={balanceOk ? walletQ.data?.kenoFreeTickets : null} />
       <HappyHourCard onDeposit={() => setTab('deposit')} />
+      <SpinPromoCard onDeposit={() => setTab('deposit')} />
       <FreeBetCard freeBet={walletQ.data?.freeBet} currency={currency} onDeposit={() => setTab('deposit')} />
 
       <div className="b365-wallet-tabs" role="tablist" aria-label="Wallet">

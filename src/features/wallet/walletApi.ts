@@ -25,6 +25,14 @@ export type FreeBetInfo = {
   rules: FreeBetRules;
 };
 
+/** Free Fast Keno tickets (a Spin & Win prize) — `null` when none are left. */
+export type KenoFreeTickets = {
+  count: number;
+  /** Stake of every ticket, in ETB. */
+  stake: number;
+  expiresAt: string;
+};
+
 /**
  * Cash bonus (e.g. Happy Hour). Counted in the total but never withdrawable: it becomes
  * cash once `wagerRemaining` hits 0 on bets whose total odds are above `minOdds`.
@@ -46,6 +54,7 @@ export type WalletInfo = {
   bonusBalance?: number;
   freeBet?: FreeBetInfo | null;
   promo?: PromoBonus | null;
+  kenoFreeTickets?: KenoFreeTickets | null;
   currency: string;
   /** `live` when the balance was loaded from the API; `error` on network or HTTP failure. */
   status: 'live' | 'error';
@@ -121,6 +130,7 @@ type BalanceJson = {
   bonusBalance?: number;
   freeBet?: FreeBetInfo | null;
   promo?: PromoBonus | null;
+  kenoFreeTickets?: KenoFreeTickets | null;
   currency?: string;
   error?: string;
   code?: string;
@@ -188,7 +198,19 @@ export async function fetchBalance(authHeaders: Record<string, string>): Promise
     typeof data.bonusBalance === 'number' && Number.isFinite(data.bonusBalance) ? data.bonusBalance : 0;
   const freeBet = data.freeBet && typeof data.freeBet === 'object' ? data.freeBet : null;
   const promo = data.promo && typeof data.promo === 'object' ? data.promo : null;
-  return { balance, withdrawable, nonWithdrawable, bonusBalance, freeBet, promo, currency, status: 'live' };
+  const kenoFreeTickets =
+    data.kenoFreeTickets && typeof data.kenoFreeTickets === 'object' ? data.kenoFreeTickets : null;
+  return {
+    balance,
+    withdrawable,
+    nonWithdrawable,
+    bonusBalance,
+    freeBet,
+    promo,
+    kenoFreeTickets,
+    currency,
+    status: 'live',
+  };
 }
 
 /**

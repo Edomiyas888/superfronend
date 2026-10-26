@@ -9,6 +9,7 @@ import WalletPage from './pages/WalletPage';
 import AllSportsPage from './pages/AllSportsPage';
 import MyBetsPage from './pages/MyBetsPage';
 import PremierLeaguePage from './pages/PremierLeaguePage';
+import SpinPage from './pages/SpinPage';
 import KenoPage from './features/keno/KenoPage';
 import './App.css';
 import './styles/motd-overrides.css';
@@ -18,6 +19,7 @@ import './styles/app-header.css';
 import './styles/odd-select-tick.css';
 import './styles/wallet.css';
 import './styles/happy-hour.css';
+import './styles/spin.css';
 
 export default function App() {
   return (
@@ -32,6 +34,7 @@ export default function App() {
           <Route path="sports" element={<AllSportsPage />} />
           <Route path="my-bets" element={<MyBetsPage />} />
           <Route path="wallet" element={<WalletPage />} />
+          <Route path="spin" element={<SpinPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="sport/:sportId" element={<SportMatchesPage />} />
           <Route path="match/:gameId" element={<MatchDetailPage />} />
