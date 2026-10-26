@@ -35,7 +35,8 @@ export type SpinPrizeId =
 export type SpinIcon = 'coin' | 'coins' | 'bag' | 'gem' | 'crown' | 'ball';
 
 export type WheelSegment = {
-  id: SpinPrizeId;
+  /** A Spin & Win prize id, or a Golden Wheel one (referral milestones). */
+  id: string;
   icon: SpinIcon;
   /** Big text on the wheel slice. */
   value: string;
@@ -122,14 +123,14 @@ export function spinsLabel(n: number) {
   return `${n} spin${n === 1 ? '' : 's'}`;
 }
 
-const SLICE = 360 / WHEEL_SEGMENTS.length;
-
 /**
- * Wheel rotation that brings slice `index` under the pointer, at least five full turns past
- * `from`. `jitter` (-1…1) moves the stop inside the slice so it doesn't always land dead centre.
+ * Wheel rotation that brings slice `index` (of `count`) under the pointer, at least five full
+ * turns past `from`. `jitter` (-1…1) moves the stop inside the slice so it doesn't always land
+ * dead centre.
  */
-export function rotationFor(index: number, from: number, jitter: number) {
-  const target = ((360 - index * SLICE) % 360) + jitter * SLICE * 0.32;
+export function rotationFor(index: number, from: number, jitter: number, count = WHEEL_SEGMENTS.length) {
+  const slice = 360 / count;
+  const target = ((360 - index * slice) % 360) + jitter * slice * 0.32;
   return from - (from % 360) + 360 * 6 + target;
 }
 

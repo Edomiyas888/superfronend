@@ -48,6 +48,32 @@ export function getTelegramUserLabel(): string {
   return parts.join(' ') || 'Telegram user';
 }
 
+/**
+ * Ask Telegram for the player's own phone number. Resolves Telegram's signed response for the
+ * API to verify, or null if they said no or this Telegram version can't do it.
+ */
+export function requestTelegramPhone(): Promise<string | null> {
+  return new Promise((resolve) => {
+    try {
+      WebApp.requestContact((granted, result) => {
+        resolve(granted && result?.status === 'sent' ? result.response : null);
+      });
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+/** Invite code the bot's Open button put on the URL (`?ref=…`), if any. */
+export function getInviteCodeFromUrl(): string | null {
+  try {
+    const code = new URLSearchParams(window.location.search).get('ref')?.trim();
+    return code || null;
+  } catch {
+    return null;
+  }
+}
+
 export function openTelegramLink(url: string) {
   try {
     WebApp.openTelegramLink(url);

@@ -94,7 +94,7 @@ export async function spinWheel(authHeaders: Record<string, string>): Promise<Sp
   const segment = data.prizeId ? findSegment(data.prizeId) : undefined;
   const status = toStatus(data.status);
   if (!segment || !status) throw new Error('Could not spin. Please try again.');
-  return { prizeId: segment.id, status };
+  return { prizeId: segment.id as SpinPrizeId, status };
 }
 
 export function useSpinAuthHeaders() {

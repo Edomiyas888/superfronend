@@ -12,6 +12,7 @@ import MatchOfTheDay from '../components/MatchOfTheDay';
 import PromoBannerCarousel from '../components/PromoBannerCarousel';
 import HappyHourCard from '../features/promo/HappyHourCard';
 import SpinPromoCard from '../features/spin/SpinPromoCard';
+import InvitePromoCard from '../features/referral/InvitePromoCard';
 import HomeQuickActions from '../components/HomeQuickActions';
 import GuessAndWinSection from '../features/guessWin/GuessAndWinSection';
 import PopularLeagueChips from '../components/PopularLeagueChips';
@@ -68,6 +69,7 @@ export default function SportsHomePage() {
         <PromoBannerCarousel />
         <HappyHourCard />
         <SpinPromoCard />
+        <InvitePromoCard />
         <HomeQuickActions />
       </div>
 

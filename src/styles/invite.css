@@ -1,0 +1,484 @@
+/* Invite friends — page, home banner and the phone prompt. */
+
+.b365-invite {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 12px 16px 32px;
+  overflow-x: hidden;
+  color: #f5f5f7;
+  /* A flex item in .b365-main: fill the width, never grow to its longest line. */
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.b365-invite h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.b365-invite__hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.b365-invite__gift {
+  flex: none;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.5));
+  animation: b365-invite-bob 3s ease-in-out infinite;
+}
+
+@keyframes b365-invite-bob {
+  50% {
+    transform: translateY(-6px) rotate(-4deg);
+  }
+}
+
+.b365-invite__hero > div {
+  min-width: 0;
+}
+
+.b365-invite__hero .b365-spin__title {
+  font-size: 22px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.b365-invite__lead {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.b365-invite__lead b {
+  color: #ffd23f;
+}
+
+.b365-invite__en {
+  margin-top: 4px;
+  text-align: left;
+}
+
+.b365-invite__link {
+  margin: 0 0 16px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 210, 63, 0.4);
+  background: radial-gradient(120% 120% at 0% 0%, rgba(255, 210, 63, 0.14) 0%, transparent 60%), #141416;
+  text-align: center;
+}
+
+.b365-invite__label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(245, 245, 247, 0.65);
+  text-align: left;
+}
+
+.b365-invite__linkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 8px 8px 12px;
+  border-radius: 12px;
+  background: #0a0a0b;
+  border: 1px dashed rgba(255, 210, 63, 0.5);
+}
+
+.b365-invite__linkbox code {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: #ffe27a;
+  text-align: left;
+}
+
+.b365-invite__linkbox button {
+  flex: none;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffd23f;
+  color: #0a0a0b;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.b365-invite__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.b365-invite__stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #141416;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  text-align: center;
+}
+
+.b365-invite__stats b {
+  font-size: 18px;
+  color: #c8ff00;
+}
+
+.b365-invite__stats span {
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.6);
+}
+
+/* Golden 5 progress */
+.b365-gold5 {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 210, 63, 0.55);
+  background: linear-gradient(135deg, rgba(255, 210, 63, 0.18), rgba(255, 210, 63, 0.03)), #141416;
+  text-align: center;
+}
+
+.b365-gold5__head {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffd23f;
+}
+
+.b365-gold5__dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.b365-gold5__dots span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 210, 63, 0.5);
+  color: rgba(245, 245, 247, 0.5);
+  font-weight: 900;
+}
+
+.b365-gold5__dots span.is-on {
+  border: 2px solid #ffd23f;
+  background: radial-gradient(circle at 35% 30%, #fff6c4, #ffd23f 45%, #c98a00);
+  color: #1a1300;
+  box-shadow: 0 0 16px rgba(255, 210, 63, 0.55);
+  animation: b365-spin-pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.b365-gold5__next {
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Golden Wheel */
+.b365-golden {
+  margin: 0 -16px 18px;
+  padding: 16px;
+  background: radial-gradient(60% 55% at 50% 45%, rgba(255, 196, 0, 0.25) 0%, transparent 75%);
+  text-align: center;
+}
+
+.b365-golden__title {
+  font-size: 20px !important;
+  color: #ffd23f;
+}
+
+.b365-golden__sub {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.b365-golden__sub b {
+  color: #ffd23f;
+}
+
+.b365-golden__wheel {
+  display: flex;
+  justify-content: center;
+  padding-top: 22px;
+}
+
+.b365-golden__wheel .b365-spin-slice--base path {
+  fill: url(#spin-slice-goldbase);
+}
+
+.b365-golden__wheel .b365-spin-slice--alt path {
+  fill: url(#spin-slice-goldalt);
+}
+
+.b365-golden__wheel .b365-spin-slice--big path {
+  fill: url(#spin-slice-grand);
+}
+
+.b365-golden__btn {
+  margin-top: 14px;
+}
+
+.b365-golden__icon {
+  right: auto !important;
+  left: 50%;
+  bottom: 10px !important;
+  transform: translateX(-50%);
+}
+
+/* Rewards ladder */
+.b365-invite__ladder,
+.b365-invite__friends,
+.b365-invite__board {
+  margin-bottom: 16px;
+}
+
+.b365-invite__ladder ol,
+.b365-invite__board ol,
+.b365-invite__friends ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #141416;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.b365-invite__ladder li,
+.b365-invite__board li,
+.b365-invite__friends li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+}
+
+.b365-invite__ladder li:last-child,
+.b365-invite__board li:last-child,
+.b365-invite__friends li:last-child {
+  border-bottom: 0;
+}
+
+.b365-invite__ladder b {
+  color: #ffd23f;
+}
+
+.b365-invite__lvl,
+.b365-invite__rank {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 900;
+}
+
+.b365-invite__ladder li.is-done .b365-invite__lvl {
+  background: #c8ff00;
+  color: #0a0a0b;
+}
+
+.b365-invite__tick {
+  margin-left: auto;
+  color: #c8ff00;
+  font-weight: 900;
+}
+
+.b365-invite__fname {
+  flex: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.b365-invite__chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.b365-invite__chip.is-done {
+  background: rgba(200, 255, 0, 0.15);
+  color: #c8ff00;
+}
+
+.b365-invite__chip.is-wait {
+  background: rgba(255, 210, 63, 0.12);
+  color: #ffd23f;
+}
+
+.b365-invite__chip.is-bad {
+  background: rgba(255, 59, 48, 0.12);
+  color: #ff6b61;
+}
+
+.b365-invite__board li b {
+  margin-left: auto;
+  color: #c8ff00;
+}
+
+/* Home banner */
+.b365-invite-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(200, 255, 0, 0.35);
+  background: radial-gradient(120% 140% at 0% 0%, rgba(200, 255, 0, 0.16) 0%, transparent 55%), #141416;
+  color: #f5f5f7;
+}
+
+.b365-invite-card.is-ready {
+  border-color: rgba(255, 210, 63, 0.8);
+  box-shadow: 0 0 22px rgba(255, 210, 63, 0.2);
+}
+
+.b365-invite-card__gift {
+  flex: none;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  animation: b365-invite-bob 3s ease-in-out infinite;
+}
+
+.b365-invite-card__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.b365-invite-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.b365-invite-card__sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.7);
+}
+
+.b365-invite-card__dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.b365-invite-card__dots i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 210, 63, 0.6);
+}
+
+.b365-invite-card__dots i.is-on {
+  border: 0;
+  background: radial-gradient(circle at 35% 30%, #fff6c4, #ffd23f 45%, #c98a00);
+}
+
+.b365-invite-card__cta {
+  flex: none;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #c8ff00;
+  color: #0a0a0b;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+/* Phone prompt */
+.b365-phone-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(72, 170, 255, 0.5);
+  background: radial-gradient(120% 140% at 0% 0%, rgba(72, 170, 255, 0.16) 0%, transparent 55%), #141416;
+  color: #f5f5f7;
+}
+
+.b365-phone-card__icon {
+  flex: none;
+  font-size: 30px;
+}
+
+.b365-phone-card__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.b365-phone-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.b365-phone-card__sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: rgba(245, 245, 247, 0.7);
+}
+
+.b365-phone-card__error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #ff6b61;
+}
+
+.b365-phone-card__cta {
+  flex: none;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #48aaff;
+  color: #04121f;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.b365-phone-card__hint {
+  flex: none;
+  font-size: 11px;
+  color: rgba(245, 245, 247, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-invite__gift,
+  .b365-invite-card__gift,
+  .b365-gold5__dots span.is-on {
+    animation: none;
+  }
+}

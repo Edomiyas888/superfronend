@@ -72,6 +72,16 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    to: '/invite',
+    label: 'Invite friends',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <rect x="3" y="8" width="18" height="13" rx="2" />
+        <path d="M12 8v13M3 12h18M12 8c-1.5-3-6-3-6-1s3 1 6 1c3 0 6 1 6-1s-4.5-2-6 1z" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
     to: '/my-bets',
     label: 'My Bets',
     icon: (

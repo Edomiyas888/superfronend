@@ -36,7 +36,10 @@ type SessionState = {
   hydrate: () => Promise<void>;
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, phone: string, password: string) => Promise<void>;
-  loginWithTelegram: (initData: string) => Promise<{ startParam: string | null; isNew: boolean }>;
+  loginWithTelegram: (
+    initData: string,
+    referralCode?: string | null
+  ) => Promise<{ startParam: string | null; isNew: boolean }>;
   loginWithFirebase: (
     idToken: string,
     opts?: { username?: string; password?: string }
@@ -243,12 +246,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     persistSession(set, { token: data.token, user: data.user });
   },
 
-  loginWithTelegram: async (initData) => {
+  loginWithTelegram: async (initData, referralCode) => {
     const base = getApiBaseUrl();
     const res = await fetch(`${base}/v1/auth/telegram`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: initData.trim() }),
+      // `referralCode` only matters the first time (new account); the API ignores it otherwise.
+      body: JSON.stringify({ initData: initData.trim(), ...(referralCode ? { referralCode } : {}) }),
     });
     const data = await parseAuthResponse(res);
     if (res.status === 403 && data.code === ACCOUNT_BLOCKED_CODE) {

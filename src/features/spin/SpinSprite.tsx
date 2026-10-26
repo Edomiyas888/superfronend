@@ -42,6 +42,14 @@ export default function SpinSprite() {
           <stop offset="0.15" stopColor="#ff5a5f" />
           <stop offset="1" stopColor="#8f0f1c" />
         </radialGradient>
+        <radialGradient id="spin-slice-goldbase" cx="0" cy="0" r="100" gradientUnits="userSpaceOnUse">
+          <stop offset="0.15" stopColor="#7a5200" />
+          <stop offset="1" stopColor="#3a2600" />
+        </radialGradient>
+        <radialGradient id="spin-slice-goldalt" cx="0" cy="0" r="100" gradientUnits="userSpaceOnUse">
+          <stop offset="0.15" stopColor="#5c3d00" />
+          <stop offset="1" stopColor="#241700" />
+        </radialGradient>
         <linearGradient id="spin-gem" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#b8ffe4" />
           <stop offset="0.5" stopColor="#2fd394" />

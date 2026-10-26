@@ -7,6 +7,7 @@ import {
 import {
   closeTelegramMiniApp,
   getTelegramInitData,
+  getInviteCodeFromUrl,
   getTelegramStartParam,
   getTelegramUserLabel,
   initTelegramWebApp,
@@ -27,6 +28,7 @@ function routeFromStartParam(startParam: string): string | null {
   if (p === 'wallet' || p === 'deposit') return '/wallet?tab=deposit';
   if (p === 'my-bets' || p === 'bets') return '/my-bets';
   if (p === 'live') return '/live';
+  if (p === 'invite') return '/invite';
   return null;
 }
 
@@ -65,7 +67,7 @@ export default function TelegramProvider({ children }: Props) {
       const initData = getTelegramInitData();
       try {
         if (initData) {
-          const result = await loginWithTelegram(initData);
+          const result = await loginWithTelegram(initData, getInviteCodeFromUrl());
           if (useSessionStore.getState().accountBlocked) {
             return;
           }

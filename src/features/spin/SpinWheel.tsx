@@ -1,9 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
-import { WHEEL_SEGMENTS, rotationFor } from './spinRules';
+import { WHEEL_SEGMENTS, rotationFor, type WheelSegment } from './spinRules';
 import { spinTick } from './spinFx';
 
 const R = 100;
-const SLICE = 360 / WHEEL_SEGMENTS.length;
 const BULBS = 18;
 const SPIN_MS = 6200;
 const REDUCED_SPIN_MS = 900;
@@ -16,9 +15,9 @@ function point(r: number, deg: number) {
   return `${(r * Math.sin(rad)).toFixed(3)} ${(-r * Math.cos(rad)).toFixed(3)}`;
 }
 
-function slicePath(i: number) {
-  const a0 = i * SLICE - SLICE / 2;
-  return `M0 0 L${point(R, a0)} A${R} ${R} 0 0 1 ${point(R, a0 + SLICE)} Z`;
+function slicePath(i: number, slice: number) {
+  const a0 = i * slice - slice / 2;
+  return `M0 0 L${point(R, a0)} A${R} ${R} 0 0 1 ${point(R, a0 + slice)} Z`;
 }
 
 function valueSize(value: string) {
@@ -47,6 +46,8 @@ export type SpinWheelHandle = {
 };
 
 type Props = {
+  /** Slices in wheel order; the Spin & Win wheel by default. */
+  segments?: WheelSegment[];
   spinning: boolean;
   /** Slice that just won — it glows until the next spin. */
   winnerIndex: number | null;
@@ -57,9 +58,10 @@ type Props = {
 };
 
 const SpinWheel = forwardRef<SpinWheelHandle, Props>(function SpinWheel(
-  { spinning, winnerIndex, hubLabel, hubSub, hubDisabled, onHubClick },
+  { segments = WHEEL_SEGMENTS, spinning, winnerIndex, hubLabel, hubSub, hubDisabled, onHubClick },
   ref
 ) {
+  const SLICE = 360 / segments.length;
   const discRef = useRef<HTMLDivElement>(null);
   const pointerRef = useRef<SVGSVGElement>(null);
   const angle = useRef(0);
@@ -73,7 +75,7 @@ const SpinWheel = forwardRef<SpinWheelHandle, Props>(function SpinWheel(
         const disc = discRef.current;
         if (!disc) return resolve();
         const from = angle.current;
-        const target = rotationFor(index, from, Math.random() * 2 - 1);
+        const target = rotationFor(index, from, Math.random() * 2 - 1, segments.length);
         const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         const duration = reduced ? REDUCED_SPIN_MS : SPIN_MS;
         const start = performance.now();
@@ -126,9 +128,9 @@ const SpinWheel = forwardRef<SpinWheelHandle, Props>(function SpinWheel(
 
       <div ref={discRef} className="b365-spin-wheel__disc">
         <svg viewBox="-100 -100 200 200" role="img" aria-label="Prize wheel">
-          {WHEEL_SEGMENTS.map((s, i) => (
+          {segments.map((s, i) => (
             <g key={s.id} className={`b365-spin-slice b365-spin-slice--${s.tone}${winnerIndex === i ? ' is-winner' : ''}`}>
-              <path d={slicePath(i)} fill={`url(#spin-slice-${s.tone})`} />
+              <path d={slicePath(i, SLICE)} fill={`url(#spin-slice-${s.tone})`} />
               <g transform={`rotate(${i * SLICE})`}>
                 <use href={`#spin-ico-${s.icon}`} x="-12" y="-90" width="24" height="24" />
                 <text y={-56} className="b365-spin-slice__value" fontSize={valueSize(s.value)}>
@@ -140,14 +142,14 @@ const SpinWheel = forwardRef<SpinWheelHandle, Props>(function SpinWheel(
               </g>
             </g>
           ))}
-          {WHEEL_SEGMENTS.map((s, i) => (
+          {segments.map((s, i) => (
             <path
               key={`edge-${s.id}`}
               d={`M0 0 L${point(R, i * SLICE - SLICE / 2)}`}
               className="b365-spin-wheel__edge"
             />
           ))}
-          {WHEEL_SEGMENTS.map((s, i) => (
+          {segments.map((s, i) => (
             <circle
               key={`peg-${s.id}`}
               r="2.6"

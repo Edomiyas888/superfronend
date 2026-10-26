@@ -172,8 +172,8 @@ export default function Layout() {
 
       <BottomNav />
 
-      {/* The wheel's spin button sits where the slip button floats. */}
-      {location.pathname !== '/spin' ? <BetslipFab /> : null}
+      {/* The wheel and invite pages have their own buttons where the slip button floats. */}
+      {location.pathname !== '/spin' && location.pathname !== '/invite' ? <BetslipFab /> : null}
 
       <BetslipDrawer />
 
