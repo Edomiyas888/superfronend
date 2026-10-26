@@ -43,11 +43,12 @@ test.describe('spin & win', () => {
     await expect(dialog.getByRole('button', { name: 'Spin again · 1 spin left' })).toBeVisible();
   });
 
-  test('home banner shows ready spins, and the bottom nav links to the wheel', async ({ page }) => {
+  test('home banner shows ready spins, and the menu links to the wheel', async ({ page }) => {
     await signIn(page, ready);
     await page.goto('/');
     await expect(page.getByText('You have 2 spins ready')).toBeVisible();
-    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Spin' }).click();
+    await page.getByRole('button', { name: 'Open menu' }).click();
+    await page.getByRole('navigation', { name: 'App sections' }).getByRole('link', { name: 'Spin & Win' }).click();
     await expect(page).toHaveURL(/\/spin$/);
   });
 

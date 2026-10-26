@@ -65,18 +65,18 @@ const navItems = [
     ),
   },
   {
-    to: '/spin',
-    label: 'Spin',
+    to: '/my-bets',
+    label: 'My bets',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.85" />
         <path
-          d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18"
+          d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
           stroke="currentColor"
-          strokeWidth="1.3"
+          strokeWidth="1.85"
           strokeLinecap="round"
         />
-        <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none" />
+        <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="1.85" />
+        <path d="M9 12h6M9 16h4" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" />
       </svg>
     ),
   },
