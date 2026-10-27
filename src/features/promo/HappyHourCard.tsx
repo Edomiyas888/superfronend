@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 /**
- * Today's deposit happy hour: deposits made 21:00–22:00 EAT are doubled. The bonus is
+ * Today's deposit happy hour: deposits made 22:30–23:30 EAT are doubled. The bonus is
  * credited by hand by the admins, so this card only announces it and counts down; it
  * disappears on its own once the hour is over.
  */
-const STARTS_AT = Date.parse('2026-10-25T21:00:00+03:00');
-const ENDS_AT = Date.parse('2026-10-25T22:00:00+03:00');
+const STARTS_AT = Date.parse('2026-10-27T22:30:00+03:00');
+const ENDS_AT = Date.parse('2026-10-27T23:30:00+03:00');
 
 function formatCountdown(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000));
@@ -46,7 +46,7 @@ export default function HappyHourCard({ onDeposit }: Props) {
               Live now
             </>
           ) : (
-            'Tonight · 21:00–22:00'
+            'Tonight · 22:30–23:30'
           )}
         </span>
         <span className="b365-happy-hour__timer" aria-live="off">
@@ -58,10 +58,10 @@ export default function HappyHourCard({ onDeposit }: Props) {
         Happy Hour <span>2× your deposit</span>
       </h2>
       <p className="b365-happy-hour__am" lang="am">
-        ከምሽቱ 3:00–4:00 ሰዓት ያስገቡትን ገንዘብ በእጥፍ ያግኙ! 🔥
+        ከምሽቱ 4:30–5:30 ሰዓት ያስገቡትን ገንዘብ በእጥፍ ያግኙ! 🔥
       </p>
       <p className="b365-happy-hour__sub">
-        Deposit between 21:00 and 22:00 and we double it. Bonus added to your balance after your deposit is approved.
+        Deposit between 22:30 and 23:30 and we double it. Bonus added to your balance after your deposit is approved.
         The bonus has to be wagered before it can be withdrawn — see Bonus balance in your wallet for the rules.
       </p>
 
