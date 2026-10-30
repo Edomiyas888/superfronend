@@ -1,5 +1,4 @@
 import React from 'react';
-import { CircularProgress } from '@mui/material';
 import { formatKenoMoney } from '../utils/formatKenoMoney';
 import { t } from '../utils/translator';
 import './keno-ticket.css';
@@ -9,7 +8,6 @@ export default function KenoTicketCard({
   bet,
   calledNumbers,
   calculatePayout,
-  isPending = false,
   live = false,
   settled = false,
   unsettledLabel = 'Waiting',
@@ -59,12 +57,6 @@ export default function KenoTicketCard({
           {status}
         </div>
       </div>
-
-      {isPending ? (
-        <div className="keno-ticket-card__pending">
-          <CircularProgress size={18} sx={{ color: '#71cd95' }} />
-        </div>
-      ) : null}
     </div>
   );
 }

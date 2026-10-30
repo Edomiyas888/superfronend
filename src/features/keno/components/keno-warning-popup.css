@@ -1,0 +1,51 @@
+/* Atlas .warning_alert_popup (mobile: rem at 12px). */
+.warning_alert_popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1300;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.warning_alert_popup_cont {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  padding: 30px;
+  transform: translate(-50%, -50%);
+  background: #1b1e1f;
+  text-align: center;
+}
+
+.warning_alert_popup .close_btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background: transparent url(https://cdn-atlas-v.com/games/keno/img/close_menu.svg) no-repeat 50% 50%;
+  background-size: 15px;
+}
+
+.warning_alert_popup_info {
+  margin: 0;
+  color: #ffde39;
+  font-family: 'SF Pro Display', sans-serif;
+  font-weight: 700;
+  font-size: 16.8px;
+  line-height: 26.4px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@media (min-width: 900px) {
+  .warning_alert_popup_cont {
+    width: 420px;
+  }
+}

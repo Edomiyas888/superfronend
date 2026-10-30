@@ -1,4 +1,4 @@
-import fastKenoLogo from '../assets/fastloader.png';
+import splashLogo from '../assets/splash-logo.png';
 
 const KENO_BG_URL = 'https://cdn-atlas-v.com/games/keno/img/bg.jpg';
 const PRELOAD_TIMEOUT_MS = 6000;
@@ -21,7 +21,7 @@ function preloadFonts(): Promise<void> {
 
 /** Warm up Keno visuals so the game column renders at the correct size on first paint. */
 export async function preloadKenoAssets(): Promise<void> {
-  const work = Promise.all([preloadImage(fastKenoLogo), preloadImage(KENO_BG_URL), preloadFonts()]);
+  const work = Promise.all([preloadImage(splashLogo), preloadImage(KENO_BG_URL), preloadFonts()]);
   const timeout = new Promise<void>((resolve) => {
     window.setTimeout(resolve, PRELOAD_TIMEOUT_MS);
   });

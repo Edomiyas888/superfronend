@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Snackbar } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import ChooseNumbersCard from './chooseNumbers';
 import './keno-bet-bar.css';
 import './keno-grid.css';
 import TicketCheckerDialog from './TicketCheckerDialog';
+import KenoWarningPopup from './KenoWarningPopup';
 import { KENO_MIN_BET, KENO_MAX_BET } from '../utils/kenoPayouts';
 import { normalizeNumbers } from '../utils/ticketCode';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,6 +18,12 @@ const TOTAL_NUMBERS = 80;
 const COLUMNS = 10;
 // Atlas shows "BET ACCEPTED" for half a second after the server confirms a ticket.
 const ACCEPTED_FLASH_MS = 500;
+
+function insufficientBalanceMessage(balance) {
+  return Number(balance) < KENO_MIN_BET
+    ? t('Insufficient funds.')
+    : t('Your bet is more than your balance.');
+}
 
 const KenoGrid = ({
   roundsData,
@@ -38,8 +44,7 @@ const KenoGrid = ({
     const cachedBet = localStorage.getItem('betAmount');
     return cachedBet ? parseFloat(cachedBet) : String(KENO_MIN_BET);
   });
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [warning, setWarning] = useState(null);
   const [ticketCheckOpen, setTicketCheckOpen] = useState(false);
   const [scannedTicketCode, setScannedTicketCode] = useState('');
   // 'idle' | 'wait' (request in flight) | 'accept' (just confirmed)
@@ -135,27 +140,20 @@ const KenoGrid = ({
 
   const placeBet = async (numbers, amount, freeTicket = false) => {
     if (!currentUser) {
-      setSnackbarMessage('Please login to place a bet');
-      setSnackbarOpen(true);
+      setWarning(t('Please login to place a bet'));
       return false;
     }
 
     const currentTicketCount = ticketCount;
     if (currentTicketCount >= 18) {
-      setSnackbarMessage('You can only place up to 18 tickets');
-      setSnackbarOpen(true);
+      setWarning(t('You can only place up to 18 tickets'));
       return false;
     }
 
-    if (!numbers.length) {
-      setSnackbarMessage('Please select at least one number');
-      setSnackbarOpen(true);
-      return false;
-    }
+    if (!numbers.length) return false;
 
     if (!freeTicket && Number(amount) > balance) {
-      setSnackbarMessage(`Insufficient balance. You have ${balance.toFixed(2)} ETB`);
-      setSnackbarOpen(true);
+      setWarning(insufficientBalanceMessage(balance));
       return false;
     }
 
@@ -187,13 +185,11 @@ const KenoGrid = ({
       }
 
       setPendingBets((prev) => prev.filter((b) => b.timestamp !== pendingBet.timestamp));
-      setSnackbarMessage(result.message || 'Failed to place bet');
-      setSnackbarOpen(true);
+      setWarning(result.message || 'Failed to place bet');
       return false;
     } catch (error) {
       setPendingBets((prev) => prev.filter((b) => b.timestamp !== pendingBet.timestamp));
-      setSnackbarMessage(error?.message || 'Failed to place bet');
-      setSnackbarOpen(true);
+      setWarning(error?.message || 'Failed to place bet');
       return false;
     }
   };
@@ -204,27 +200,20 @@ const KenoGrid = ({
     const numbersToBet = [...selectedNumbers];
     const amountToBet = freeOn ? freeTickets.stake : betAmount;
 
-    if (!numbersToBet.length) {
-      setSnackbarMessage('Please select at least one number');
-      setSnackbarOpen(true);
-      return;
-    }
+    if (!numbersToBet.length) return;
 
     if (!currentUser) {
-      setSnackbarMessage('Please login to place a bet');
-      setSnackbarOpen(true);
+      setWarning(t('Please login to place a bet'));
       return;
     }
 
     if (!freeOn && Number(amountToBet) < KENO_MIN_BET) {
-      setSnackbarMessage(`Minimum bet is ${KENO_MIN_BET} ETB`);
-      setSnackbarOpen(true);
+      setWarning(t('Please enter at least minimum amount.'));
       return;
     }
 
     if (!freeOn && Number(amountToBet) > balance) {
-      setSnackbarMessage(`Insufficient balance. You have ${balance.toFixed(2)} ETB`);
-      setSnackbarOpen(true);
+      setWarning(insufficientBalanceMessage(balance));
       return;
     }
 
@@ -373,12 +362,7 @@ const KenoGrid = ({
           </div>
         </div>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
+      <KenoWarningPopup message={warning} onClose={() => setWarning(null)} />
       <TicketCheckerDialog
         open={ticketCheckOpen}
         onClose={() => {

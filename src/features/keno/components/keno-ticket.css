@@ -131,12 +131,6 @@
   text-transform: uppercase;
 }
 
-.keno-ticket-card__pending {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-}
-
 .keno-ticket-card-wrap {
   position: relative;
 }

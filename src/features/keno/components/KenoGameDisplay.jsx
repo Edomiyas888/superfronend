@@ -236,7 +236,7 @@ export default function KenoGameDisplay({ game }) {
         </div>
       ) : null}
 
-      <Suspense fallback={<div className="keno-tab-content__empty">Loading…</div>}>
+      <Suspense fallback={null}>
         <TabPanel value={tabIndex} index={0}>
           <GameTabContent
             showSummary={false}

@@ -19,8 +19,7 @@ function KenoPageContent() {
   const { loading: authLoading } = useAuth();
   const game = useKenoGameState();
   const gameReady = game.state !== null || !!game.error;
-  const bootPhase = useKenoBootReady(authLoading, gameReady);
-  const showSplash = bootPhase !== 'done';
+  const showSplash = !useKenoBootReady(authLoading, gameReady);
 
   useEffect(() => {
     document.documentElement.classList.add('keno-page');
@@ -39,7 +38,7 @@ function KenoPageContent() {
         <Header roundNo={game.roundNo} />
         <KenoGameDisplay game={game} />
       </div>
-      {showSplash ? <KenoSplashScreen exiting={bootPhase === 'exiting'} /> : null}
+      {showSplash ? <KenoSplashScreen /> : null}
     </Stack>
   );
 }

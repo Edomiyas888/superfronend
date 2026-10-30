@@ -62,7 +62,6 @@ const GameTabContent = React.memo(({
           calculatePayout={calculatePayout}
           live
           settled={roundSettled}
-          isPending={bet.status === 'pending'}
         />
       </div>
     );
