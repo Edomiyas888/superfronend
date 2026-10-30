@@ -16,6 +16,7 @@ type Props = {
 };
 
 const PHONE_RE = /^(?:\+?251|0)?[79]\d{8}$/;
+const MIN_WITHDRAW = 500;
 
 function parseAmount(raw: string): number | null {
   const n = Number.parseFloat(raw.replace(',', '.'));
@@ -42,6 +43,7 @@ export default function WithdrawPanel({
   const amount = parseAmount(amountInput);
   const available = withdrawable ?? 0;
   const overLimit = amount != null && amount > available;
+  const underMin = amount != null && amount < MIN_WITHDRAW;
   const phoneTrimmed = phone.replace(/\s+/g, '');
   const phoneInvalid = phoneTrimmed.length > 0 && !PHONE_RE.test(phoneTrimmed);
 
@@ -112,6 +114,10 @@ export default function WithdrawPanel({
       setError('Enter an amount to withdraw.');
       return;
     }
+    if (underMin) {
+      setError(`Minimum withdrawal is ${MIN_WITHDRAW} ${currency}.`);
+      return;
+    }
     if (overLimit) {
       setError(`You can withdraw up to ${formatMoney(available)} ${currency}.`);
       return;
@@ -154,17 +160,17 @@ export default function WithdrawPanel({
 
       <label className="b365-wallet-field">
         <span className="b365-wallet-field__label">Amount</span>
-        <span className={`b365-wallet-amount-input${overLimit ? ' is-invalid' : ''}`}>
+        <span className={`b365-wallet-amount-input${overLimit || underMin ? ' is-invalid' : ''}`}>
           <input
             type="number"
             inputMode="decimal"
-            min={0}
+            min={MIN_WITHDRAW}
             step={0.01}
             value={amountInput}
             onChange={(e) => setAmountInput(e.target.value)}
             disabled={busy}
             placeholder="0.00"
-            aria-invalid={overLimit}
+            aria-invalid={overLimit || underMin}
           />
           <span className="b365-wallet-amount-input__currency">{currency}</span>
           <button
@@ -180,7 +186,15 @@ export default function WithdrawPanel({
           <span className="b365-wallet-field__error">
             Max {formatMoney(available)} {currency}
           </span>
-        ) : null}
+        ) : underMin ? (
+          <span className="b365-wallet-field__error">
+            Min {MIN_WITHDRAW} {currency}
+          </span>
+        ) : (
+          <span className="b365-wallet-field__hint">
+            Minimum withdrawal is {MIN_WITHDRAW} {currency}.
+          </span>
+        )}
       </label>
 
       <label className="b365-wallet-field">
@@ -208,11 +222,11 @@ export default function WithdrawPanel({
       <button
         type="submit"
         className="b365-wallet-btn b365-wallet-btn--primary b365-wallet-btn--block"
-        disabled={busy || amount == null || overLimit || phoneInvalid}
+        disabled={busy || amount == null || overLimit || underMin || phoneInvalid}
       >
         {busy
           ? 'Submitting…'
-          : amount != null && !overLimit
+          : amount != null && !overLimit && !underMin
             ? `Withdraw ${formatMoney(amount)} ${currency}`
             : 'Withdraw'}
       </button>
