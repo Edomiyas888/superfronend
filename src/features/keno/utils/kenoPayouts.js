@@ -1,5 +1,7 @@
 export const KENO_MIN_BET = 2;
 export const KENO_MAX_BET = 30_000;
+// Matches the API's KENO_MAX_TICKETS_PER_ROUND.
+export const KENO_MAX_TICKETS = 20;
 export const KENO_MAX_WIN = 250_000;
 
 export const kenoPayouts = {

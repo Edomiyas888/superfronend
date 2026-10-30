@@ -5,7 +5,7 @@ import './keno-bet-bar.css';
 import './keno-grid.css';
 import TicketCheckerDialog from './TicketCheckerDialog';
 import KenoWarningPopup from './KenoWarningPopup';
-import { KENO_MIN_BET, KENO_MAX_BET } from '../utils/kenoPayouts';
+import { KENO_MIN_BET, KENO_MAX_BET, KENO_MAX_TICKETS } from '../utils/kenoPayouts';
 import { normalizeNumbers } from '../utils/ticketCode';
 import { useAuth } from '../contexts/AuthContext';
 import { useSessionStore } from '@/features/auth/sessionStore';
@@ -145,8 +145,8 @@ const KenoGrid = ({
     }
 
     const currentTicketCount = ticketCount;
-    if (currentTicketCount >= 18) {
-      setWarning(t('You can only place up to 18 tickets'));
+    if (currentTicketCount >= KENO_MAX_TICKETS) {
+      setWarning(`${t('You can only place up to')} ${KENO_MAX_TICKETS} ${t('tickets')}`);
       return false;
     }
 
@@ -195,7 +195,7 @@ const KenoGrid = ({
   };
 
   const handleBet = () => {
-    if (ticketCount >= 18) return;
+    if (ticketCount >= KENO_MAX_TICKETS) return;
 
     const numbersToBet = [...selectedNumbers];
     const amountToBet = freeOn ? freeTickets.stake : betAmount;
@@ -342,13 +342,13 @@ const KenoGrid = ({
               type="button"
               className={[
                 'bet_set_btn',
-                selectedNumbers.length > 0 && ticketCount < 18 ? 'active' : '',
+                selectedNumbers.length > 0 && ticketCount < KENO_MAX_TICKETS ? 'active' : '',
                 betUiState !== 'idle' ? betUiState : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
               onClick={handleBet}
-              disabled={betUiState !== 'idle' || selectedNumbers.length === 0 || ticketCount >= 18}
+              disabled={betUiState !== 'idle' || selectedNumbers.length === 0 || ticketCount >= KENO_MAX_TICKETS}
             >
               <span className="bet_set_btn_txt">{freeOn ? t('BET FREE') : t('BET')}</span>
               <span className="bet_set_btn_wait">{t('WAIT...')}</span>
