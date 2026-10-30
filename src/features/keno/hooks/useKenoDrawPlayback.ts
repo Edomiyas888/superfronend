@@ -12,11 +12,16 @@ import { useEffect, useRef, useState } from 'react';
  * The server sends calledNumbers about one per second, so we buffer them and never
  * advance faster than one step per second. If the page opens mid-draw, the balls already
  * drawn are placed instantly and playback continues from the newest one.
+ *
+ * The server starts the next round shortly after ball 20, so once all 20 numbers are
+ * buffered playback finishes on its own: the result stays up for RESULT_HOLD_MS and then
+ * the stage hands back to betting.
  */
 
 export const DRAW_BALL_COUNT = 20;
 export const DRAW_STEP_MS = 1000;
 export const DRAW_RESULT_STEP = DRAW_BALL_COUNT + 1;
+const RESULT_HOLD_MS = 2000;
 // Joining with more numbers than this already drawn counts as a late join.
 const LATE_JOIN_THRESHOLD = 3;
 
@@ -25,16 +30,20 @@ type Playback = {
   step: number;
   /** Balls (1-based count) placed without animation because they were drawn before we joined. */
   instant: number;
+  /** Numbers buffered for this round; kept after the server moves on to the next round. */
+  numbers: number[];
+  /** The result has been on screen for RESULT_HOLD_MS. */
+  done: boolean;
 };
 
-const IDLE: Playback = { roundNo: null, step: -1, instant: 0 };
+const IDLE: Playback = { roundNo: null, step: -1, instant: 0, numbers: [], done: false };
 
-function startPlayback(roundNo: number | null, available: number): Playback {
-  if (available > LATE_JOIN_THRESHOLD) {
-    const caughtUp = Math.min(available, DRAW_BALL_COUNT) - 1;
-    return { roundNo, step: caughtUp, instant: caughtUp };
+function startPlayback(roundNo: number | null, numbers: number[]): Playback {
+  if (numbers.length > LATE_JOIN_THRESHOLD) {
+    const caughtUp = Math.min(numbers.length, DRAW_BALL_COUNT) - 1;
+    return { roundNo, step: caughtUp, instant: caughtUp, numbers, done: false };
   }
-  return { roundNo, step: -1, instant: 0 };
+  return { roundNo, step: -1, instant: 0, numbers, done: false };
 }
 
 export function useKenoDrawPlayback(
@@ -42,25 +51,30 @@ export function useKenoDrawPlayback(
   calledNumbers: number[],
   isDrawing: boolean,
 ) {
-  const available = Math.min(calledNumbers.length, DRAW_BALL_COUNT);
   const [playback, setPlayback] = useState<Playback>(IDLE);
   const lastStepAt = useRef(0);
 
-  // Start (or restart) playback when a draw begins; reset when it ends.
+  // Start (or restart) playback when a draw begins, buffer numbers while it runs, and
+  // let it play out after the server has moved on once every ball is known.
   let current = playback;
   if (isDrawing && playback.roundNo !== roundNo) {
-    current = startPlayback(roundNo, available);
-    setPlayback(current);
+    current = startPlayback(roundNo, calledNumbers);
+  } else if (isDrawing && calledNumbers.length > playback.numbers.length) {
+    current = { ...playback, numbers: calledNumbers };
   } else if (!isDrawing && playback !== IDLE) {
-    current = IDLE;
-    setPlayback(IDLE);
+    const canFinish = playback.numbers.length >= DRAW_BALL_COUNT && !playback.done;
+    if (!canFinish) current = IDLE;
   }
+  if (current !== playback) setPlayback(current);
 
-  const { step } = current;
+  const { step, numbers } = current;
+  const active = current.roundNo !== null;
+  const available = Math.min(numbers.length, DRAW_BALL_COUNT);
   const canAdvance =
-    isDrawing &&
+    active &&
     step < DRAW_RESULT_STEP &&
     (step >= DRAW_BALL_COUNT - 1 ? available >= DRAW_BALL_COUNT : available >= step + 2);
+  const resultReady = step >= DRAW_RESULT_STEP;
 
   useEffect(() => {
     if (!canAdvance) return undefined;
@@ -77,16 +91,29 @@ export function useKenoDrawPlayback(
     if (current.instant > 0) lastStepAt.current = performance.now();
   }, [current.roundNo, current.instant]);
 
+  useEffect(() => {
+    if (!resultReady) return undefined;
+    const timer = setTimeout(() => {
+      setPlayback((prev) => (prev.roundNo === current.roundNo ? { ...prev, done: true } : prev));
+    }, RESULT_HOLD_MS);
+    return () => clearTimeout(timer);
+  }, [resultReady, current.roundNo]);
+
   const shownCount = step < 0 ? 0 : Math.min(step + 1, DRAW_BALL_COUNT);
   const movedCount = Math.max(0, Math.min(step, DRAW_BALL_COUNT));
 
   return {
+    /** The draw stage is on screen (the server's draw, or ours finishing after it). */
+    active,
+    roundNo: current.roundNo,
+    /** Every number buffered for the round being played. */
+    numbers,
     /** Balls visible in the draw area (the newest one sits big in the centre until it moves). */
     shownCount,
     /** Balls that have flown to their slot; this is also what the N / 20 counter shows. */
     movedCount,
     instantCount: current.instant,
-    drawnNumbers: calledNumbers.slice(0, shownCount),
-    resultReady: step >= DRAW_RESULT_STEP,
+    drawnNumbers: numbers.slice(0, shownCount),
+    resultReady,
   };
 }

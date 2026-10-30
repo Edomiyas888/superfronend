@@ -55,9 +55,23 @@ export default function KenoGameDisplay({ game }) {
   const isDrawing =
     phase === 'drawing' || (phase !== 'betting' && countdown === 0 && calledNumbers.length > 0);
   const playback = useKenoDrawPlayback(roundNo, calledNumbers, isDrawing);
+  const showDraw = playback.active;
+
+  // The server opens the next round while our result popup is still up, so remember the
+  // drawn round's tickets and keep showing them until playback hands back to betting.
+  const [drawBets, setDrawBets] = useState({ roundNo: null, bets: [] });
+  if (isDrawing && (drawBets.roundNo !== roundNo || drawBets.bets.length !== selfBets.length)) {
+    setDrawBets({ roundNo, bets: selfBets });
+  }
+  const finishingDraw = showDraw && !isDrawing;
+  const roundBets = finishingDraw
+    ? (drawBets.roundNo === playback.roundNo ? drawBets.bets : [])
+    : selfBets;
+  const roundCalledNumbers = showDraw ? playback.numbers : calledNumbers;
+
   // Tickets light up in step with the balls, and wins only show once the result popup does.
-  const drawnNumbers = isDrawing ? playback.drawnNumbers : calledNumbers;
-  const winsRevealed = !isDrawing || playback.resultReady;
+  const drawnNumbers = showDraw ? playback.drawnNumbers : calledNumbers;
+  const winsRevealed = !showDraw || playback.resultReady;
 
   useEffect(() => {
     setPendingBets((prev) => {
@@ -91,24 +105,24 @@ export default function KenoGameDisplay({ game }) {
 
   const calculatePayout = useCallback((bet) => {
     if (!winsRevealed) return 0;
-    const matches = bet.selectedNumbers.filter((num) => calledNumbers.includes(num)).length;
+    const matches = bet.selectedNumbers.filter((num) => roundCalledNumbers.includes(num)).length;
     const payout = kenoPayouts[bet.selectedNumbers.length]?.[matches] * bet.betAmount;
     return Math.min(payout || 0, KENO_MAX_WIN);
-  }, [calledNumbers, winsRevealed]);
+  }, [roundCalledNumbers, winsRevealed]);
 
   const myNumbers = useMemo(
-    () => new Set(selfBets.flatMap((bet) => (bet.selectedNumbers ?? []).map(Number))),
-    [selfBets],
+    () => new Set(roundBets.flatMap((bet) => (bet.selectedNumbers ?? []).map(Number))),
+    [roundBets],
   );
 
   const totalWinnings = useMemo(
-    () => selfBets.reduce((sum, bet) => sum + calculatePayout(bet), 0),
-    [selfBets, calculatePayout],
+    () => roundBets.reduce((sum, bet) => sum + calculatePayout(bet), 0),
+    [roundBets, calculatePayout],
   );
 
   const myTotalStake = useMemo(
-    () => selfBets.reduce((sum, bet) => sum + (Number(bet.betAmount) || 0), 0),
-    [selfBets],
+    () => roundBets.reduce((sum, bet) => sum + (Number(bet.betAmount) || 0), 0),
+    [roundBets],
   );
 
   const numberFrequencies = useMemo(() => {
@@ -161,9 +175,9 @@ export default function KenoGameDisplay({ game }) {
         </div>
       ) : null}
 
-      <div className={`keno-game-stage${isDrawing ? ' keno-game-stage--drawing' : ''}`}>
+      <div className={`keno-game-stage${showDraw ? ' keno-game-stage--drawing' : ''}`}>
         <div className="keno-play-column">
-          {!isDrawing ? (
+          {!showDraw ? (
             <>
               <div className="keno-timer-row">
                 <NeonCountdown countdown={countdown} />
@@ -185,7 +199,6 @@ export default function KenoGameDisplay({ game }) {
               instantCount={playback.instantCount}
               resultReady={playback.resultReady}
               myNumbers={myNumbers}
-              hasTickets={selfBets.length > 0}
               totalWinnings={totalWinnings}
             />
           )}
@@ -214,7 +227,7 @@ export default function KenoGameDisplay({ game }) {
             All<span className="keno-stats-bar__value">{displayedTotalPlayers}</span>
           </span>
           <span className="keno-stats-bar__item">
-            My tickets<span className="keno-stats-bar__value">{selfBets?.length ?? 0}</span>
+            My tickets<span className="keno-stats-bar__value">{roundBets.length}</span>
           </span>
           <span className="keno-stats-bar__item">
             My bets<span className="keno-stats-bar__value">{myTotalStake}</span>
@@ -226,8 +239,8 @@ export default function KenoGameDisplay({ game }) {
         <TabPanel value={tabIndex} index={0}>
           <GameTabContent
             showSummary={false}
-            roundNo={roundNo}
-            selfBets={selfBets}
+            roundNo={finishingDraw ? playback.roundNo : roundNo}
+            selfBets={roundBets}
             calledNumbers={drawnNumbers}
             roundsData={roundsData}
             userId={userId}
@@ -235,7 +248,7 @@ export default function KenoGameDisplay({ game }) {
             combinedOtherBets={combinedOtherBets}
             displayedTotalPlayers={displayedTotalPlayers}
             pendingBets={pendingBets}
-            roundSettled={isDrawing && playback.resultReady}
+            roundSettled={showDraw && playback.resultReady}
           />
         </TabPanel>
         <TabPanel value={tabIndex} index={1}>

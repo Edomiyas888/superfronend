@@ -18,7 +18,6 @@ const KenoAnimation = ({
   instantCount = 0,
   resultReady = false,
   myNumbers,
-  hasTickets = false,
   totalWinnings = 0,
 }) => {
   const renderBall = (num, index) => {
@@ -44,7 +43,8 @@ const KenoAnimation = ({
 
   const rowDown = drawnNumbers.length > ROW_SIZE;
   const counter = String(movedCount).padStart(2, '0');
-  const resultClass = resultReady && hasTickets ? (totalWinnings > 0 ? ' win' : ' lost') : '';
+  // Everyone gets a result: YOU WIN with the amount, otherwise TRY AGAIN.
+  const resultClass = resultReady ? (totalWinnings > 0 ? ' win' : ' lost') : '';
 
   return (
     <div className="keno-animation-wrap">
