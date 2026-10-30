@@ -6,6 +6,8 @@ export type KenoPublicState = {
   phase: 'betting' | 'drawing' | 'settled';
   countdown: number;
   calledNumbers: number[];
+  /** All 20 numbers of the round being drawn, sent as soon as betting closes. */
+  drawNumbers?: number[];
   simulatedCount: number;
   realPlayers: number;
   displayedTotalPlayers: number;
@@ -53,17 +55,27 @@ export type PlaceKenoBetResult = {
   };
 };
 
+// On a weak connection a stuck request would block the next poll; give up and retry instead.
+const STATE_TIMEOUT_MS = 6000;
+
 export async function fetchKenoState(
   authHeaders?: Record<string, string>
 ): Promise<KenoPublicState> {
-  const res = await fetch(`${getApiBaseUrl()}/v1/keno/state`, {
-    headers: { ...authHeaders },
-  });
-  guardSession(res, await readJsonSafe(res));
-  if (!res.ok) {
-    throw new Error('Could not load Keno game state.');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), STATE_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${getApiBaseUrl()}/v1/keno/state`, {
+      headers: { ...authHeaders },
+      signal: controller.signal,
+    });
+    guardSession(res, await readJsonSafe(res));
+    if (!res.ok) {
+      throw new Error('Could not load Keno game state.');
+    }
+    return (await res.json()) as KenoPublicState;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json() as Promise<KenoPublicState>;
 }
 
 export async function placeKenoBet(

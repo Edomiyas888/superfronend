@@ -6,9 +6,25 @@ import { subscribeKenoSocket } from '@/features/keno/api/kenoSocket';
 import { useKenoWebSocket } from '@/api/config';
 
 const POLL_MS = 1000;
-const FALLBACK_POLL_MS = 5000;
+// A socket can go quiet without closing on a weak connection; fetch over HTTP after this long.
+const QUIET_SOCKET_MS = 2000;
 // The API occasionally answers with an older round; drop a few of those before trusting them.
 const MAX_STALE_SKIPS = 3;
+const PHASE_ORDER = { betting: 0, drawing: 1, settled: 2 } as const;
+
+/** Where a state sits in the game's timeline, so late responses can be told apart from new ones. */
+function progressOf(state: KenoPublicState): [number, number, number] {
+  return [state.roundNo, PHASE_ORDER[state.phase] ?? 0, state.calledNumbers?.length ?? 0];
+}
+
+function isBehind(
+  [round, phase, called]: [number, number, number],
+  [latestRound, latestPhase, latestCalled]: [number, number, number],
+) {
+  if (round !== latestRound) return round < latestRound;
+  if (phase !== latestPhase) return phase < latestPhase;
+  return called < latestCalled;
+}
 
 function withMyBets(state: KenoPublicState, userId: string | null): KenoPublicState {
   if (!userId) {
@@ -32,22 +48,30 @@ export function useKenoGameState() {
   useEffect(() => {
     let cancelled = false;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
-    let latestRound: number | null = null;
+    let latest: [number, number, number] | null = null;
     let staleSkips = 0;
+    let lastStateAt = 0;
+    let httpInFlight = false;
 
     const applyState = (data: KenoPublicState) => {
       if (cancelled) return;
-      if (latestRound != null && data.roundNo < latestRound && staleSkips < MAX_STALE_SKIPS) {
+      lastStateAt = Date.now();
+      // Socket and HTTP answers can arrive out of order on a slow connection.
+      const progress = progressOf(data);
+      if (latest && isBehind(progress, latest) && staleSkips < MAX_STALE_SKIPS) {
         staleSkips += 1;
         return;
       }
-      latestRound = data.roundNo;
+      latest = progress;
       staleSkips = 0;
       setState(withMyBets(data, userId));
       setError(null);
     };
 
     const loadHttp = async () => {
+      // Don't stack requests on a slow connection; the next tick tries again.
+      if (httpInFlight) return;
+      httpInFlight = true;
       try {
         const headers = token ? getAuthHeader() : {};
         const data = await fetchKenoState(headers);
@@ -56,6 +80,8 @@ export function useKenoGameState() {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : 'Keno unavailable');
         }
+      } finally {
+        httpInFlight = false;
       }
     };
 
@@ -99,12 +125,15 @@ export function useKenoGameState() {
       },
     });
 
-    startPolling(FALLBACK_POLL_MS);
+    const quietCheck = setInterval(() => {
+      if (Date.now() - lastStateAt > QUIET_SOCKET_MS) void loadHttp();
+    }, POLL_MS);
 
     return () => {
       cancelled = true;
       unsubscribe();
       if (pollInterval) clearInterval(pollInterval);
+      clearInterval(quietCheck);
       setSocketConnected(false);
     };
   }, [getAuthHeader, token, userId, socketEnabled]);
@@ -113,6 +142,7 @@ export function useKenoGameState() {
   const phase = state?.phase ?? 'betting';
   const countdown = state?.countdown ?? 0;
   const calledNumbers = state?.calledNumbers ?? [];
+  const drawNumbers = state?.drawNumbers ?? [];
   const allBets = state?.allBets ?? [];
   const roundsData = state?.roundsHistory ?? {};
   const simulatedCount = state?.simulatedCount ?? 0;
@@ -130,6 +160,7 @@ export function useKenoGameState() {
     phase,
     countdown,
     calledNumbers,
+    drawNumbers,
     allBets,
     selfBets,
     otherBets: allBets.filter((b) => b.userId !== userId),

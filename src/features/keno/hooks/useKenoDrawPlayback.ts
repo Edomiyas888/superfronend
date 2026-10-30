@@ -9,9 +9,12 @@ import { useEffect, useRef, useState } from 'react';
  *   step 20     ball 20 flies to the last slot, counter reads 20
  *   step 21     result popup (YOU WIN / TRY AGAIN), ticket wins revealed
  *
- * The server sends calledNumbers about one per second, so we buffer them and never
- * advance faster than one step per second. If the page opens mid-draw, the balls already
- * drawn are placed instantly and playback continues from the newest one.
+ * The server sends all 20 numbers (drawNumbers) as soon as betting closes, like Atlas, so
+ * the balls run on our own clock and a slow connection can't stall them. calledNumbers
+ * (about one per second) says how far the server's draw is; older servers send only that,
+ * in which case we buffer it and never advance faster than one step per second. If the page
+ * opens mid-draw, the balls already drawn are placed instantly and playback continues from
+ * the newest one.
  *
  * The server starts the next round shortly after ball 20, so once all 20 numbers are
  * buffered playback finishes on its own: the result stays up for RESULT_HOLD_MS and then
@@ -38,9 +41,9 @@ type Playback = {
 
 const IDLE: Playback = { roundNo: null, step: -1, instant: 0, numbers: [], done: false };
 
-function startPlayback(roundNo: number | null, numbers: number[]): Playback {
-  if (numbers.length > LATE_JOIN_THRESHOLD) {
-    const caughtUp = Math.min(numbers.length, DRAW_BALL_COUNT) - 1;
+function startPlayback(roundNo: number | null, numbers: number[], revealed: number): Playback {
+  if (revealed > LATE_JOIN_THRESHOLD) {
+    const caughtUp = Math.min(revealed, DRAW_BALL_COUNT) - 1;
     return { roundNo, step: caughtUp, instant: caughtUp, numbers, done: false };
   }
   return { roundNo, step: -1, instant: 0, numbers, done: false };
@@ -50,7 +53,9 @@ export function useKenoDrawPlayback(
   roundNo: number | null,
   calledNumbers: number[],
   isDrawing: boolean,
+  drawNumbers: number[] = [],
 ) {
+  const known = drawNumbers.length > calledNumbers.length ? drawNumbers : calledNumbers;
   const [playback, setPlayback] = useState<Playback>(IDLE);
   const lastStepAt = useRef(0);
 
@@ -58,9 +63,9 @@ export function useKenoDrawPlayback(
   // let it play out after the server has moved on once every ball is known.
   let current = playback;
   if (isDrawing && playback.roundNo !== roundNo) {
-    current = startPlayback(roundNo, calledNumbers);
-  } else if (isDrawing && calledNumbers.length > playback.numbers.length) {
-    current = { ...playback, numbers: calledNumbers };
+    current = startPlayback(roundNo, known, calledNumbers.length);
+  } else if (isDrawing && known.length > playback.numbers.length) {
+    current = { ...playback, numbers: known };
   } else if (!isDrawing && playback !== IDLE) {
     const canFinish = playback.numbers.length >= DRAW_BALL_COUNT && !playback.done;
     if (!canFinish) current = IDLE;

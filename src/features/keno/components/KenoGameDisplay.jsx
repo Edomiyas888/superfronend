@@ -40,6 +40,7 @@ export default function KenoGameDisplay({ game }) {
     phase,
     countdown,
     calledNumbers,
+    drawNumbers,
     selfBets,
     otherBets,
     fakePlayers,
@@ -54,7 +55,7 @@ export default function KenoGameDisplay({ game }) {
   // `phase` is authoritative; the countdown fallback covers a server that only reports it.
   const isDrawing =
     phase === 'drawing' || (phase !== 'betting' && countdown === 0 && calledNumbers.length > 0);
-  const playback = useKenoDrawPlayback(roundNo, calledNumbers, isDrawing);
+  const playback = useKenoDrawPlayback(roundNo, calledNumbers, isDrawing, drawNumbers);
   const showDraw = playback.active;
 
   // The server opens the next round while our result popup is still up, so remember the
