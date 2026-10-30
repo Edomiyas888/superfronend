@@ -114,3 +114,57 @@
     animation: none;
   }
 }
+
+.b365-happy-hour__progress {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+  font-weight: 700;
+  color: #c8ff00;
+}
+
+/* Keno Happy Hour strip at the top of the Keno screen. */
+.b365-keno-hh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: linear-gradient(90deg, rgba(200, 255, 0, 0.18), rgba(255, 140, 0, 0.18)), #141416;
+  border-bottom: 1px solid rgba(200, 255, 0, 0.45);
+  color: #f5f5f7;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.b365-keno-hh__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.b365-keno-hh__timer {
+  font-variant-numeric: tabular-nums;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+.b365-keno-hh__cash,
+.b365-keno-hh__cta {
+  margin-left: auto;
+  white-space: nowrap;
+  color: #c8ff00;
+}
+
+.b365-keno-hh__cta {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #c8ff00;
+  color: #0a0a0b;
+  text-decoration: none;
+}

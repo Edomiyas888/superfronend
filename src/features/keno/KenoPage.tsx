@@ -7,6 +7,7 @@ import KenoSplashScreen from '@/features/keno/components/KenoSplashScreen';
 import KenoGameDisplay from '@/features/keno/components/KenoGameDisplay';
 import { useKenoGameState } from '@/features/keno/hooks/useKenoGameState';
 import { useKenoBootReady } from '@/features/keno/hooks/useKenoBootReady';
+import { KenoHappyHourStrip } from '@/features/promo/HappyHourCard';
 import './keno-shell.css';
 
 const kenoQueryClient = new QueryClient({
@@ -35,6 +36,7 @@ function KenoPageContent() {
     >
       <div className="desktop_background" aria-hidden="true" />
       <div className="keno-shell__game">
+        <KenoHappyHourStrip />
         <Header roundNo={game.roundNo} />
         <KenoGameDisplay game={game} />
       </div>
