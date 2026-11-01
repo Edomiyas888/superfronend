@@ -155,8 +155,8 @@
   pointer-events: none;
 }
 
-.b365-home-action--epl .b365-home-action__glow {
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.55) 0%, rgba(57, 255, 20, 0.25) 55%, transparent 72%);
+.b365-home-action--bingo .b365-home-action__glow {
+  background: radial-gradient(circle, rgba(200, 255, 0, 0.55) 0%, rgba(255, 215, 0, 0.22) 55%, transparent 72%);
   animation: b365-safari-trophy-glow 2.4s ease-in-out infinite;
 }
 
@@ -199,7 +199,7 @@
   max-width: 92%;
 }
 
-.b365-home-action__epl-trophy {
+.b365-home-action__bingo-ball {
   position: relative;
   z-index: 1;
   display: block;
@@ -276,7 +276,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .b365-epl-trophy-icon--safari,
-  .b365-home-action--epl .b365-home-action__glow {
+  .b365-home-action--bingo .b365-home-action__glow {
     animation: none;
   }
 }
@@ -295,7 +295,7 @@
   }
 
   .b365-home-action__asset,
-  .b365-home-action__epl-trophy {
+  .b365-home-action__bingo-ball {
     height: 40px;
     max-width: 82%;
   }
@@ -772,7 +772,7 @@
   }
 
   .b365-home-action__asset,
-  .b365-home-action__epl-trophy {
+  .b365-home-action__bingo-ball {
     height: 50px;
   }
 

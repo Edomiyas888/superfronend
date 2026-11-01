@@ -12,6 +12,7 @@ import PremierLeaguePage from './pages/PremierLeaguePage';
 import SpinPage from './pages/SpinPage';
 import InvitePage from './pages/InvitePage';
 import KenoPage from './features/keno/KenoPage';
+import BingoPage from './pages/BingoPage';
 import './App.css';
 import './styles/motd-overrides.css';
 import './styles/home-ui.css';
@@ -21,6 +22,7 @@ import './styles/odd-select-tick.css';
 import './styles/wallet.css';
 import './styles/happy-hour.css';
 import './styles/spin.css';
+import './styles/bingo.css';
 import './styles/invite.css';
 
 export default function App() {
@@ -37,6 +39,8 @@ export default function App() {
           <Route path="my-bets" element={<MyBetsPage />} />
           <Route path="wallet" element={<WalletPage />} />
           <Route path="spin" element={<SpinPage />} />
+          <Route path="bingo" element={<BingoPage />} />
+          <Route path="bingo/:stake" element={<BingoPage />} />
           <Route path="invite" element={<InvitePage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="sport/:sportId" element={<SportMatchesPage />} />

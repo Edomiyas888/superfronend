@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom';
-import PremierLeagueTrophyIcon from './PremierLeagueTrophyIcon';
+import BingoBallIcon from './BingoBallIcon';
 import fastKenoLogo from '../assets/fast-keno-logo-user.png';
 import liveIcon from '../assets/home-live.webp';
 import betSlipsIcon from '../assets/home-bet-slips.webp';
 
 const actions = [
   {
-    to: '/premier-league',
-    label: 'EPL',
-    className: 'b365-home-action--epl',
-    kind: 'trophy' as const,
+    to: '/bingo',
+    label: 'Bingo',
+    className: 'b365-home-action--bingo',
+    kind: 'bingo' as const,
   },
   {
     to: '/keno',
@@ -46,8 +46,8 @@ export default function HomeQuickActions() {
             <Link to={action.to} className={`b365-home-action ${action.className}`}>
               <span className="b365-home-action__visual" aria-hidden="true">
                 <span className="b365-home-action__glow" />
-                {action.kind === 'trophy' ? (
-                  <PremierLeagueTrophyIcon className="b365-home-action__epl-trophy" />
+                {action.kind === 'bingo' ? (
+                  <BingoBallIcon className="b365-home-action__bingo-ball" />
                 ) : action.kind === 'keno-logo' ? (
                   <img
                     src={action.icon}

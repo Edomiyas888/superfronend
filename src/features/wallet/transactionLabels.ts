@@ -22,6 +22,9 @@ const LABELS: Record<string, string> = {
   bonus_convert: 'Bonus unlocked',
   spin_purchase: 'Spin bought',
   spin_refund: 'Spin refund',
+  bingo_stake: 'Super Bingo card',
+  bingo_win: 'Super Bingo win',
+  bingo_void: 'Super Bingo refund',
 };
 
 export function txTypeLabel(type: WalletTxType): string {
@@ -37,7 +40,9 @@ export function txIsCredit(type: WalletTxType): boolean {
     type === 'free_bet_refund' ||
     type === 'bonus_credit' ||
     type === 'bonus_convert' ||
-    type === 'spin_refund'
+    type === 'spin_refund' ||
+    type === 'bingo_win' ||
+    type === 'bingo_void'
   );
 }
 

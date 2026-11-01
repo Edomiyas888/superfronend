@@ -1,0 +1,592 @@
+/* Super Bingo — lobby, card picker, live room and result. */
+
+.b365-bingo {
+  --bingo-accent: var(--b365-yellow, #c8ff00);
+  --bingo-gold: #ffd23f;
+  --bingo-ink: #f5f5f7;
+  --bingo-muted: rgba(245, 245, 247, 0.65);
+  --bingo-panel: rgba(255, 255, 255, 0.05);
+  --bingo-line: rgba(255, 255, 255, 0.1);
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 10px 16px 32px;
+  color: var(--bingo-ink);
+}
+
+/* Header */
+.b365-bingo__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.b365-bingo__head > div:first-child,
+.b365-bingo__head-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.b365-bingo__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #f4ffc2 0%, #c8ff00 50%, #7fae00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+}
+
+.b365-bingo__title.is-room {
+  font-size: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.b365-bingo__sub {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--bingo-muted);
+}
+
+.b365-bingo__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--bingo-line);
+  border-radius: 50%;
+  background: var(--bingo-panel);
+  color: var(--bingo-ink);
+  cursor: pointer;
+}
+
+.b365-bingo__icon-btn[aria-pressed='true'] {
+  color: var(--bingo-accent);
+}
+
+.b365-bingo__note {
+  margin: 8px 0;
+  font-size: 13px;
+  color: var(--bingo-muted);
+}
+
+.b365-bingo__error {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: var(--b365-radius, 10px);
+  background: rgba(255, 69, 58, 0.12);
+  color: #ffb4ae;
+  font-size: 13px;
+}
+
+.b365-bingo__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #e4ff5c 0%, #c8ff00 50%, #93c400 100%);
+  color: #0a0a0b;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.b365-bingo__btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Lobby */
+.b365-bingo-rooms {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.b365-bingo-room {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--bingo-line);
+  border-radius: var(--b365-radius-lg, 14px);
+  background: linear-gradient(135deg, rgba(200, 255, 0, 0.08), rgba(255, 255, 255, 0.02));
+  color: inherit;
+  text-decoration: none;
+}
+
+.b365-bingo-room__stake {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f4ffc2, #c8ff00 45%, #5e8200 100%);
+  color: #0a0a0b;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.b365-bingo-room__stake small {
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.b365-bingo-room__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--bingo-muted);
+}
+
+.b365-bingo-room__phase {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--bingo-ink);
+}
+
+.b365-bingo-room__phase.is-countdown {
+  color: var(--bingo-gold);
+}
+
+.b365-bingo-room__phase.is-calling,
+.b365-bingo-room__phase.is-claiming {
+  color: #ff6b5e;
+}
+
+.b365-bingo-room__mine {
+  color: var(--bingo-accent);
+  font-weight: 700;
+}
+
+.b365-bingo-room__go {
+  font-size: 28px;
+  color: var(--bingo-muted);
+}
+
+.b365-bingo-rules {
+  padding: 14px 16px;
+  border-radius: var(--b365-radius-lg, 14px);
+  background: var(--bingo-panel);
+  font-size: 13px;
+  color: var(--bingo-muted);
+}
+
+.b365-bingo-rules h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: var(--bingo-ink);
+}
+
+.b365-bingo-rules ol {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+/* Room stats */
+.b365-bingo-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.b365-bingo-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: var(--b365-radius, 10px);
+  background: var(--bingo-panel);
+  min-width: 0;
+}
+
+.b365-bingo-stats span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bingo-muted);
+}
+
+.b365-bingo-stats strong {
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.b365-bingo-stats strong.is-countdown {
+  color: var(--bingo-gold);
+}
+
+.b365-bingo-stats strong.is-calling,
+.b365-bingo-stats strong.is-claiming {
+  color: #ff6b5e;
+}
+
+/* Bingo card */
+.b365-bingo-card {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  max-width: 360px;
+  margin: 12px auto;
+}
+
+.b365-bingo-card.is-sm {
+  max-width: 220px;
+  gap: 4px;
+  margin: 8px auto;
+}
+
+.b365-bingo-card__letter {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--bingo-accent);
+}
+
+.b365-bingo-card.is-sm .b365-bingo-card__letter {
+  font-size: 13px;
+}
+
+.b365-bingo-card__cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bingo-line);
+  border-radius: 10px;
+  background: #1c1c1f;
+  color: var(--bingo-ink);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 800;
+  padding: 0;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.b365-bingo-card.is-sm .b365-bingo-card__cell {
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.b365-bingo-card__cell:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.b365-bingo-card__cell:not(:disabled) {
+  cursor: pointer;
+  border-color: rgba(200, 255, 0, 0.5);
+}
+
+.b365-bingo-card__cell.is-marked {
+  background: radial-gradient(circle, #c8ff00 0%, #7fae00 100%);
+  color: #0a0a0b;
+}
+
+.b365-bingo-card__cell.is-free {
+  background: radial-gradient(circle, #ffe680 0%, #e0a800 100%);
+  color: #0a0a0b;
+}
+
+.b365-bingo-card__cell.is-line {
+  box-shadow: 0 0 0 3px var(--bingo-gold), 0 0 16px rgba(255, 210, 63, 0.6);
+  transform: scale(1.04);
+}
+
+/* Card picker */
+.b365-bingo-pick__preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: var(--b365-radius-lg, 14px);
+  background: var(--bingo-panel);
+}
+
+.b365-bingo-pick__label {
+  margin: 0;
+  font-weight: 800;
+}
+
+.b365-bingo-pick__hint {
+  margin: 12px 0;
+  color: var(--bingo-muted);
+  font-size: 13px;
+}
+
+.b365-bingo-pick__grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.b365-bingo-pick__n {
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--bingo-line);
+  border-radius: 6px;
+  background: #1c1c1f;
+  color: var(--bingo-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.b365-bingo-pick__n.is-selected {
+  background: var(--bingo-accent);
+  color: #0a0a0b;
+}
+
+.b365-bingo-pick__n.is-taken {
+  background: rgba(255, 69, 58, 0.18);
+  color: rgba(245, 245, 247, 0.35);
+  cursor: not-allowed;
+}
+
+/* Live play */
+.b365-bingo-ball-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.b365-bingo-ball {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #ffd23f 40%, #c98a00 100%);
+  color: #0a0a0b;
+  box-shadow: 0 6px 18px rgba(255, 210, 63, 0.35);
+  line-height: 1;
+  animation: b365-bingo-pop 0.4s ease-out;
+}
+
+.b365-bingo-ball span {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.b365-bingo-ball strong {
+  font-size: 30px;
+  font-weight: 900;
+}
+
+@keyframes b365-bingo-pop {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.b365-bingo-recent {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+}
+
+.b365-bingo-recent li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bingo-panel);
+  border: 1px solid var(--bingo-line);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.b365-bingo-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 360px;
+  margin: 0 auto 12px;
+}
+
+.b365-bingo-auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--bingo-muted);
+}
+
+.b365-bingo__bingo {
+  flex: 1;
+  min-height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: #2a2a2e;
+  color: rgba(245, 245, 247, 0.4);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.b365-bingo__bingo.is-ready {
+  background: linear-gradient(180deg, #ffe680 0%, #ffd23f 50%, #e09b00 100%);
+  color: #0a0a0b;
+  cursor: pointer;
+  animation: b365-bingo-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes b365-bingo-pulse {
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 22px rgba(255, 210, 63, 0.55);
+  }
+}
+
+/* Called-numbers board */
+.b365-bingo-board {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: var(--b365-radius-lg, 14px);
+  background: var(--bingo-panel);
+}
+
+.b365-bingo-board__row {
+  display: grid;
+  grid-template-columns: 22px repeat(15, minmax(0, 1fr));
+  gap: 2px;
+  align-items: center;
+}
+
+.b365-bingo-board__letter {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--bingo-accent);
+}
+
+.b365-bingo-board__n {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(245, 245, 247, 0.3);
+}
+
+.b365-bingo-board__n.is-called {
+  background: rgba(200, 255, 0, 0.2);
+  color: var(--bingo-ink);
+}
+
+.b365-bingo-board__n.is-last {
+  background: var(--bingo-gold);
+  color: #0a0a0b;
+}
+
+/* Result */
+.b365-bingo-result {
+  margin: 10px 0;
+  padding: 14px 16px;
+  border-radius: var(--b365-radius-lg, 14px);
+  border: 1px solid var(--bingo-line);
+  background: var(--bingo-panel);
+  font-size: 14px;
+}
+
+.b365-bingo-result.is-won {
+  border-color: var(--bingo-gold);
+  background: linear-gradient(135deg, rgba(255, 210, 63, 0.18), rgba(255, 255, 255, 0.03));
+}
+
+.b365-bingo-result p {
+  margin: 4px 0;
+}
+
+.b365-bingo-result__title {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.b365-bingo-result__good {
+  color: var(--bingo-accent);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.b365-bingo-result__next {
+  color: var(--bingo-muted);
+  font-size: 12px;
+}
+
+.b365-bingo-result__winners {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.b365-bingo-result__winners li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.b365-bingo-result__winners strong {
+  color: var(--bingo-gold);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b365-bingo-ball,
+  .b365-bingo__bingo.is-ready {
+    animation: none;
+  }
+}
