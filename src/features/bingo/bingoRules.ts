@@ -23,7 +23,7 @@ const LINES: Line[] = (() => {
 
 /**
  * Lines complete on `card` with `marked` numbers (0, the free centre, always counts). With
- * `lastBall`, only lines that contain it — the server only accepts a BINGO on the ball that made it.
+ * `lastBall`, only lines that contain it.
  */
 export function winningLines(card: BingoCard, marked: Set<number>, lastBall: number | null = null): Line[] {
   return LINES.filter(({ cells }) => {

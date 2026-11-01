@@ -131,9 +131,12 @@ function Lobby({ state, error }: { state: BingoState | null; error: string | nul
         <ol>
           <li>Choose a room and buy one of {CARD_COUNT} cards. The round starts 60 seconds after the first card.</li>
           <li>A ball is called every {(state?.callIntervalMs ?? 1500) / 1000} seconds. Matching numbers on your card get marked.</li>
-          <li>Complete a row, column, diagonal or the four corners and press BINGO — on the ball that completes it.</li>
-          <li>A BINGO that isn&apos;t one, or comes a ball late, takes your card out of the round.</li>
-          <li>Players completing on the same ball split the prize. If nobody wins, everyone gets their stake back.</li>
+          <li>Complete a row, column, diagonal or the four corners and press BINGO.</li>
+          <li>Pressing BINGO without a complete line takes your card out of the round.</li>
+          <li>
+            Calling stops at the first BINGO; everyone with a complete line who presses BINGO within 3 seconds splits
+            the prize. If nobody wins, everyone gets their stake back.
+          </li>
           {state?.pcPlayers ? (
             <li>
               So you never play alone, every room has {state.pcPlayers} computer players (marked PC) waiting with a
@@ -396,10 +399,9 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
   }, [autoMark, myCard, called, manual, room?.roundNo]);
 
   const live = room?.phase === 'calling' || room?.phase === 'claiming';
-  const lastBall = room?.lastBall ?? null;
   const lines = useMemo(
-    () => (myCard && live ? winningLines(myCard, marked, lastBall) : []),
-    [myCard, live, marked, lastBall]
+    () => (myCard && live ? winningLines(myCard, marked) : []),
+    [myCard, live, marked]
   );
   const highlight = useMemo(
     () => new Set(lines.flatMap((l) => l.cells.map(([r, c]) => `${r}-${c}`))),
@@ -453,7 +455,7 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
     setBusy(true);
     try {
       const res = await claimBingo(authHeaders, stake);
-      setMessage(res.valid ? null : 'Not a BINGO on the last ball — your card is out of this round.');
+      setMessage(res.valid ? null : 'Not a BINGO — your card is out of this round.');
     } catch (e) {
       setMessage(e instanceof Error ? e.message : 'Could not check your BINGO.');
     } finally {
