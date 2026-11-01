@@ -43,26 +43,24 @@ test.describe('spin & win', () => {
     await expect(dialog.getByRole('button', { name: 'Spin again · 1 spin left' })).toBeVisible();
   });
 
-  test('home banner shows ready spins, and the menu links to the wheel', async ({ page }) => {
+  test('the home carousel leads with ready spins, and the menu links to the wheel', async ({ page }) => {
     await signIn(page, ready);
     await page.goto('/');
-    await expect(page.getByText('You have 2 spins ready')).toBeVisible();
+    const promos = page.getByRole('region', { name: 'Promotions' });
+    await expect(promos.getByRole('link', { name: /Your free spins are ready!/ })).toBeVisible();
+    await expect(promos.getByText('🎡 2 spins ready')).toBeVisible();
     await page.getByRole('button', { name: 'Open menu' }).click();
     await page.getByRole('navigation', { name: 'App sections' }).getByRole('link', { name: 'Spin & Win' }).click();
     await expect(page).toHaveURL(/\/spin$/);
   });
 
-  test('daily banner counts down and asks for a deposit when no spins are earned yet', async ({ page }) => {
+  test('with no spins, the home carousel pitches free daily spins and buying one', async ({ page }) => {
     await signIn(page, { ...ready, earned: 0, available: 0, deposited: 0 });
     await page.goto('/');
-    await expect(page.getByText(/Daily · resets in/)).toBeVisible();
-    await expect(page.getByText('Deposit 200 ETB or more today for up to 3 free spins')).toBeVisible();
-  });
-
-  test('once today\'s free spins are used, the banner offers one to buy', async ({ page }) => {
-    await signIn(page, { ...ready, earned: 3, used: 3, available: 0, deposited: 1200 });
-    await page.goto('/');
-    await expect(page.getByText('Buy a spin for 50 ETB')).toBeVisible();
+    const promos = page.getByRole('region', { name: 'Promotions' });
+    await expect(promos.getByText('Spin & win up to')).toBeVisible();
+    await expect(promos.getByText('Free spins when you deposit 200+ ETB today, or buy one for 50 ETB.')).toBeVisible();
+    await expect(page.getByText('Deposit 200 ETB or more today for up to 3 free spins')).toHaveCount(0);
   });
 
   test('buys a spin for 50 ETB and offers another', async ({ page }) => {
@@ -97,8 +95,7 @@ test.describe('spin & win', () => {
     await page.goto('/spin');
     await expect(page.getByText(/isn.t available right now/)).toBeVisible();
     await page.goto('/');
-    await expect(page.getByText('Spin & win up to')).toHaveCount(0);
-    await expect(page.getByText('spins ready')).toHaveCount(0);
+    await expect(page.getByText(/spins? ready/)).toHaveCount(0);
   });
 });
 

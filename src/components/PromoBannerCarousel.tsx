@@ -5,7 +5,13 @@ import fastKenoBannerArt from '../assets/fast-keno-banner.webp';
 import fastSportsBannerArt from '../assets/fast-sports-banner.webp';
 import championsLeagueBannerArt from '../assets/champions-league-banner.webp';
 import premierLeagueBannerArt from '../assets/premier-league-banner.webp';
+import spinBannerArt from '../assets/spin-banner.webp';
+import inviteBannerArt from '../assets/invite-banner.webp';
 import { useSportLink } from '../hooks/useSportLink';
+import { useSpinStatus, type SpinStatus } from '../features/spin/spinApi';
+import { GRAND_PRIZE, SPIN_PRICE, SPIN_TIERS, spinsLabel } from '../features/spin/spinRules';
+import { useReferralSummary, type ReferralSummary } from '../features/referral/referralApi';
+import { GOLDEN_SEGMENTS } from '../features/referral/goldenWheel';
 
 const AUTO_INTERVAL_MS = 6000;
 
@@ -24,6 +30,52 @@ type HeroSlide = {
   artImage?: string;
   footer: FooterItem[];
 };
+
+const etb = (n: number) => n.toLocaleString('en-US');
+const GOLDEN_TOP = Math.max(...GOLDEN_SEGMENTS.map((s) => s.amount));
+
+/** Spin & Win and Invite friends lead the carousel, and change once the player has spins to use. */
+function promoSlides(spin: SpinStatus | null | undefined, referral: ReferralSummary | undefined): HeroSlide[] {
+  const ready = spin?.player?.available ?? 0;
+  const price = spin?.price ?? SPIN_PRICE;
+  const golden = referral?.goldenSpins ?? 0;
+  return [
+    {
+      id: 'spin',
+      to: '/spin',
+      badge: ready > 0 ? `🎡 ${spinsLabel(ready)} ready` : 'Daily Spin & Win',
+      title: ready > 0 ? ['Your free spins', 'are ready!'] : ['Spin & win up to', `${etb(GRAND_PRIZE)} ETB!`],
+      subtitle:
+        ready > 0
+          ? `Spin now — win up to ${etb(GRAND_PRIZE)} ETB.`
+          : `Free spins when you deposit ${etb(SPIN_TIERS[0].at)}+ ETB today, or buy one for ${price} ETB.`,
+      art: 'default',
+      artImage: spinBannerArt,
+      footer: [
+        { icon: 'fun', label: 'Free daily spins' },
+        { icon: 'etb', label: `Buy for ${price} ETB` },
+        { icon: 'payout', label: 'Instant prizes' },
+      ],
+    },
+    {
+      id: 'invite',
+      to: '/invite',
+      badge: golden > 0 ? `🎡 ${golden} Golden spin${golden === 1 ? '' : 's'} ready` : 'ጓደኛ ይጋብዙ · Invite friends',
+      title: golden > 0 ? ['Spin the', 'Golden Wheel!'] : ['Invite friends,', 'get rewarded!'],
+      subtitle:
+        golden > 0
+          ? `Win up to ${etb(GOLDEN_TOP)} ETB bonus.`
+          : `${referral ? `${referral.rewardPercent}% bonus` : 'A bonus'} on your friends' deposits · 5 friends = Golden Wheel`,
+      art: 'default',
+      artImage: inviteBannerArt,
+      footer: [
+        { icon: 'groups', label: 'Invite friends' },
+        { icon: 'etb', label: 'Bonus on deposits' },
+        { icon: 'games', label: 'Golden Wheel' },
+      ],
+    },
+  ];
+}
 
 function buildHeroSlides(championsLeagueLink: string): HeroSlide[] {
   return [
@@ -97,6 +149,8 @@ function HeroBannerCard({ slide }: { slide: HeroSlide }) {
         slide.id === 'keno' ? 'b365-hero-banner--keno' : '',
         slide.id === 'premier-league' ? 'b365-hero-banner--epl' : '',
         slide.id === 'champions-league' ? 'b365-hero-banner--ucl' : '',
+        slide.id === 'spin' ? 'b365-hero-banner--spin' : '',
+        slide.id === 'invite' ? 'b365-hero-banner--invite' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -130,7 +184,12 @@ function HeroBannerCard({ slide }: { slide: HeroSlide }) {
 
 export default function PromoBannerCarousel() {
   const championsLeagueLink = useSportLink('Soccer', undefined, 'champions-league');
-  const slides = useMemo(() => buildHeroSlides(championsLeagueLink), [championsLeagueLink]);
+  const { data: spin } = useSpinStatus();
+  const { data: referral } = useReferralSummary();
+  const slides = useMemo(
+    () => [...promoSlides(spin, referral), ...buildHeroSlides(championsLeagueLink)],
+    [championsLeagueLink, spin, referral]
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const swipeStartRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);

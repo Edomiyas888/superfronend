@@ -422,6 +422,36 @@
   background: #071008;
 }
 
+.b365-hero-banner--photo.b365-hero-banner--spin .b365-hero-banner__bg-img,
+.b365-hero-banner--photo.b365-hero-banner--invite .b365-hero-banner__bg-img {
+  object-position: right center;
+}
+
+.b365-hero-banner--spin .b365-hero-banner__badge {
+  background: linear-gradient(180deg, #fff3b0 0%, #f5c518 100%);
+  color: #2a1a00;
+}
+
+.b365-hero-banner--photo.b365-hero-banner--invite {
+  background: #120a1c;
+}
+
+.b365-hero-banner--photo.b365-hero-banner--invite .b365-hero-banner__overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(18, 10, 28, 0.96) 0%,
+    rgba(18, 10, 28, 0.82) 36%,
+    rgba(18, 10, 28, 0.42) 54%,
+    rgba(18, 10, 28, 0.1) 70%,
+    transparent 84%
+  );
+}
+
+.b365-hero-banner--invite .b365-hero-banner__badge {
+  background: linear-gradient(180deg, #ede0ff 0%, #b794f6 100%);
+  color: #1d0f2e;
+}
+
 .b365-hero-banner--ucl {
   background: #04082a;
 }
