@@ -677,3 +677,17 @@ html.bingo-page body {
   background: linear-gradient(180deg, #ffe680 0%, #ffd23f 50%, #e09b00 100%);
   color: #0a0a0b;
 }
+
+/* House computer player tag in the winner list. */
+.b365-bingo-pc {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(100, 210, 255, 0.18);
+  color: #64d2ff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  vertical-align: 1px;
+}

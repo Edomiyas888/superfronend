@@ -46,6 +46,14 @@ function phaseLabel(room: BingoRoom): string {
   }
 }
 
+/** Player count with the house PC players called out, e.g. "3 players (2 PC)". */
+function playersLabel(room: BingoRoom | undefined, pcPlayers: number): string {
+  const count = room?.playerCount ?? 0;
+  if (count === 0 && pcPlayers > 0) return `${pcPlayers} PC players ready`;
+  const pcs = room?.pcCount ?? 0;
+  return `${count} player${count === 1 ? '' : 's'}${pcs ? ` (${pcs} PC)` : ''}`;
+}
+
 function SoundToggle() {
   const [muted, setMuted] = useState(isBingoMuted);
   return (
@@ -105,7 +113,7 @@ function Lobby({ state, error }: { state: BingoState | null; error: string | nul
                     {room ? phaseLabel(room) : '…'}
                   </span>
                   <span>
-                    {room?.playerCount ?? 0} players · Prize {formatEtb(room?.prize ?? 0)} ETB
+                    {playersLabel(room, state?.pcPlayers ?? 0)} · Prize {formatEtb(room?.prize ?? 0)} ETB
                   </span>
                   {mine ? <span className="b365-bingo-room__mine">Your card #{mine.cardNo}</span> : null}
                 </span>
@@ -125,7 +133,16 @@ function Lobby({ state, error }: { state: BingoState | null; error: string | nul
           <li>A ball is called every {(state?.callIntervalMs ?? 1500) / 1000} seconds. Matching numbers on your card get marked.</li>
           <li>Complete a row, column, diagonal or the four corners and press BINGO — on the ball that completes it.</li>
           <li>A BINGO that isn&apos;t one, or comes a ball late, takes your card out of the round.</li>
-          <li>Players completing on the same ball split the prize. With fewer than {state?.minPlayers ?? 2} players, or no winner, everyone gets their stake back.</li>
+          <li>Players completing on the same ball split the prize. If nobody wins, everyone gets their stake back.</li>
+          {state?.pcPlayers ? (
+            <li>
+              So you never play alone, {state.pcPlayers} computer players (marked PC) join when you buy a card. They
+              play by the same rules with house money; their stakes go into the pot, and if a PC wins, its share
+              stays with the house.
+            </li>
+          ) : (
+            <li>With fewer than {state?.minPlayers ?? 2} players, everyone gets their stake back.</li>
+          )}
         </ol>
       </section>
     </div>
@@ -300,6 +317,7 @@ function ResultPanel({
         {room.winners.map((w) => (
           <li key={w.cardNo}>
             <span>
+              {w.isPc ? <span className="b365-bingo-pc">PC</span> : null}
               {w.username} · card #{w.cardNo} · {patternLabel(w.pattern)}
             </span>
             <strong>{formatEtb(w.amount)} ETB</strong>
@@ -438,7 +456,11 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
       <div className="b365-bingo-stats">
         <div>
           <span>Players</span>
-          <strong>{room.playerCount}</strong>
+          <strong>
+            {room.playerCount === 0 && state?.pcPlayers
+              ? `${state.pcPlayers} PC ready`
+              : `${room.playerCount}${room.pcCount ? ` (${room.pcCount} PC)` : ''}`}
+          </strong>
         </div>
         <div>
           <span>Prize</span>
@@ -450,7 +472,7 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
         </div>
       </div>
 
-      {room.phase === 'countdown' && room.playerCount < (state?.minPlayers ?? 2) ? (
+      {room.phase === 'countdown' && !state?.pcPlayers && room.playerCount < (state?.minPlayers ?? 2) ? (
         <p className="b365-bingo__note">Needs {state?.minPlayers ?? 2} players to start — otherwise every stake is refunded.</p>
       ) : null}
 

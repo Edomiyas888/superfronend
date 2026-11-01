@@ -22,11 +22,13 @@ export type BingoRoom = {
   calledNumbers: number[];
   lastBall: number | null;
   playerCount: number;
+  /** Of `playerCount`, how many are the house's PC players. */
+  pcCount: number;
   takenCards: number[];
   pot: number;
   /** What the winner(s) share: the pot after the house cut. */
   prize: number;
-  winners: Array<{ username: string; cardNo: number; pattern: string; amount: number }>;
+  winners: Array<{ username: string; cardNo: number; pattern: string; amount: number; isPc?: boolean }>;
   voidReason: 'not_enough_players' | 'no_winner' | null;
 };
 
@@ -43,6 +45,8 @@ export type MyBingoEntry = {
 export type BingoState = {
   serverTime: number;
   minPlayers: number;
+  /** House PC players that join as soon as a real player buys a card (0 = off). */
+  pcPlayers: number;
   houseCut: number;
   callIntervalMs: number;
   rooms: BingoRoom[];
