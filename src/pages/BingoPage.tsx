@@ -122,7 +122,7 @@ function Lobby({ state, error }: { state: BingoState | null; error: string | nul
         <h2>How it works</h2>
         <ol>
           <li>Choose a room and buy one of {CARD_COUNT} cards. The round starts 60 seconds after the first card.</li>
-          <li>A ball is called every 3 seconds. Matching numbers on your card get marked.</li>
+          <li>A ball is called every {(state?.callIntervalMs ?? 1500) / 1000} seconds. Matching numbers on your card get marked.</li>
           <li>Complete a row, column, diagonal or the four corners and press BINGO — on the ball that completes it.</li>
           <li>A BINGO that isn&apos;t one, or comes a ball late, takes your card out of the round.</li>
           <li>Players completing on the same ball split the prize. With fewer than {state?.minPlayers ?? 2} players, or no winner, everyone gets their stake back.</li>
