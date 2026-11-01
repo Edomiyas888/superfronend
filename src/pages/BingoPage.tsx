@@ -136,9 +136,9 @@ function Lobby({ state, error }: { state: BingoState | null; error: string | nul
           <li>Players completing on the same ball split the prize. If nobody wins, everyone gets their stake back.</li>
           {state?.pcPlayers ? (
             <li>
-              So you never play alone, {state.pcPlayers} computer players (marked PC) join when you buy a card. They
-              play by the same rules with house money; their stakes go into the pot, and if a PC wins, its share
-              stays with the house.
+              So you never play alone, every room has {state.pcPlayers} computer players (marked PC) waiting with a
+              card. The round starts when you buy yours. PCs play by the same rules with house money; their stakes
+              go into the pot, and if a PC wins, its share stays with the house.
             </li>
           ) : (
             <li>With fewer than {state?.minPlayers ?? 2} players, everyone gets their stake back.</li>
