@@ -286,6 +286,38 @@ function CardPicker({
   );
 }
 
+/** The round's result as a modal; it closes itself when the next round opens. */
+function ResultModal({
+  room,
+  mine,
+  hadCard,
+  onClose,
+}: {
+  room: BingoRoom;
+  mine: MyBingoEntry | undefined;
+  hadCard: boolean;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="b365-bingo-modal" role="dialog" aria-modal="true" aria-labelledby="bingo-result-title" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()}>
+        <ResultPanel room={room} mine={mine} hadCard={hadCard} />
+        <button type="button" className="b365-bingo__btn b365-bingo-modal__close" onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ResultPanel({
   room,
   mine,
@@ -302,7 +334,7 @@ function ResultPanel({
         : 'Every ball was called and nobody claimed BINGO.';
     return (
       <div className="b365-bingo-result" role="status">
-        <p className="b365-bingo-result__title">Round cancelled</p>
+        <p id="bingo-result-title" className="b365-bingo-result__title">Round cancelled</p>
         <p>{why}</p>
         {hadCard ? <p className="b365-bingo-result__good">Your {room.stake} ETB stake is back in your wallet.</p> : null}
         <p className="b365-bingo-result__next">Next round in {room.resultInSec}s</p>
@@ -312,7 +344,9 @@ function ResultPanel({
   const won = mine?.status === 'won';
   return (
     <div className={`b365-bingo-result${won ? ' is-won' : ''}`} role="status">
-      <p className="b365-bingo-result__title">{won ? `You won ${formatEtb(mine.winnings)} ETB!` : 'BINGO!'}</p>
+      <p id="bingo-result-title" className="b365-bingo-result__title">
+        {won ? `You won ${formatEtb(mine.winnings)} ETB!` : 'BINGO!'}
+      </p>
       <ul className="b365-bingo-result__winners">
         {room.winners.map((w) => (
           <li key={w.cardNo}>
@@ -339,6 +373,7 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [autoMark, setAutoMark] = useState(true);
+  const [closedResult, setClosedResult] = useState<number | null>(null);
   const [manual, setManual] = useState<{ roundNo: number | null; marked: Set<number> }>({
     roundNo: null,
     marked: new Set(),
@@ -482,8 +517,8 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
         </p>
       ) : null}
 
-      {(room.phase === 'settled' || room.phase === 'void') ? (
-        <ResultPanel room={room} mine={mine} hadCard={hadCard} />
+      {(room.phase === 'settled' || (room.phase === 'void' && hadCard)) && closedResult !== room.roundNo ? (
+        <ResultModal room={room} mine={mine} hadCard={hadCard} onClose={() => setClosedResult(room.roundNo)} />
       ) : null}
 
       {joinable && !mine ? (
@@ -520,6 +555,8 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
             </ul>
           </div>
 
+          <CalledBoard called={called} lastBall={room.lastBall} />
+
           {myCard && mine ? (
             <>
               <CardGrid
@@ -555,8 +592,6 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
           ) : live ? (
             <p className="b365-bingo__note">This round is under way. Stay to buy a card for the next one.</p>
           ) : null}
-
-          <CalledBoard called={called} lastBall={room.lastBall} />
         </section>
       ) : null}
     </div>
