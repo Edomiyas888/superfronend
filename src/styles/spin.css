@@ -594,6 +594,33 @@
   margin-top: 14px;
 }
 
+.b365-spin__odds {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.b365-spin__odds caption {
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: 6px;
+}
+
+.b365-spin__odds th,
+.b365-spin__odds td {
+  padding: 5px 0;
+  border-top: 1px solid var(--b365-border);
+  font-weight: 400;
+  text-align: left;
+}
+
+.b365-spin__odds td {
+  text-align: right;
+  color: var(--b365-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Prize reveal */
 .b365-spin-confetti {
   position: fixed;

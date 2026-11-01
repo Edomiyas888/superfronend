@@ -20,6 +20,8 @@ const LABELS: Record<string, string> = {
   free_bet_expire: 'Free bet expired',
   bonus_credit: 'Bonus received',
   bonus_convert: 'Bonus unlocked',
+  spin_purchase: 'Spin bought',
+  spin_refund: 'Spin refund',
 };
 
 export function txTypeLabel(type: WalletTxType): string {
@@ -34,7 +36,8 @@ export function txIsCredit(type: WalletTxType): boolean {
     type === 'free_bet_grant' ||
     type === 'free_bet_refund' ||
     type === 'bonus_credit' ||
-    type === 'bonus_convert'
+    type === 'bonus_convert' ||
+    type === 'spin_refund'
   );
 }
 

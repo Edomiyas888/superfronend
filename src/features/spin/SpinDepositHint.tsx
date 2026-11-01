@@ -1,6 +1,6 @@
 import wheelImage from '../../assets/home-spin.webp';
 import { spinPhase, useSpinStatus } from './spinApi';
-import { formatWhole, nextTier, spinsForTotal, spinsLabel } from './spinRules';
+import { formatWhole, nextTier, spinsForTotal } from './spinRules';
 
 type Props = {
   /** The amount typed into the deposit form, or null while it is empty or invalid. */
@@ -28,13 +28,13 @@ export default function SpinDepositHint({ amount, currency, onSetAmount }: Props
 
   let text: string;
   if (gained > 0) {
-    text = `This deposit earns you ${spinsLabel(gained)} on the prize wheel`;
+    text = `This deposit earns you ${gained === 1 ? 'a free spin' : `${gained} free spins`} on the prize wheel`;
   } else if (next) {
-    text = `Deposit ${formatWhole(next.remaining)} ${currency}${amount ? ' more' : ''} this hour to earn a spin`;
+    text = `Deposit ${formatWhole(next.remaining)} ${currency}${amount ? ' more' : ''} today to earn a free spin`;
   } else if (amount == null) {
     return null;
   } else {
-    text = `You've earned all your spins for this hour`;
+    text = `You've earned all your free spins for today`;
   }
 
   return (

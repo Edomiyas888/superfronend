@@ -8,6 +8,7 @@ import SpinProgress from '../features/spin/SpinProgress';
 import SpinLiveWins from '../features/spin/SpinLiveWins';
 import Confetti from '../features/spin/Confetti';
 import {
+  buySpin,
   spinPhase,
   spinWheel,
   useNowTick,
@@ -18,15 +19,17 @@ import {
 import { isSpinMuted, setSpinMuted, spinWin, unlockSpinAudio } from '../features/spin/spinFx';
 import {
   GRAND_PRIZE,
+  MAX_SPINS_PER_EVENT,
+  SPIN_TIERS,
   WHEEL_SEGMENTS,
   findSegment,
+  formatChance,
   formatCountdown,
-  formatEventDay,
-  formatEventTime,
+  formatWhole,
+  nextTier,
   spinsLabel,
   type WheelSegment,
 } from '../features/spin/spinRules';
-import { formatTimeLeft } from '../features/freeBet/freeBetRules';
 import giftImage from '../assets/home-gift.webp';
 
 const GRAND = GRAND_PRIZE.toLocaleString('en-US');
@@ -71,13 +74,19 @@ function prizeCta(prize: WheelSegment) {
 
 function WinCard({
   prize,
+  paid,
   available,
+  price,
   onSpinAgain,
+  onBuy,
   onClose,
 }: {
   prize: WheelSegment;
+  paid: boolean;
   available: number;
+  price: number;
   onSpinAgain: () => void;
+  onBuy: () => void;
   onClose: () => void;
 }) {
   const shown = useCountUp(prize.amount);
@@ -97,7 +106,9 @@ function WinCard({
           {prizeHeadline(prize, shown)}
         </p>
         <p className="b365-spin-result__kind">{prizeKind(prize)}</p>
-        <p className="b365-spin-result__detail">{prize.detail}</p>
+        <p className="b365-spin-result__detail">
+          {paid ? prize.detail : 'Your prize is on its way — it can take a few minutes to reach your account.'}
+        </p>
         {available > 0 ? (
           <>
             <button type="button" className="b365-spin__btn" onClick={onSpinAgain}>
@@ -109,7 +120,10 @@ function WinCard({
           </>
         ) : (
           <>
-            <Link to={cta.to} className="b365-spin__btn">
+            <button type="button" className="b365-spin__btn" onClick={onBuy}>
+              Buy another spin · {price} ETB
+            </button>
+            <Link to={cta.to} className="b365-spin-result__link">
               {cta.label}
             </Link>
             <button type="button" className="b365-spin-result__link" onClick={onClose}>
@@ -158,11 +172,12 @@ export default function SpinPage() {
   const wheelRef = useRef<SpinWheelHandle>(null);
   const [spinning, setSpinning] = useState(false);
   const [winnerIndex, setWinnerIndex] = useState<number | null>(null);
-  const [won, setWon] = useState<WheelSegment | null>(null);
+  const [won, setWon] = useState<{ prize: WheelSegment; paid: boolean } | null>(null);
   const [sessionWins, setSessionWins] = useState<WheelSegment[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const onSpin = async () => {
+  /** Use an earned spin, or (`buy`) pay for one and spin it at once. */
+  const onSpin = async (buy = false) => {
     if (spinning) return;
     unlockSpinAudio();
     setError(null);
@@ -170,7 +185,7 @@ export default function SpinPage() {
     setWinnerIndex(null);
     setSpinning(true);
     try {
-      const result = await spinWheel(authHeaders);
+      const result = await (buy ? buySpin(authHeaders) : spinWheel(authHeaders));
       const index = WHEEL_SEGMENTS.findIndex((s) => s.id === result.prizeId);
       await wheelRef.current?.spin(index);
       const prize = findSegment(result.prizeId) ?? null;
@@ -180,12 +195,13 @@ export default function SpinPage() {
       void queryClient.invalidateQueries({ queryKey: ['wallet'] });
       // Let the winning slice glow for a beat before the card covers it.
       window.setTimeout(() => {
-        setWon(prize);
+        setWon(prize ? { prize, paid: result.paid } : null);
         if (prize) setSessionWins((list) => [prize, ...list].slice(0, 12));
       }, 650);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not spin. Please try again.');
       void queryClient.invalidateQueries({ queryKey: statusKey });
+      void queryClient.invalidateQueries({ queryKey: ['wallet'] });
     } finally {
       setSpinning(false);
     }
@@ -197,17 +213,22 @@ export default function SpinPage() {
       <div className="b365-spin">
         <h1 className="b365-spin__title">Spin &amp; Win</h1>
         <p className="b365-spin__muted">
-          {statusQ.isPending ? 'Loading…' : 'Spin & Win isn’t running right now. Check back soon.'}
+          {statusQ.isPending ? 'Loading…' : 'Spin & Win isn’t available right now. Check back soon.'}
         </p>
       </div>
     );
   }
 
-  const { event, player } = status;
+  const { event, player, price } = status;
   const phase = spinPhase(event, now);
   const available = player?.available ?? 0;
-  const hour = `${formatEventTime(event.startsAt)}–${formatEventTime(event.endsAt)}`;
+  const next = nextTier(player?.deposited ?? 0);
   const canSpin = Boolean(username) && available > 0 && !spinning;
+  const buyButton = (
+    <button type="button" className="b365-spin__btn is-ready" disabled={spinning} onClick={() => void onSpin(true)}>
+      {spinning ? 'Good luck…' : `Buy a spin · ${price} ETB`}
+    </button>
+  );
 
   let action: JSX.Element;
   if (!username) {
@@ -222,24 +243,8 @@ export default function SpinPage() {
         {spinning ? 'Good luck…' : 'Spin the wheel'}
       </button>
     );
-  } else if (phase === 'upcoming') {
-    action = (
-      <button type="button" className="b365-spin__btn" disabled>
-        Starts in {formatCountdown(Date.parse(event.startsAt) - now)}
-      </button>
-    );
-  } else if (phase === 'live') {
-    action = (
-      <Link to="/wallet" className="b365-spin__btn">
-        Deposit to earn a spin
-      </Link>
-    );
   } else {
-    action = (
-      <button type="button" className="b365-spin__btn" disabled>
-        Spin &amp; Win is over
-      </button>
-    );
+    action = buyButton;
   }
 
   return (
@@ -250,18 +255,8 @@ export default function SpinPage() {
         <div>
           <h1 className="b365-spin__title">Spin &amp; Win</h1>
           <p className={`b365-spin__badge${phase === 'live' ? ' is-live' : ''}`}>
-            {phase === 'live' ? (
-              <>
-                <span className="b365-spin-card__dot" aria-hidden /> Live · ends in{' '}
-                <b>{formatCountdown(Date.parse(event.endsAt) - now)}</b>
-              </>
-            ) : phase === 'upcoming' ? (
-              <>
-                {formatEventDay(event.startsAt)} · {hour}
-              </>
-            ) : (
-              <>Ended at {formatEventTime(event.endsAt)}</>
-            )}
+            <span className="b365-spin-card__dot" aria-hidden /> Daily · free spins reset in{' '}
+            <b>{formatCountdown(Date.parse(event.endsAt) - now)}</b>
           </p>
         </div>
         <SoundToggle />
@@ -297,7 +292,17 @@ export default function SpinPage() {
         ) : null}
         {action}
         {available > 0 && !spinning ? (
-          <p className="b365-spin__muted">Use your spins within {formatTimeLeft(event.claimUntil)}</p>
+          <p className="b365-spin__muted">Use your free spins before midnight, or buy one for {price} ETB</p>
+        ) : username && !spinning ? (
+          <p className="b365-spin__muted">
+            {next ? (
+              <>
+                Or <Link to="/wallet">deposit {formatWhole(next.remaining)} ETB today</Link> for a free spin
+              </>
+            ) : (
+              `You've had today's ${MAX_SPINS_PER_EVENT} free spins — more tomorrow`
+            )}
+          </p>
         ) : null}
         {error ? (
           <p className="b365-wallet-form__error" role="alert">
@@ -335,12 +340,14 @@ export default function SpinPage() {
         <summary>Rules</summary>
         <ul>
           <li>
-            Deposits you submit between {hour} (East Africa time) earn spins once approved: 100 ETB in total = 1 spin,
-            500 ETB = 2, 1,000 ETB or more = 3
+            Deposits approved today (East Africa time) earn free spins:{' '}
+            {SPIN_TIERS.map((t) => `${t.at.toLocaleString('en-US')} ETB = ${spinsLabel(t.spins)}`).join(', ')}
           </li>
-          <li>Up to 3 spins per player, however many deposits you make</li>
+          <li>Up to {MAX_SPINS_PER_EVENT} free spins a day, however many deposits you make</li>
+          <li>Free spins left at midnight expire. A deposit still being reviewed counts on the day it&apos;s approved</li>
           <li>
-            Unused spins expire at {formatEventTime(event.claimUntil)} on {formatEventDay(event.claimUntil)}
+            You can also buy a spin for {price} ETB from your cash balance (not bonus). It spins straight away, with the
+            same prizes and odds
           </li>
           <li>Bonus prizes go to your bonus balance and follow its play-through rules before they can be withdrawn</li>
           <li>
@@ -349,14 +356,30 @@ export default function SpinPage() {
           </li>
           <li>The {GRAND} ETB cash prize goes to your cash balance and can be won once a month across all players</li>
         </ul>
+        <table className="b365-spin__odds">
+          <caption>Prize odds, per spin</caption>
+          <tbody>
+            {[...WHEEL_SEGMENTS]
+              .sort((a, b) => b.chance - a.chance)
+              .map((s) => (
+                <tr key={s.id}>
+                  <th scope="row">{s.label}</th>
+                  <td>{formatChance(s.chance)}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </details>
 
       {won ? (
         <WinCard
           key={sessionWins.length}
-          prize={won}
+          prize={won.prize}
+          paid={won.paid}
           available={available}
+          price={price}
           onSpinAgain={() => void onSpin()}
+          onBuy={() => void onSpin(true)}
           onClose={() => setWon(null)}
         />
       ) : null}

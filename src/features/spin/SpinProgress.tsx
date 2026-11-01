@@ -16,7 +16,7 @@ type Props = {
   deposited: number;
   pending: number;
   currency: string;
-  /** False once the event hour is over — no more spins can be earned. */
+  /** False once the day is over — no more spins can be earned. */
   live: boolean;
 };
 
@@ -28,7 +28,7 @@ export default function SpinProgress({ deposited, pending, currency, live }: Pro
   return (
     <div className="b365-spin-progress">
       <p className="b365-spin-progress__head">
-        Deposited this hour <b>{Math.floor(deposited).toLocaleString('en-US')} {currency}</b>
+        Deposited today <b>{Math.floor(deposited).toLocaleString('en-US')} {currency}</b>
       </p>
       <div
         className="b365-spin-progress__bar"
@@ -55,10 +55,10 @@ export default function SpinProgress({ deposited, pending, currency, live }: Pro
       ) : null}
       <p className="b365-spin-progress__next">
         {!next
-          ? `You've earned all ${MAX_SPINS_PER_EVENT} spins. Good luck!`
+          ? `You've earned all ${MAX_SPINS_PER_EVENT} free spins today. Good luck!`
           : live
-            ? `Deposit ${formatWhole(next.remaining)} ${currency} more this hour to earn spin #${next.spins}`
-            : 'Spin & Win is over for this hour.'}
+            ? `Deposit ${formatWhole(next.remaining)} ${currency} more today to earn free spin #${next.spins}`
+            : 'Free spins reset at midnight.'}
       </p>
     </div>
   );

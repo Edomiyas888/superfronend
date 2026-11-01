@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import wheelImage from '../../assets/home-spin.webp';
 import { spinPhase, useNowTick, useSpinStatus } from './spinApi';
-import { GRAND_PRIZE, formatCountdown, formatEventTime, formatWhole, nextTier, spinsLabel } from './spinRules';
+import { GRAND_PRIZE, SPIN_TIERS, formatCountdown, formatWhole, nextTier, spinsLabel } from './spinRules';
 
 type Props = {
   /** On the wallet page the deposit form is already here — switch to it instead of navigating. */
@@ -9,8 +9,8 @@ type Props = {
 };
 
 /**
- * Home and wallet banner for the live Spin & Win hour: a countdown before it starts, the next
- * spin to earn while it runs, and spins left to use afterwards. Hidden when no event is set.
+ * Home and wallet banner for the daily Spin & Win: spins ready to use, else the next free spin
+ * to earn today, else (all earned) a spin to buy. Hidden when the API has no Spin & Win.
  */
 export default function SpinPromoCard({ onDeposit }: Props) {
   const { data: status } = useSpinStatus();
@@ -41,7 +41,22 @@ export default function SpinPromoCard({ onDeposit }: Props) {
 
   const live = phase === 'live';
   const next = nextTier(player?.deposited ?? 0);
-  if (live && player && !next) return null;
+
+  // Today's free spins are all earned and used: offer one to buy.
+  if (player && !next) {
+    return (
+      <section className="b365-spin-card" aria-label="Spin and win">
+        <img src={wheelImage} alt="" className="b365-spin-card__wheel" draggable={false} />
+        <div className="b365-spin-card__text">
+          <p className="b365-spin-card__title">Buy a spin for {status.price} ETB</p>
+          <p className="b365-spin-card__sub">Win up to {prize} cash</p>
+        </div>
+        <Link to="/spin" className="b365-spin-card__cta">
+          Spin
+        </Link>
+      </section>
+    );
+  }
 
   const depositCta = onDeposit ? (
     <button type="button" className="b365-spin-card__cta" onClick={onDeposit}>
@@ -58,23 +73,14 @@ export default function SpinPromoCard({ onDeposit }: Props) {
       <img src={wheelImage} alt="" className="b365-spin-card__wheel" draggable={false} />
       <div className="b365-spin-card__text">
         <p className="b365-spin-card__badge">
-          {live ? (
-            <>
-              <span className="b365-spin-card__dot" aria-hidden /> Live · ends in{' '}
-              <b>{formatCountdown(Date.parse(event.endsAt) - now)}</b>
-            </>
-          ) : (
-            <>
-              {formatEventTime(event.startsAt)}–{formatEventTime(event.endsAt)} · starts in{' '}
-              <b>{formatCountdown(Date.parse(event.startsAt) - now)}</b>
-            </>
-          )}
+          <span className="b365-spin-card__dot" aria-hidden /> Daily · resets in{' '}
+          <b>{formatCountdown(Date.parse(event.endsAt) - now)}</b>
         </p>
         <p className="b365-spin-card__title">Spin &amp; win up to {prize}</p>
         <p className="b365-spin-card__sub">
           {live && next && (player?.deposited ?? 0) > 0
-            ? `Deposit ${formatWhole(next.remaining)} ETB more to earn spin #${next.spins}`
-            : 'Deposit 100 ETB or more during the hour to earn up to 3 spins'}
+            ? `Deposit ${formatWhole(next.remaining)} ETB more today to earn free spin #${next.spins}`
+            : `Deposit ${SPIN_TIERS[0].at} ETB or more today for up to 3 free spins`}
         </p>
       </div>
       {live ? depositCta : null}

@@ -33,7 +33,7 @@ export default function SpinLiveWins() {
         <span className="b365-spin-card__dot" aria-hidden /> Live wins
       </h2>
       {winners.length === 0 ? (
-        <p className="b365-spin-live__empty">No winners yet tonight — your spin could be the first.</p>
+        <p className="b365-spin-live__empty">No winners yet — your spin could be the first.</p>
       ) : (
         <ul>
           {winners.map((w) => {

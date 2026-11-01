@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getApiBaseUrl } from '../../api/config';
 import { guardSession, readJsonSafe } from '../../api/sessionGuard';
 import { useSessionStore } from '../auth/sessionStore';
-import { findSegment, type SpinPrizeId } from './spinRules';
+import { SPIN_PRICE, findSegment, type SpinPrizeId } from './spinRules';
 
 export type SpinEvent = {
   startsAt: string;
@@ -13,21 +13,26 @@ export type SpinEvent = {
 };
 
 export type SpinStatus = {
+  /** Today's Spin & Win — always on, resets at midnight East Africa time. */
   event: SpinEvent;
+  /** ETB for one bought spin. */
+  price: number;
   /** Null for guests — the event is public, spins are not. */
   player: {
     /** Spins earned and not used yet. */
     available: number;
     earned: number;
-    /** Approved deposits submitted during the event hour. */
+    /** Deposits approved today. */
     deposited: number;
-    /** Deposits submitted during the hour and still waiting for review. */
+    /** Deposits still waiting for review; they count toward the day they're approved. */
     pending: number;
   } | null;
 };
 
 export type SpinResult = {
   prizeId: SpinPrizeId;
+  /** False when the server couldn't pay the prize yet — an admin pays it shortly. */
+  paid: boolean;
   status: SpinStatus;
 };
 
@@ -52,6 +57,7 @@ function toStatus(data: Record<string, unknown> | null | undefined): SpinStatus 
   }
   return {
     event: { startsAt: ev.startsAt, endsAt: ev.endsAt, claimUntil: ev.claimUntil },
+    price: typeof data?.price === 'number' && data.price > 0 ? data.price : SPIN_PRICE,
     player:
       data && 'available' in data
         ? {
@@ -65,8 +71,8 @@ function toStatus(data: Record<string, unknown> | null | undefined): SpinStatus 
 }
 
 /**
- * GET `/v1/promo/spins` (auth optional). Resolves `null` when no event is running (or the
- * API does not have it yet), so every spin surface simply stays hidden.
+ * GET `/v1/promo/spins` (auth optional). Resolves `null` when the API can't be reached (or
+ * doesn't have Spin & Win), so every spin surface simply stays hidden.
  */
 export async function fetchSpinStatus(authHeaders: Record<string, string>): Promise<SpinStatus | null> {
   try {
@@ -80,21 +86,34 @@ export async function fetchSpinStatus(authHeaders: Record<string, string>): Prom
   }
 }
 
-/** POST `/v1/promo/spins/spin` — the server picks the prize and credits it before answering. */
-export async function spinWheel(authHeaders: Record<string, string>): Promise<SpinResult> {
-  const res = await fetch(`${getApiBaseUrl()}/v1/promo/spins/spin`, {
+async function postSpin(path: string, authHeaders: Record<string, string>, fallback: string): Promise<SpinResult> {
+  const res = await fetch(`${getApiBaseUrl()}/v1/promo/spins/${path}`, {
     method: 'POST',
     headers: authHeaders,
   });
-  const data = await readJsonSafe<{ prizeId?: string; status?: Record<string, unknown>; error?: string }>(res);
+  const data = await readJsonSafe<{ prizeId?: string; paid?: boolean; status?: Record<string, unknown>; error?: string }>(
+    res
+  );
   guardSession(res, data as { code?: string } | null);
   if (!res.ok || !data) {
-    throw new Error(data?.error || 'Could not spin. Please try again.');
+    throw new Error(data?.error || fallback);
   }
   const segment = data.prizeId ? findSegment(data.prizeId) : undefined;
   const status = toStatus(data.status);
-  if (!segment || !status) throw new Error('Could not spin. Please try again.');
-  return { prizeId: segment.id as SpinPrizeId, status };
+  // The spin was used and its prize paid; only this app's prize table is out of date.
+  if (data.prizeId && !segment) throw new Error('Your spin was used. Check your wallet for the prize.');
+  if (!segment || !status) throw new Error(fallback);
+  return { prizeId: segment.id as SpinPrizeId, paid: data.paid !== false, status };
+}
+
+/** POST `/v1/promo/spins/spin` — use an earned spin; the server picks and credits the prize before answering. */
+export function spinWheel(authHeaders: Record<string, string>): Promise<SpinResult> {
+  return postSpin('spin', authHeaders, 'Could not spin. Please try again.');
+}
+
+/** POST `/v1/promo/spins/buy` — pay the spin price from the cash balance and spin at once. */
+export function buySpin(authHeaders: Record<string, string>): Promise<SpinResult> {
+  return postSpin('buy', authHeaders, 'Could not buy a spin. Please try again.');
 }
 
 export function useSpinAuthHeaders() {

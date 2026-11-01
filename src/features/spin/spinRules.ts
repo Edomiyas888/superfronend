@@ -1,20 +1,23 @@
 /**
- * Spin & Win: a live deposit event. Deposits submitted during the event hour earn wheel
- * spins by their total (approved later still counts), never per deposit — splitting 1,000
- * into ten 100s still earns 3 spins, not 10.
+ * Spin & Win: always on. Deposits approved during the day (East Africa time) earn wheel spins
+ * by the day's total, never per deposit — splitting 1,000 into ten 100s still earns 3 spins,
+ * not 10. Spins left at midnight expire. Players can also buy a spin for SPIN_PRICE.
  *
- * The server picks every prize and must use exactly these tiers and odds (super-bet-api
+ * The server picks every prize and must use exactly these tiers, odds and price (super-bet-api
  * src/lib/spin/spinRules.js); the app only animates the wheel to the prize it was given
  * and publishes the table below.
  */
 
 export const SPIN_TIERS = [
-  { at: 100, spins: 1 },
+  { at: 200, spins: 1 },
   { at: 500, spins: 2 },
   { at: 1000, spins: 3 },
 ] as const;
 
 export const MAX_SPINS_PER_EVENT = 3;
+
+/** ETB for one bought spin, paid from the cash balance. */
+export const SPIN_PRICE = 50;
 
 /** Chances below are out of this many spins. */
 export const ODDS_BASE = 100_000;
@@ -67,7 +70,7 @@ function bonus(amount: number, chance: number, tone: WheelSegment['tone'], icon:
   };
 }
 
-/** Wheel order, clockwise from the pointer. Slices are equal in size, not in chance. */
+/** Wheel order, clockwise from the pointer. Slices are equal in size, not in chance; earned and bought spins share these odds. */
 export const WHEEL_SEGMENTS: WheelSegment[] = [
   {
     id: 'cash50000',
@@ -80,9 +83,9 @@ export const WHEEL_SEGMENTS: WheelSegment[] = [
     chance: 1,
     tone: 'grand',
   },
-  bonus(10, 44_000, 'base', 'coin'),
-  bonus(250, 800, 'big', 'bag'),
-  bonus(20, 15_000, 'alt', 'coins'),
+  bonus(10, 53_149, 'base', 'coin'),
+  bonus(250, 300, 'big', 'bag'),
+  bonus(20, 12_000, 'alt', 'coins'),
   {
     id: 'keno5',
     icon: 'ball',
@@ -94,10 +97,10 @@ export const WHEEL_SEGMENTS: WheelSegment[] = [
     chance: 10_000,
     tone: 'keno',
   },
-  bonus(1000, 199, 'big', 'gem'),
+  bonus(1000, 50, 'big', 'gem'),
   bonus(15, 20_000, 'base', 'coin'),
-  bonus(50, 6_000, 'alt', 'coins'),
-  bonus(100, 4_000, 'big', 'bag'),
+  bonus(50, 3_000, 'alt', 'coins'),
+  bonus(100, 1_500, 'big', 'bag'),
 ];
 
 export function findSegment(id: string): WheelSegment | undefined {
@@ -132,6 +135,12 @@ export function rotationFor(index: number, from: number, jitter: number, count =
   const slice = 360 / count;
   const target = ((360 - index * slice) % 360) + jitter * slice * 0.32;
   return from - (from % 360) + 360 * 6 + target;
+}
+
+/** "1 in 2,000"-style odds for the rules table. */
+export function formatChance(chance: number): string {
+  const oneIn = ODDS_BASE / chance;
+  return oneIn < 10 ? `${((chance / ODDS_BASE) * 100).toFixed(1)}%` : `1 in ${Math.round(oneIn).toLocaleString('en-US')}`;
 }
 
 /** Whole-birr amounts for spin copy, rounded up so "deposit X more" always reaches the tier. */

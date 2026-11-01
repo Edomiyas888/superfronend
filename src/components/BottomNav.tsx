@@ -1,8 +1,8 @@
+import { Fragment } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import fastKenoLogo from '../assets/fast-keno-logo-user.png';
-import { SUPPORT_TELEGRAM_HANDLE } from '../config/support';
-import SupportLink from './SupportLink';
-import TelegramGlyph from './TelegramGlyph';
+import { useSpinStatus } from '../features/spin/spinApi';
+import { spinsLabel } from '../features/spin/spinRules';
 
 function useSportsNavActive(): boolean {
   const { pathname } = useLocation();
@@ -65,22 +65,6 @@ const navItems = [
     ),
   },
   {
-    to: '/my-bets',
-    label: 'My bets',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"
-          stroke="currentColor"
-          strokeWidth="1.85"
-          strokeLinecap="round"
-        />
-        <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="1.85" />
-        <path d="M9 12h6M9 16h4" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
     to: '/keno',
     label: 'Keno',
     match: 'keno' as const,
@@ -96,6 +80,50 @@ const navItems = [
     ),
   },
 ] as const;
+
+const SPIN_SLICES = ['#facc15', '#e11d48', '#22c55e', '#7c3aed', '#f97316', '#0ea5e9', '#facc15', '#e11d48'];
+
+function slicePath(i: number) {
+  const step = (Math.PI * 2) / SPIN_SLICES.length;
+  const point = (a: number) => `${(40 * Math.sin(a)).toFixed(2)} ${(-40 * Math.cos(a)).toFixed(2)}`;
+  return `M0 0 L${point(i * step)} A40 40 0 0 1 ${point((i + 1) * step)} Z`;
+}
+
+/** The raised centre button: a little prize wheel that spins, settles and spins again. */
+function SpinNavItem() {
+  const { data } = useSpinStatus();
+  const ready = data?.player?.available ?? 0;
+  return (
+    <NavLink
+      to="/spin"
+      className={({ isActive }) => `b365-bottom-nav-item b365-bottom-nav-item--spin${isActive ? ' active' : ''}`}
+      aria-label={ready > 0 ? `Spin & Win, ${spinsLabel(ready)} ready` : 'Spin & Win'}
+    >
+      <span className="b365-nav-spin">
+        <svg className="b365-nav-spin__wheel" viewBox="-50 -50 100 100" aria-hidden="true">
+          <circle r="49" fill="#b8860b" />
+          <circle r="46" fill="#fde68a" />
+          <circle r="42" fill="#1c1404" />
+          <g className="b365-nav-spin__disc">
+            {SPIN_SLICES.map((color, i) => (
+              <path key={i} d={slicePath(i)} fill={color} stroke="#1c1404" strokeWidth="1.2" />
+            ))}
+            {SPIN_SLICES.map((_, i) => (
+              <circle key={i} r="2.2" fill="#fff7d1" transform={`rotate(${i * 45}) translate(0 -44)`} />
+            ))}
+          </g>
+          <circle r="11" fill="#facc15" stroke="#7a4d00" strokeWidth="2" />
+          <circle r="4.5" fill="#7a4d00" />
+        </svg>
+        <svg className="b365-nav-spin__pointer" viewBox="0 0 20 24" aria-hidden="true">
+          <path d="M10 23 L2.5 7 A8 8 0 1 1 17.5 7 Z" fill="#e11d48" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
+        </svg>
+        {ready > 0 ? <span className="b365-nav-spin__badge">{ready}</span> : null}
+      </span>
+      <span className="b365-bottom-nav-label">Spin</span>
+    </NavLink>
+  );
+}
 
 function NavItem({
   item,
@@ -145,26 +173,13 @@ export default function BottomNav() {
   return (
     <nav className="b365-bottom-nav" aria-label="Main">
       <div className="b365-bottom-nav__inner">
-        {navItems.map((item) => (
-          <NavItem
-            key={item.to}
-            item={item}
-            sportsActive={sportsActive}
-            kenoActive={kenoActive}
-            pathname={pathname}
-          />
+        {navItems.map((item, i) => (
+          <Fragment key={item.to}>
+            {/* Spin & Win sits in the middle, raised above the bar. */}
+            {i === Math.floor(navItems.length / 2) ? <SpinNavItem /> : null}
+            <NavItem item={item} sportsActive={sportsActive} kenoActive={kenoActive} pathname={pathname} />
+          </Fragment>
         ))}
-        <SupportLink
-          className="b365-bottom-nav-item b365-bottom-nav-item--support"
-          aria-label={`Support on Telegram, @${SUPPORT_TELEGRAM_HANDLE}`}
-        >
-          <span className="b365-bottom-nav-icon-wrap">
-            <span className="b365-bottom-nav-icon b365-bottom-nav-tg">
-              <TelegramGlyph size={15} />
-            </span>
-          </span>
-          <span className="b365-bottom-nav-label">Support</span>
-        </SupportLink>
       </div>
     </nav>
   );

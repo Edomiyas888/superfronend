@@ -132,25 +132,107 @@
   color: var(--b365-neon);
 }
 
-/* Telegram support — brand-blue badge so it reads as the Telegram logo, not a nav tab. */
-.b365-bottom-nav-tg {
-  width: 26px;
-  height: 26px;
+/* Spin & Win — the raised centre button: a real little wheel that spins, settles, and spins again. */
+.b365-bottom-nav-item--spin {
+  position: relative;
+  justify-content: flex-end;
+  color: #facc15;
+}
+
+.b365-nav-spin {
+  position: relative;
+  display: block;
+  width: 62px;
+  height: 62px;
+  margin-top: -30px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #37aee2 0%, #229ed9 55%, #1a86ba 100%);
+  background: #0a0e12;
+  padding: 3px;
+  box-shadow:
+    0 0 0 1px rgba(250, 204, 21, 0.35),
+    0 6px 18px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(250, 204, 21, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.b365-nav-spin__wheel {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.b365-nav-spin__disc {
+  transform-origin: 0 0;
+  animation: b365-nav-spin 4.8s infinite;
+}
+
+.b365-nav-spin__pointer {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 14px;
+  height: 17px;
+  margin-left: -7px;
+  transform-origin: 50% 30%;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  animation: b365-nav-spin-tick 4.8s infinite;
+}
+
+.b365-nav-spin__badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #e11d48;
+  border: 2px solid #0a0e12;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(34, 158, 217, 0.35);
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 15px;
+  text-align: center;
 }
 
-.b365-bottom-nav-tg svg {
-  width: 15px;
-  height: 15px;
-  margin-left: -1px;
+.b365-bottom-nav-item--spin .b365-bottom-nav-label {
+  margin-top: 3px;
+  color: #facc15;
 }
 
-.b365-bottom-nav-item--support:hover .b365-bottom-nav-tg,
-.b365-bottom-nav-item--support:focus-visible .b365-bottom-nav-tg {
-  box-shadow: 0 2px 12px rgba(34, 158, 217, 0.6);
+.b365-bottom-nav-item--spin.active .b365-nav-spin {
+  box-shadow:
+    0 0 0 2px #facc15,
+    0 6px 18px rgba(0, 0, 0, 0.55),
+    0 0 28px rgba(250, 204, 21, 0.5);
+}
+
+.b365-bottom-nav-item--spin:active .b365-nav-spin {
+  transform: scale(0.94);
+}
+
+/* A fast start, a long slow-down, a rest — then it spins again (4 turns, so the loop is seamless). */
+@keyframes b365-nav-spin {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+  62% {
+    transform: rotate(1440deg);
+  }
+  100% {
+    transform: rotate(1440deg);
+  }
+}
+
+/* The pointer flicks against the pegs while the wheel runs, slower as it slows down. */
+@keyframes b365-nav-spin-tick {
+  0%, 4%, 8%, 12%, 16%, 21%, 27%, 34%, 43%, 55%, 62%, 100% {
+    transform: rotate(0deg);
+  }
+  2%, 6%, 10%, 14%, 18.5%, 24%, 30.5%, 38.5%, 49% {
+    transform: rotate(-18deg);
+  }
 }
 
 @media (max-width: 380px) {
@@ -173,9 +255,10 @@
     max-width: 40px;
   }
 
-  .b365-bottom-nav-tg {
-    width: 24px;
-    height: 24px;
+  .b365-nav-spin {
+    width: 56px;
+    height: 56px;
+    margin-top: -26px;
   }
 }
 
@@ -188,6 +271,11 @@
 @media (prefers-reduced-motion: reduce) {
   .b365-bottom-nav-item:active {
     transform: none;
+  }
+
+  .b365-nav-spin__disc,
+  .b365-nav-spin__pointer {
+    animation: none;
   }
 
   .b365-bottom-nav-item.active .b365-bottom-nav-icon,

@@ -3,6 +3,9 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useNavDrawerStore } from '../features/nav/navDrawerStore';
 import { useSessionStore } from '../features/auth/sessionStore';
 import WalletBalanceSummary from './WalletBalanceSummary';
+import SupportLink from './SupportLink';
+import TelegramGlyph from './TelegramGlyph';
+import { SUPPORT_TELEGRAM_HANDLE } from '../config/support';
 
 type NavItem = {
   to: string;
@@ -216,6 +219,12 @@ export default function NavDrawer({
                 </NavLink>
               );
             })}
+            <SupportLink className="b365-nav-drawer-link" aria-label={`Support on Telegram, @${SUPPORT_TELEGRAM_HANDLE}`}>
+              <span className="b365-nav-drawer-link-icon">
+                <TelegramGlyph size={18} />
+              </span>
+              <span>Support</span>
+            </SupportLink>
           </nav>
 
           {loggedIn && (
