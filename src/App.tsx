@@ -30,6 +30,8 @@ export default function App() {
     <>
       <Routes>
         <Route path="/keno" element={<KenoPage />} />
+        <Route path="/bingo" element={<BingoPage />} />
+        <Route path="/bingo/:stake" element={<BingoPage />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<SportsHomePage />} />
           <Route path="sport-new" element={<SportsHomePage />} />
@@ -39,8 +41,6 @@ export default function App() {
           <Route path="my-bets" element={<MyBetsPage />} />
           <Route path="wallet" element={<WalletPage />} />
           <Route path="spin" element={<SpinPage />} />
-          <Route path="bingo" element={<BingoPage />} />
-          <Route path="bingo/:stake" element={<BingoPage />} />
           <Route path="invite" element={<InvitePage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="sport/:sportId" element={<SportMatchesPage />} />

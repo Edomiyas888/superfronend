@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSessionStore } from '../features/auth/sessionStore';
+import { fetchBalance } from '../features/wallet/walletApi';
+import { formatMoney } from '../features/wallet/transactionLabels';
 import {
   claimBingo,
   joinBingo,
@@ -539,6 +541,55 @@ function Room({ stake, state, error }: { stake: number; state: BingoState | null
   );
 }
 
+/** Full-screen top bar (Super Bingo runs outside the main layout, like Fast Keno). */
+function BingoTopBar() {
+  const { username, hydrate, isTelegramApp } = useSessionStore();
+  const loggedIn = Boolean(username);
+  const walletQ = useQuery({
+    queryKey: ['wallet', 'header'],
+    queryFn: () => fetchBalance(useSessionStore.getState().getAuthHeader()),
+    enabled: loggedIn,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+
+  useEffect(() => {
+    if (!isTelegramApp) void hydrate();
+  }, [hydrate, isTelegramApp]);
+
+  useEffect(() => {
+    const onWallet = () => void walletQ.refetch();
+    window.addEventListener('superbet:wallet-changed', onWallet);
+    return () => window.removeEventListener('superbet:wallet-changed', onWallet);
+  }, [walletQ]);
+
+  const data = walletQ.data;
+  // Same total as the main header: cash plus the cash bonus.
+  const balance =
+    data && data.status !== 'error' ? Number(data.balance ?? 0) + Number(data.promo?.balance ?? 0) : null;
+
+  return (
+    <header className="b365-bingo-topbar">
+      <Link to="/" className="b365-bingo-topbar__home" aria-label="Back to SuperBet home">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </Link>
+      <span className="b365-bingo-topbar__brand">Super Bingo</span>
+      {loggedIn ? (
+        <Link to="/wallet" className="b365-bingo-topbar__wallet">
+          <span>{balance == null ? '…' : `${formatMoney(balance)} ETB`}</span>
+          <strong>Deposit</strong>
+        </Link>
+      ) : (
+        <Link to="/profile" className="b365-bingo-topbar__wallet">
+          <strong>Log in</strong>
+        </Link>
+      )}
+    </header>
+  );
+}
+
 export default function BingoPage() {
   const { stake } = useParams();
   const { state, error } = useBingoState();
@@ -554,8 +605,20 @@ export default function BingoPage() {
     return () => window.removeEventListener('pointerdown', unlock);
   }, []);
 
-  if (stake && (BINGO_STAKES as readonly number[]).includes(stakeNum)) {
-    return <Room stake={stakeNum} state={state} error={error} />;
-  }
-  return <Lobby state={state} error={error} />;
+  useEffect(() => {
+    document.documentElement.classList.add('bingo-page');
+    return () => document.documentElement.classList.remove('bingo-page');
+  }, []);
+
+  const inRoom = Boolean(stake && (BINGO_STAKES as readonly number[]).includes(stakeNum));
+  return (
+    <div className="b365-bingo-shell">
+      <BingoTopBar />
+      {inRoom ? (
+        <Room stake={stakeNum} state={state} error={error} />
+      ) : (
+        <Lobby state={state} error={error} />
+      )}
+    </div>
+  );
 }
