@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import fastKenoLogo from '../assets/fast-keno-logo-user.png';
+import BingoBallIcon from './BingoBallIcon';
 import { useSpinStatus } from '../features/spin/spinApi';
 import { spinsLabel } from '../features/spin/spinRules';
 
@@ -54,15 +55,10 @@ const navItems = [
     ),
   },
   {
-    to: '/live',
-    label: 'Live',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.85" />
-        <circle cx="12" cy="12" r="2.75" fill="currentColor" stroke="none" />
-        <path d="M12 7v2.5M12 14.5V17M7 12h2.5M14.5 12H17" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" />
-      </svg>
-    ),
+    to: '/bingo',
+    label: 'Bingo',
+    className: 'b365-bottom-nav-item--bingo',
+    icon: <BingoBallIcon className="b365-bottom-nav-bingo-ball" />,
   },
   {
     to: '/keno',

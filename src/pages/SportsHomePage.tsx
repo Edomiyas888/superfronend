@@ -66,9 +66,9 @@ export default function SportsHomePage() {
     <div className="b365-home">
       <div className="b365-home-hero">
         <PromoBannerCarousel />
+        <HomeQuickActions />
         <HappyHourCard />
         <InvitePhonePrompt />
-        <HomeQuickActions />
       </div>
 
       <section className="b365-home-section" aria-label="Featured match">

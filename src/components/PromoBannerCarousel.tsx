@@ -12,6 +12,7 @@ import { useSpinStatus, type SpinStatus } from '../features/spin/spinApi';
 import { GRAND_PRIZE, SPIN_PRICE, SPIN_TIERS, spinsLabel } from '../features/spin/spinRules';
 import { useReferralSummary, type ReferralSummary } from '../features/referral/referralApi';
 import { GOLDEN_SEGMENTS } from '../features/referral/goldenWheel';
+import { BINGO_STAKES } from '../features/bingo/bingoRules';
 
 const AUTO_INTERVAL_MS = 6000;
 
@@ -26,7 +27,7 @@ type HeroSlide = {
   badge: string;
   title: [string, string];
   subtitle: string;
-  art: 'default' | 'keno' | 'epl';
+  art: 'default' | 'keno' | 'epl' | 'bingo';
   artImage?: string;
   footer: FooterItem[];
 };
@@ -80,11 +81,24 @@ function promoSlides(spin: SpinStatus | null | undefined, referral: ReferralSumm
 function buildHeroSlides(championsLeagueLink: string): HeroSlide[] {
   return [
   {
+    id: 'bingo',
+    to: '/bingo',
+    badge: 'Super Bingo',
+    title: ['Super Bingo', 'Play now!'],
+    subtitle: 'Buy a card, mark the balls and be first to shout BINGO.',
+    art: 'bingo',
+    footer: [
+      { icon: 'numbers', label: '75 balls' },
+      { icon: 'groups', label: 'Live rooms' },
+      { icon: 'etb', label: `From ${BINGO_STAKES[0]} ETB` },
+    ],
+  },
+  {
     id: 'main',
     to: '/',
     badge: 'Your money is safe',
     title: ['Bet on Super Bet', 'Win more!'],
-    subtitle: 'Football, live odds and fast keno in one place.',
+    subtitle: 'Football, live odds, Fast Keno and Super Bingo in one place.',
     art: 'default',
     artImage: fastSportsBannerArt,
     footer: [
@@ -147,6 +161,7 @@ function HeroBannerCard({ slide }: { slide: HeroSlide }) {
         slide.artImage ? 'b365-hero-banner--photo' : '',
         slide.id === 'main' ? 'b365-hero-banner--sports' : '',
         slide.id === 'keno' ? 'b365-hero-banner--keno' : '',
+        slide.id === 'bingo' ? 'b365-hero-banner--bingo' : '',
         slide.id === 'premier-league' ? 'b365-hero-banner--epl' : '',
         slide.id === 'champions-league' ? 'b365-hero-banner--ucl' : '',
         slide.id === 'spin' ? 'b365-hero-banner--spin' : '',

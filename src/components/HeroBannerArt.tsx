@@ -1,10 +1,11 @@
 import PremierLeagueTrophyIcon from './PremierLeagueTrophyIcon';
+import BingoBallIcon from './BingoBallIcon';
 
 function HeroBannerArt({
   variant = 'default',
   imageSrc,
 }: {
-  variant?: 'default' | 'keno' | 'epl';
+  variant?: 'default' | 'keno' | 'epl' | 'bingo';
   imageSrc?: string;
 }) {
   if (imageSrc) {
@@ -29,6 +30,15 @@ function HeroBannerArt({
       <div className="b365-hero-banner__art b365-hero-banner__art--epl" aria-hidden="true">
         <span className="b365-hero-banner__art-glow" />
         <PremierLeagueTrophyIcon className="b365-hero-banner__epl-trophy" animated />
+      </div>
+    );
+  }
+
+  if (variant === 'bingo') {
+    return (
+      <div className="b365-hero-banner__art b365-hero-banner__art--bingo" aria-hidden="true">
+        <BingoBallIcon className="b365-hero-banner__bingo-ball" />
+        <BingoBallIcon className="b365-hero-banner__bingo-ball b365-hero-banner__bingo-ball--small" />
       </div>
     );
   }

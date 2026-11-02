@@ -117,6 +117,23 @@
   transform: translateY(-1px) scale(1.04);
 }
 
+.b365-bottom-nav-bingo-ball {
+  display: block;
+  width: 22px;
+  height: 22px;
+  opacity: 0.8;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.b365-bottom-nav-item.active .b365-bottom-nav-bingo-ball {
+  opacity: 1;
+  transform: translateY(-1px) scale(1.06);
+}
+
+.b365-bottom-nav-item--bingo.active .b365-bottom-nav-label {
+  color: #c8ff00;
+}
+
 .b365-bottom-nav-item.active .b365-bottom-nav-label {
   color: #facc15;
 }

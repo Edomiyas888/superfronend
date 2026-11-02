@@ -7,7 +7,7 @@ import betSlipsIcon from '../assets/home-bet-slips.webp';
 const actions = [
   {
     to: '/bingo',
-    label: 'Bingo',
+    label: 'Super Bingo',
     className: 'b365-home-action--bingo',
     kind: 'bingo' as const,
   },
