@@ -1,4 +1,4 @@
-/** Home: hero promos + featured match + popular / upcoming lists. */
+/** Home: hero promos + featured match + popular / upcoming / live lists. */
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { GameView } from '../api/types';
@@ -6,6 +6,8 @@ import { useSports } from '../contexts/SportsContext';
 import { useUpcomingMatches } from '../hooks/useUpcomingMatches';
 import { usePopularMatches } from '../hooks/usePopularMatches';
 import { usePremierLeagueMatches } from '../hooks/usePremierLeagueMatches';
+import { useLiveMatches } from '../hooks/useLiveMatches';
+import { DEFAULT_INPLAY_SPORT_ALIAS } from '../constants/inPlayDefaults';
 import DateFilterChips from '../components/DateFilterChips';
 import MatchListByDate from '../components/MatchListByDate';
 import MatchOfTheDay from '../components/MatchOfTheDay';
@@ -41,6 +43,8 @@ export default function SportsHomePage() {
   // The Premier League chip gets its own precise (England-scoped) feed.
   const premierLeagueQ = usePremierLeagueMatches('week');
   const upcomingQ = useUpcomingMatches('Soccer', featuredDate);
+  // Same feed (and cache) as In-Play's default view.
+  const liveQ = useLiveMatches(DEFAULT_INPLAY_SPORT_ALIAS);
 
   // The Champions League plays every two or three weeks; between matchdays its 3-day window is
   // empty, so open on the Premier League rather than an empty list. While loading, assume it plays.
@@ -120,6 +124,27 @@ export default function SportsHomePage() {
           error={upcomingQ.error}
           emptyMessage="No upcoming Soccer fixtures in this date range."
           maxGames={16}
+        />
+      </section>
+
+      <section className="b365-home-block b365-home-block--spaced">
+        <div className="b365-home-section__head">
+          <h2 className="b365-home-section__title">Live</h2>
+          <Link to="/live" className="b365-home-section__link">
+            See all
+          </Link>
+        </div>
+        <div className="b365-league-header">
+          Soccer · Live now{liveQ.data?.length ? ` · ${liveQ.data.length}` : ''}
+        </div>
+        <MatchListByDate
+          games={liveQ.data}
+          isPending={liveQ.isPending}
+          isError={liveQ.isError}
+          error={liveQ.error}
+          emptyMessage="No live Soccer games right now."
+          maxGames={10}
+          liveMode
         />
       </section>
     </div>

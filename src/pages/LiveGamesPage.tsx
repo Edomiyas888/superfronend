@@ -2,7 +2,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSportsWithCounts } from '../api/swarmClient';
-import { restGetLiveGames } from '../api/restSports';
+import { useLiveMatches } from '../hooks/useLiveMatches';
 import LiveMatchFilters from '../components/LiveMatchFilters';
 import MatchListByDate from '../components/MatchListByDate';
 import { resolveInPlaySportAlias } from '../constants/inPlayDefaults';
@@ -52,11 +52,7 @@ export default function LiveGamesPage() {
     staleTime: 25_000,
   });
 
-  const q = useQuery({
-    queryKey: ['live-games', sportAlias ?? 'all'],
-    queryFn: () => restGetLiveGames({ sportAlias }),
-    refetchInterval: 20_000,
-  });
+  const q = useLiveMatches(sportAlias);
 
   const regions = useMemo(() => extractRegions(q.data), [q.data]);
   const competitions = useMemo(
