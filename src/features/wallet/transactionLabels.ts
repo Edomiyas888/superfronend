@@ -20,6 +20,7 @@ const LABELS: Record<string, string> = {
   free_bet_expire: 'Free bet expired',
   bonus_credit: 'Bonus received',
   bonus_convert: 'Bonus unlocked',
+  bonus_expire: 'Bonus expired',
   spin_purchase: 'Spin bought',
   spin_refund: 'Spin refund',
   bingo_stake: 'Super Bingo card',

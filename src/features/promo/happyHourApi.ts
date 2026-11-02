@@ -14,8 +14,11 @@ export type HappyHourEvent = {
   live: boolean;
 };
 
-/** Bonus play-through: bet `multiplier` × the bonus on bets with total odds above `minOdds`. */
-export type HappyHourRules = { multiplier: number; minOdds: number };
+/**
+ * Bonus play-through: bet `multiplier` × the bonus on bets with total odds above `minOdds`,
+ * within `expiryHours` (0 or missing = no time limit).
+ */
+export type HappyHourRules = { multiplier: number; minOdds: number; expiryHours?: number };
 
 /** A signed-in player's Keno Happy Hour so far (cash tickets in the window). */
 export type KenoCashbackProgress = {

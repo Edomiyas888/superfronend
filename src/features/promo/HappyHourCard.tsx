@@ -111,7 +111,15 @@ export default function HappyHourCard({ onDeposit }: Props) {
 
   if (!data) return null;
   if (data.event.kind === 'keno') return <KenoHappyHourBanner event={data.event} me={data.me} onDeposit={onDeposit} />;
-  return <HappyHourBanner event={data.event} multiplier={data.rules.multiplier} minOdds={data.rules.minOdds} onDeposit={onDeposit} />;
+  return (
+    <HappyHourBanner
+      event={data.event}
+      multiplier={data.rules.multiplier}
+      minOdds={data.rules.minOdds}
+      expiryHours={data.rules.expiryHours ?? 0}
+      onDeposit={onDeposit}
+    />
+  );
 }
 
 function DepositButton({ onDeposit, label = 'Deposit now' }: Props & { label?: string }) {
@@ -225,8 +233,9 @@ function HappyHourBanner({
   event,
   multiplier,
   minOdds,
+  expiryHours,
   onDeposit,
-}: { event: HappyHourEvent; multiplier: number; minOdds: number } & Props) {
+}: { event: HappyHourEvent; multiplier: number; minOdds: number; expiryHours: number } & Props) {
   const startsAt = Date.parse(event.startsAt);
   const endsAt = Date.parse(event.endsAt);
   const now = useNow(endsAt);
@@ -265,7 +274,8 @@ function HappyHourBanner({
         Deposit between {eatClock(startsAt)} and {eatClock(endsAt)} and {offer}
         {event.maxBonus > 0 ? ` (up to ${event.maxBonus} ETB)` : ''}. Bonus added to your balance after your deposit is
         approved. To unlock the bonus as cash, bet {multiplier}× your bonus on bets with total odds above{' '}
-        {minOdds.toFixed(2)} — only those bets can use the bonus.
+        {minOdds.toFixed(2)}
+        {expiryHours > 0 ? ` within ${expiryHours} hours, or it expires` : ''} — only those bets can use the bonus.
       </p>
 
       {live ? <DepositButton onDeposit={onDeposit} /> : null}

@@ -35,7 +35,8 @@ export type KenoFreeTickets = {
 
 /**
  * Cash bonus (e.g. Happy Hour). Counted in the total but never withdrawable: it becomes
- * cash once `wagerRemaining` hits 0 on bets whose total odds are above `minOdds`.
+ * cash once `wagerRemaining` hits 0 on bets whose total odds are above `minOdds`, or is
+ * forfeited at `expiresAt`. `multiplier` is the default; bonuses can carry their own.
  */
 export type PromoBonus = {
   balance: number;
@@ -44,6 +45,8 @@ export type PromoBonus = {
   wagered: number;
   multiplier: number;
   minOdds: number;
+  /** ISO time the bonus is forfeited if not unlocked; null when it never expires. */
+  expiresAt?: string | null;
 };
 
 export type WalletInfo = {

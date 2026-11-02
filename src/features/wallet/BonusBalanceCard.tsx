@@ -1,6 +1,16 @@
+import { useNow } from '../promo/HappyHourCard';
 import type { PromoBonus } from './walletApi';
 import { GiftIcon } from './WalletIcons';
 import { formatMoney } from './transactionLabels';
+
+/** "5h 20m" / "12m" / "under a minute". */
+function timeLeft(ms: number) {
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 1) return 'under a minute';
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m`;
+}
 
 type Props = {
   promo: PromoBonus | null;
@@ -9,6 +19,8 @@ type Props = {
 
 /** Cash bonus and its play-through progress; renders nothing when there is no bonus running. */
 export default function BonusBalanceCard({ promo, currency }: Props) {
+  const expiresAt = promo?.expiresAt ? Date.parse(promo.expiresAt) : 0;
+  const now = useNow(expiresAt);
   if (!promo || (promo.balance <= 0 && promo.wagerRemaining <= 0)) return null;
 
   const pct = promo.wagerTotal > 0 ? Math.min(100, Math.round((promo.wagered / promo.wagerTotal) * 100)) : 0;
@@ -26,6 +38,12 @@ export default function BonusBalanceCard({ promo, currency }: Props) {
           </p>
           <p className="b365-freebet-card__sub">
             Bet {currency} {formatMoney(promo.wagerRemaining)} more at total odds above {odds} to unlock it as cash
+            {expiresAt ? (
+              <>
+                {' '}
+                · <b>{expiresAt > now ? `expires in ${timeLeft(expiresAt - now)}` : 'expired'}</b>
+              </>
+            ) : null}
           </p>
         </div>
       </div>
@@ -52,9 +70,12 @@ export default function BonusBalanceCard({ promo, currency }: Props) {
           <li>Only bets with total odds above {odds} can use the bonus or count toward unlocking it</li>
           <li>While your bonus is running, you can bet on only one outcome of each match</li>
           <li>
-            Bet {promo.multiplier}× your bonus in total and whatever is left becomes withdrawable cash
+            Bet {currency} {formatMoney(promo.wagerTotal)} in total and whatever is left becomes withdrawable cash
           </li>
           <li>Winnings from bonus money stay in your bonus balance until then</li>
+          {expiresAt ? (
+            <li>Not unlocked in time? The bonus, and what it won, expires. A new bonus restarts the clock</li>
+          ) : null}
         </ul>
       </details>
     </section>

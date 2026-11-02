@@ -126,6 +126,7 @@ export function TxIcon({ type, size = 18 }: { type: WalletTxType; size?: number 
     case 'free_bet_refund':
       return <UndoIcon size={size} />;
     case 'free_bet_expire':
+    case 'bonus_expire':
       return <ClockIcon size={size} />;
     case 'free_bet_grant':
     case 'free_bet_stake':
