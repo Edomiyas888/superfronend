@@ -913,3 +913,103 @@ function flattenGamesFromNestedSport(data: unknown, debugTag = 'flatten'): GameV
   });
   return rows.sort((a, b) => a.startTs - b.startTs);
 }
+
+/** One-off (unsubscribed) `get` replies nest the tree one level deeper: `{ data: { sport } }`. */
+function unwrapOneOffTree(res: SwarmResponse<unknown>): unknown {
+  const data = unwrapData(res) as { data?: unknown } | undefined;
+  return data && typeof data === 'object' && !('sport' in data) && 'data' in data ? data.data : data;
+}
+
+/** Live and upcoming games whose team name contains `query` (Swarm `@like`, case-insensitive). */
+export async function restSearchGames(query: string): Promise<GameView[]> {
+  const like = { eng: query.trim() };
+  const res = await swarmPost({
+    command: 'get',
+    params: {
+      source: 'betting',
+      what: {
+        sport: ['id', 'name', 'alias'],
+        region: ['id', 'name'],
+        competition: ['id', 'name'],
+        game: [
+          'id',
+          'team1_name',
+          'team2_name',
+          'team1_id',
+          'team2_id',
+          'start_ts',
+          'markets_count',
+          'is_blocked',
+          'is_live',
+          'type',
+          'info',
+          'text_info',
+        ],
+        market: ['name', 'type', 'id', 'base', 'home_score', 'away_score'],
+        event: ['name', 'type', 'id', 'price', 'base'],
+      },
+      where: {
+        game: {
+          '@and': [
+            { type: { '@in': [0, 1, 2] } },
+            { '@or': [{ team1_name: { '@like': like } }, { team2_name: { '@like': like } }] },
+          ],
+          '@limit': 40,
+        },
+        market: { type: { '@in': MATCH_RESULT_TYPES } },
+      },
+    },
+  });
+  return keepBettableGames(flattenGamesFromNestedSport(unwrapOneOffTree(res), 'search'));
+}
+
+export type CompetitionHit = {
+  id: number;
+  name: string;
+  regionName: string;
+  sportId: number;
+  sportAlias: string;
+  sportName: string;
+  gameCount: number;
+};
+
+/** Leagues whose name contains `query` and that have games on, biggest first. Outrights and specials are left out. */
+export async function restSearchCompetitions(query: string): Promise<CompetitionHit[]> {
+  const res = await swarmPost({
+    command: 'get',
+    params: {
+      source: 'betting',
+      what: {
+        sport: ['id', 'name', 'alias'],
+        region: ['id', 'name'],
+        competition: ['id', 'name'],
+        game: '@count',
+      },
+      where: {
+        competition: { name: { '@like': { eng: query.trim() } } },
+        game: { type: { '@in': [0, 1, 2] } },
+      },
+    },
+  });
+  const tree = unwrapOneOffTree(res) as {
+    sport?: Record<string, { id: number; name: string; alias: string; region?: Record<string, { name: string; competition?: Record<string, { id: number; name: string; game?: number }> }> }>;
+  };
+  const hits: CompetitionHit[] = [];
+  for (const sport of Object.values(tree?.sport ?? {})) {
+    for (const region of Object.values(sport.region ?? {})) {
+      for (const comp of Object.values(region.competition ?? {})) {
+        if (/outright|statistics|special/i.test(comp.name)) continue;
+        hits.push({
+          id: comp.id,
+          name: comp.name,
+          regionName: region.name,
+          sportId: sport.id,
+          sportAlias: sport.alias,
+          sportName: sport.name,
+          gameCount: Number(comp.game) || 0,
+        });
+      }
+    }
+  }
+  return hits.sort((a, b) => b.gameCount - a.gameCount);
+}

@@ -24,6 +24,7 @@ import './styles/happy-hour.css';
 import './styles/spin.css';
 import './styles/bingo.css';
 import './styles/invite.css';
+import './styles/search.css';
 
 export default function App() {
   return (

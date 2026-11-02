@@ -1,0 +1,163 @@
+/* Universal search — full-screen sheet opened from the header search button. */
+.b365-search {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  background: var(--b365-bg-deep);
+  color: var(--b365-text);
+}
+
+.b365-search__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
+  background: var(--b365-header-bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.b365-search__field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 10px 0 12px;
+  color: var(--b365-text-dim);
+  background: var(--b365-surface);
+  border: 1px solid var(--b365-border);
+  border-radius: 12px;
+}
+
+.b365-search__field:focus-within {
+  border-color: rgba(250, 204, 21, 0.55);
+}
+
+.b365-search__field input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  font: inherit;
+  font-size: 16px; /* 16px stops iOS zooming in on focus */
+  color: var(--b365-text);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.b365-search__field input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.b365-search__clear {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--b365-text-muted);
+  background: rgba(255, 255, 255, 0.08);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.b365-search__cancel {
+  flex-shrink: 0;
+  padding: 8px 2px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #facc15;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.b365-search__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.b365-search__heading {
+  margin: 16px 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--b365-text-dim);
+}
+
+.b365-search__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.b365-search__chip {
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--b365-text);
+  text-decoration: none;
+  background: var(--b365-surface);
+  border: 1px solid var(--b365-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.b365-search__chip--ghost {
+  color: var(--b365-text-muted);
+  background: transparent;
+}
+
+.b365-search__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  background: var(--b365-surface);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.b365-search__list li + li {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.b365-search__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 11px 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.b365-search__row:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.b365-search__row-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.b365-search__row-hint {
+  font-size: 0.75rem;
+  color: var(--b365-text-dim);
+}
+
+.b365-search__note {
+  margin: 16px 0;
+  font-size: 0.85rem;
+  color: var(--b365-text-muted);
+}

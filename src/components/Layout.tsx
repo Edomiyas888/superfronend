@@ -14,6 +14,8 @@ import AppFooter from './AppFooter';
 import { useBetslipOddsSync } from '../hooks/useBetslipOddsSync';
 import { useNavDrawerStore } from '../features/nav/navDrawerStore';
 import FreeBetWelcome from '../features/freeBet/FreeBetWelcome';
+import SearchOverlay from '../features/search/SearchOverlay';
+import { useSearchStore } from '../features/search/searchStore';
 
 function isHomeRoute(pathname: string): boolean {
   return pathname === '/' || pathname === '/sport-new';
@@ -26,6 +28,7 @@ export default function Layout() {
   const loggedIn = !!(username && username.length > 0);
   const showHeaderBack = !isHomeRoute(location.pathname);
   const openNavDrawer = useNavDrawerStore((s) => s.open);
+  const openSearch = useSearchStore((s) => s.open);
 
   const walletQ = useQuery({
     queryKey: ['wallet', 'header'],
@@ -138,6 +141,13 @@ export default function Layout() {
               </div>
             )}
 
+            <button type="button" className="b365-header-icon-btn" aria-label="Search" onClick={openSearch}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.75" />
+                <path d="m16 16 4 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+              </svg>
+            </button>
+
             <button
               type="button"
               className="b365-header-icon-btn"
@@ -182,6 +192,8 @@ export default function Layout() {
         freeBet={walletQ.data?.freeBet}
         currency={balanceCurrency}
       />
+
+      <SearchOverlay />
 
       <NavDrawer
         loggedIn={loggedIn}
