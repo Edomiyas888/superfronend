@@ -92,12 +92,10 @@ export default function BetslipContent({ onClose }: Props) {
     return acc * (ev.price || 1);
   }, 1);
 
-  // Cash bonus can top up the stake only when the total odds, rounded as shown, are above
-  // its threshold (the API enforces the same rule).
-  const promo = walletQ.data?.promo ?? null;
-  const promoBalance = promo?.balance ?? 0;
-  const bonusOddsOk = promo != null && ids.length > 0 && Math.round(combinedOdds * 100) / 100 > promo.minOdds;
-  const balance = cashBalance == null ? null : cashBalance + (bonusOddsOk ? promoBalance : 0);
+  // Only cash pays a stake: a bonus can't be bet until its play-through unlocks it as cash
+  // (the API enforces the same rule).
+  const promoBalance = walletQ.data?.promo?.balance ?? 0;
+  const balance = cashBalance;
 
   const totalStake = isAccumulator
     ? stake
@@ -433,14 +431,9 @@ export default function BetslipContent({ onClose }: Props) {
             {stakeTooHigh ? (
               <p className="b365-slip-notice b365-slip-notice--error">
                 Insufficient balance ({balance?.toFixed(2)} available).
-                {promo && promoBalance > 0 && !bonusOddsOk && cashBalance != null && totalStake > cashBalance
-                  ? ` Your ${currency} ${promoBalance.toFixed(2)} bonus can only be used on bets with total odds above ${promo.minOdds.toFixed(2)}.`
+                {promoBalance > 0
+                  ? ` Your ${currency} ${promoBalance.toFixed(2)} bonus can't be used to bet until it's unlocked as cash.`
                   : ''}
-              </p>
-            ) : null}
-            {!stakeTooHigh && !freeBetOn && promo && bonusOddsOk && cashBalance != null && totalStake > cashBalance ? (
-              <p className="b365-slip-notice">
-                {currency} {(totalStake - cashBalance).toFixed(2)} of this stake comes from your bonus balance.
               </p>
             ) : null}
             {!loggedIn ? <p className="b365-slip-notice">Sign in to place bets.</p> : null}

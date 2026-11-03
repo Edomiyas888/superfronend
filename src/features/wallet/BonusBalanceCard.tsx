@@ -65,14 +65,12 @@ export default function BonusBalanceCard({ promo, currency }: Props) {
       <details className="b365-freebet-card__rules">
         <summary>How it works</summary>
         <ul>
-          <li>Your bonus is part of your total balance and can be used on sports bets</li>
-          <li>Cash is used first; the bonus covers the rest</li>
-          <li>Only bets with total odds above {odds} can use the bonus or count toward unlocking it</li>
+          <li>Your bonus can&apos;t be used to place bets until it is unlocked as cash</li>
+          <li>Bets you place with cash at total odds above {odds} count toward unlocking it</li>
           <li>While your bonus is running, you can bet on only one outcome of each match</li>
           <li>
-            Bet {currency} {formatMoney(promo.wagerTotal)} in total and whatever is left becomes withdrawable cash
+            Bet {currency} {formatMoney(promo.wagerTotal)} in total and your bonus becomes withdrawable cash
           </li>
-          <li>Winnings from bonus money stay in your bonus balance until then</li>
           {expiresAt ? (
             <li>Not unlocked in time? The bonus, and what it won, expires. A new bonus restarts the clock</li>
           ) : null}
